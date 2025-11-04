@@ -1,4 +1,4 @@
-const API_URL = 'https://monster-app-ocdj.onrender.com/api';
+// config.js contiene API_URL globalmente
 
 document.addEventListener('DOMContentLoaded', () => {
   const token = localStorage.getItem('token');
@@ -8,7 +8,10 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   const username = localStorage.getItem('username');
-  document.getElementById('nomeUtente').textContent = username;
+  const nomeElement = document.getElementById('nomeUtente');
+  if (nomeElement) {
+    nomeElement.textContent = username;
+  }
 
   caricaStatistiche();
   verificaAdmin();
@@ -17,6 +20,8 @@ document.addEventListener('DOMContentLoaded', () => {
 async function caricaStatistiche() {
   try {
     console.log('Caricamento statistiche...');
+    console.log('Token:', localStorage.getItem('token'));
+    
     const response = await fetch(`${API_URL}/statistiche`, {
       headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
     });
@@ -25,13 +30,19 @@ async function caricaStatistiche() {
 
     if (response.ok) {
       const data = await response.json();
-      console.log('Dati:', data);
+      console.log('Dati ricevuti:', data);
 
-      document.getElementById('mostriPosseduti').textContent = data.mostriPosseduti;
-      document.getElementById('mostriTotali').textContent = data.mostriTotali;
-      document.getElementById('variantiTotali').textContent = data.variantiTotali;
-      document.getElementById('percentuale').textContent = data.percentuale + '%';
-      document.getElementById('progressFill').style.width = data.percentuale + '%';
+      const mostriElement = document.getElementById('mostriPosseduti');
+      const totaliElement = document.getElementById('mostriTotali');
+      const variantiElement = document.getElementById('variantiTotali');
+      const percentElement = document.getElementById('percentuale');
+      const fillElement = document.getElementById('progressFill');
+
+      if (mostriElement) mostriElement.textContent = data.mostriPosseduti;
+      if (totaliElement) totaliElement.textContent = data.mostriTotali;
+      if (variantiElement) variantiElement.textContent = data.variantiTotali;
+      if (percentElement) percentElement.textContent = data.percentuale + '%';
+      if (fillElement) fillElement.style.width = data.percentuale + '%';
     } else {
       console.error('Errore:', response.status);
       const error = await response.json();
@@ -42,11 +53,13 @@ async function caricaStatistiche() {
   }
 }
 
-async function verificaAdmin() {
+function verificaAdmin() {
   const ruolo = localStorage.getItem('ruolo');
   if (ruolo === 'admin') {
-    document.getElementById('linkAdmin').style.display = 'block';
-    document.getElementById('linkUsers').style.display = 'block';
+    const linkAdmin = document.getElementById('linkAdmin');
+    const linkUsers = document.getElementById('linkUsers');
+    if (linkAdmin) linkAdmin.style.display = 'block';
+    if (linkUsers) linkUsers.style.display = 'block';
   }
 }
 
