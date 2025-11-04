@@ -1,8 +1,13 @@
 const express = require('express');
+const cors = require('cors');
 const mongoose = require('mongoose');
 require('dotenv').config();
 
 const app = express();
+app.use(cors({
+  origin: ['https://monster-app-xxxx.netlify.app', 'http://localhost:3000'],
+  credentials: true
+}));
 app.use(express.json());
 app.use(express.static('public'));
 app.use('/uploads', express.static('uploads')); // ← DEVE ESSERCI
