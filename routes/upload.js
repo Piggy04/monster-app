@@ -2,8 +2,15 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
 const adminAuth = require('../middleware/adminAuth');
 const Variante = require('../models/Variante');
+
+// Crea la cartella uploads se non esiste
+const uploadsDir = path.join(__dirname, '../uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
 
 // Configurazione Multer
 const storage = multer.diskStorage({
