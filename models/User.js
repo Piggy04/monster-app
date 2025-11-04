@@ -26,7 +26,13 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: ['light', 'dark', 'green', 'purple'],
     default: 'light'
-  }
+  },
+  collezione: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Variante'
+    }
+  ]
 }, { timestamps: true });
 
 userSchema.pre('save', async function(next) {
