@@ -12,14 +12,17 @@ function mostraRegister() {
   document.querySelectorAll('.tab')[1].classList.add('active');
 }
 
-function togglePassword(inputId) {
+function togglePassword(inputId, button) {
   const input = document.getElementById(inputId);
   if (input.type === 'password') {
     input.type = 'text';
+    button.textContent = 'nascondi';
   } else {
     input.type = 'password';
+    button.textContent = 'mostra';
   }
 }
+
 
 
 const token = localStorage.getItem('token');
@@ -93,14 +96,13 @@ document.getElementById('formRegister').addEventListener('submit', async (e) => 
   e.preventDefault();
   
   const username = document.getElementById('registerUsername').value;
-  const email = document.getElementById('registerEmail').value;
   const password = document.getElementById('registerPassword').value;
   
   try {
     const response = await fetch(`${API_URL}/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, email, password })
+      body: JSON.stringify({ username, password })
     });
     
     if (response.ok) {
@@ -118,5 +120,6 @@ document.getElementById('formRegister').addEventListener('submit', async (e) => 
     document.getElementById('erroreRegister').textContent = 'Errore connessione';
   }
 });
+
 
 mostraLogin();

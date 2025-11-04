@@ -680,11 +680,12 @@ body {
   display: flex;
   align-items: center;
   margin-bottom: 12px;
+  gap: 8px;
 }
 
 .input-group input {
   flex: 1;
-  padding: 10px 30px 10px 10px;
+  padding: 10px;
   border: 1px solid var(--border-color);
   border-radius: 4px;
   font-size: 14px;
@@ -692,20 +693,21 @@ body {
   color: var(--text-primary);
 }
 
-.toggle-password {
-  position: absolute;
-  right: 8px;
+.toggle-link {
   background: none;
   border: none;
+  color: var(--accent-color);
   cursor: pointer;
-  font-size: 12px;  /* ← Ancora più piccolo */
-  padding: 0px;     /* ← Niente padding */
-  color: #999;
-  line-height: 1;
-  min-width: 6px;  /* ← Larghezza minima */
+  font-size: 12px;
+  font-weight: 600;
+  padding: 0;
+  white-space: nowrap;
+  text-decoration: underline;
+  transition: 0.2s;
 }
 
-.toggle-password:hover {
-  opacity: 0.7;
+.toggle-link:hover {
+  color: var(--accent-hover);
+  opacity: 0.8;
 }
 
