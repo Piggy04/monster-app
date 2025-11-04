@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="sidebar">
+    <h2>🥤 Monster</h2>
+    <nav>
+      <a href="collezione.html">La Mia Collezione</a>
+      <a href="admin.html" class="active">Gestione Contenuti</a>
+      <a href="users.html">Gestione Utenti</a>
+      <a href="#" onclick="logout()">Logout</a>
+    </nav>
+  </div>
+
+  <div class="main-content">
+    <div class="header">
+      <div>
+        <h1>Pannello Amministrazione</h1>
+        <p class="admin-badge">👑 Admin</p>
+      </div>
+    </div>
+
+    <div id="accessoNegato" style="display:none;">
+      <div class="card">
+        <h2 style="color: #e74c3c;">🚫 Accesso Negato</h2>
+        <p>Solo gli amministratori possono accedere a questa pagina.</p>
+        <a href="collezione.html" style="color: #3498db;">← Torna alla Collezione</a>
+      </div>
+    </div>
+
+    <div id="adminContent">
+      <div class="admin-tabs">
+        <button class="admin-tab active" onclick="mostraTab('aggiungi')">➕ Aggiungi</button>
+        <button class="admin-tab" onclick="mostraTab('gestisci')">✏️ Gestisci</button>
+      </div>
+
+      <div id="tabAggiungi" class="tab-content">
+        <div class="admin-grid">
+          <div class="card">
+            <h3>➕ Aggiungi Categoria</h3>
+            <form id="formCategoria">
+              <input type="text" id="nomeCategoria" placeholder="Nome categoria (es: Ultra)" required>
+              <input type="number" id="ordineCategoria" placeholder="Ordine" value="0">
+              <button type="submit">Aggiungi Categoria</button>
+            </form>
+            <p class="successo" id="successoCategoria"></p>
+          </div>
+
+          <div class="card">
+            <h3>🥤 Aggiungi Lattina</h3>
+            <form id="formLattina">
+              <select id="categoriaLattina" required>
+                <option value="">Seleziona categoria</option>
+              </select>
+              <input type="text" id="nomeLattina" placeholder="Nome lattina (es: Ultra White)" required>
+              <input type="number" id="ordineLattina" placeholder="Ordine" value="0">
+              <button type="submit">Aggiungi Lattina</button>
+            </form>
+            <p class="successo" id="successoLattina"></p>
+          </div>
+
+          <div class="card">
+            <h3>🎨 Aggiungi Variante</h3>
+            <form id="formVariante">
+              <select id="categoriaVariante" required onchange="caricaLattineVariante()">
+                <option value="">Seleziona categoria</option>
+              </select>
+              <select id="lattinaVariante" required>
+                <option value="">Prima seleziona categoria</option>
+              </select>
+              <input type="text" id="nomeVariante" placeholder="Nome variante (es: Edizione USA 2023)" required>
+              <input type="number" id="ordineVariante" placeholder="Ordine" value="0">
+              <button type="submit">Aggiungi Variante</button>
+            </form>
+            <p class="successo" id="successoVariante"></p>
+          </div>
+        </div>
+      </div>
+
+      <div id="tabGestisci" class="tab-content" style="display:none;">
+        <div class="gestione-container" id="gestioneContainer">
+          <p>Caricamento...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Modifica -->
+  <div id="modalModifica" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="chiudiModal()">&times;</span>
+      <h2 id="modalTitolo">Modifica</h2>
+      <form id="formModifica">
+        <input type="hidden" id="modificaId">
+        <input type="hidden" id="modificaTipo">
+        <input type="text" id="modificaNome" placeholder="Nome" required>
+        <input type="number" id="modificaOrdine" placeholder="Ordine" value="0">
+        <button type="submit">Salva Modifiche</button>
+      </form>
+      
+      <!-- Upload immagine per variante -->
+      <div id="uploadForm" class="upload-form" style="display:none;">
+        <h3>📷 Upload Immagine</h3>
+        <input type="file" id="uploadImage" accept="image/*">
+        <button type="button" onclick="caricaImmagine()">Carica Immagine</button>
+        <img id="previewImage" class="upload-preview" style="display:none;">
+      </div>
+    </div>
+  </div>
+
+  <script src="theme.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>

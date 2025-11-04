@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>La Mia Collezione</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="sidebar">
+  <h2>🥤 Monster</h2>
+  <nav>
+    <a href="collezione.html" class="active">La Mia Collezione</a>
+    <a href="admin.html" id="linkAdmin" style="display:none;">Gestione Contenuti</a>
+    <a href="users.html" id="linkUsers" style="display:none;">Gestione Utenti</a>
+    <a href="#" onclick="logout()">Logout</a>
+  </nav>
+</div>
+
+
+  <div class="main-content">
+    <div class="header">
+      <h1>La Mia Collezione</h1>
+      <p id="nomeUtente"></p>
+    </div>
+
+    <div id="collezioneContainer" class="collezione-container">
+      <p>Caricamento...</p>
+    </div>
+  </div>
+
+  
+  <script src="theme.js"></script>
+  <script src="collezione.js"></script>
+</body>
+</html>
