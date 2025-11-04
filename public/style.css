@@ -702,7 +702,7 @@ body {
   padding: 0px;     /* ← Niente padding */
   color: #999;
   line-height: 1;
-  min-width: 16px;  /* ← Larghezza minima */
+  min-width: 6px;  /* ← Larghezza minima */
 }
 
 .toggle-password:hover {
