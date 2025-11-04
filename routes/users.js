@@ -4,6 +4,7 @@ const adminAuth = require('../middleware/adminAuth');
 const auth = require('../middleware/auth');
 const User = require('../models/User');
 
+
 // GET lista tutti gli utenti (solo admin)
 router.get('/', adminAuth, async (req, res) => {
   try {
@@ -15,6 +16,7 @@ router.get('/', adminAuth, async (req, res) => {
     res.status(500).json({ errore: 'Errore recupero utenti' });
   }
 });
+
 
 // PUT aggiorna ruolo utente (solo admin)
 router.put('/:id/ruolo', adminAuth, async (req, res) => {
@@ -41,6 +43,7 @@ router.put('/:id/ruolo', adminAuth, async (req, res) => {
   }
 });
 
+
 // DELETE elimina utente (solo admin)
 router.delete('/:id', adminAuth, async (req, res) => {
   try {
@@ -54,6 +57,7 @@ router.delete('/:id', adminAuth, async (req, res) => {
   }
 });
 
+
 // PUT aggiorna tema utente (tutti gli utenti per se stessi)
 router.put('/me/tema', auth, async (req, res) => {
   try {
@@ -64,7 +68,7 @@ router.put('/me/tema', auth, async (req, res) => {
     }
     
     const utente = await User.findByIdAndUpdate(
-      req.utente_id,
+      req.user.id,  // ← CAMBIA QUI
       { tema },
       { new: true }
     ).select('-password');
@@ -75,14 +79,16 @@ router.put('/me/tema', auth, async (req, res) => {
   }
 });
 
+
 // GET info utente corrente
 router.get('/me', auth, async (req, res) => {
   try {
-    const utente = await User.findById(req.utente_id).select('-password');
+    const utente = await User.findById(req.user.id).select('-password');  // ← CAMBIA QUI
     res.json(utente);
   } catch (errore) {
     res.status(500).json({ errore: 'Errore recupero utente' });
   }
 });
+
 
 module.exports = router;
