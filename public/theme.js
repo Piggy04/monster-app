@@ -1,4 +1,3 @@
-const API_URL = 'https://monster-app-ocdj.onrender.com/api';
 
 // Carica tema salvato
 async function caricaTema() {
@@ -6,20 +5,19 @@ async function caricaTema() {
   if (!token) return;
   
   try {
-    const response = await fetch(`${API_URL}/users/me`, {
+    const response = await fetch(`${API_URL}/auth/me`, {  // ← CAMBIA in /auth/me
       headers: { 'Authorization': `Bearer ${token}` }
     });
     
     if (response.ok) {
       const utente = await response.json();
       applicaTema(utente.tema);
-      console.log('Tema caricato:', utente.tema); // ← AGGIUNGI QUESTA RIGA
+      console.log('Tema caricato:', utente.tema);
     }
   } catch (errore) {
-    console.error('Errore caricamento tema:', errore); // ← E QUESTA
+    console.error('Errore caricamento tema:', errore);
   }
 }
-
 
 // Applica tema
 function applicaTema(tema) {
@@ -42,7 +40,7 @@ async function cambiaTema(tema) {
   if (!token) return;
   
   try {
-    const response = await fetch(`${API_URL}/users/me/tema`, {
+    const response = await fetch(`${API_URL}/auth/me/tema`, {  // ← CAMBIA in /auth/me/tema
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
