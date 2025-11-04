@@ -11,6 +11,7 @@
     <h2>🥤 Monster</h2>
     <nav>
       <a href="collezione.html">La Mia Collezione</a>
+      <a href="statistiche.html">Statistiche</a>
       <a href="admin.html">Gestione Contenuti</a>
       <a href="users.html" class="active">Gestione Utenti</a>
       <a href="#" onclick="logout()">Logout</a>
@@ -55,8 +56,19 @@
     </div>
   </div>
 
-    <script src="theme.js"></script>
-  <script src="users.js"></script>
+  <!-- THEME SELECTOR -->
+  <div class="theme-selector">
+    <h4>Tema</h4>
+    <div class="theme-buttons">
+      <button class="theme-btn light active" onclick="cambiaTema('light')" title="Light"></button>
+      <button class="theme-btn dark" onclick="cambiaTema('dark')" title="Dark"></button>
+      <button class="theme-btn green" onclick="cambiaTema('green')" title="Green"></button>
+      <button class="theme-btn purple" onclick="cambiaTema('purple')" title="Purple"></button>
+    </div>
+  </div>
 
+  <script src="config.js"></script>
+  <script src="theme.js"></script>
+  <script src="users.js"></script>
 </body>
 </html>
