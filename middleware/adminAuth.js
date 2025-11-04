@@ -14,7 +14,7 @@ module.exports = function(req, res, next) {
       return res.status(403).json({ errore: 'Accesso negato: solo admin' });
     }
     
-    req.utente_id = verificato.id;
+    req.user = { id: verificato.id, ruolo: verificato.ruolo };  // ← CAMBIA QUI
     next();
   } catch (errore) {
     res.status(401).json({ errore: 'Token non valido' });
