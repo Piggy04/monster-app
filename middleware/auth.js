@@ -9,7 +9,7 @@ module.exports = function(req, res, next) {
 
   try {
     const verificato = jwt.verify(token, process.env.JWT_SECRET);
-    req.utente_id = verificato.id;
+    req.user = { id: verificato.id, ruolo: verificato.ruolo };  // ← CAMBIA QUI
     next();
   } catch (errore) {
     res.status(401).json({ errore: 'Token non valido' });
