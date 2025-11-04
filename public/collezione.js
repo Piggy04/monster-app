@@ -111,3 +111,26 @@ async function aggiornaVariante(variante_id, posseduta) {
 }
 
 caricaCollezione();
+
+async function caricaStatistiche() {
+  try {
+    const response = await fetch(`${API_URL}/statistiche`, {
+      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+    });
+    
+    if (response.ok) {
+      const data = await response.json();
+      document.getElementById('mostriPosseduti').textContent = data.mostriPosseduti;
+      document.getElementById('mostriTotali').textContent = data.mostriTotali;
+      document.getElementById('variantiTotali').textContent = data.variantiTotali;
+      document.getElementById('percentuale').textContent = data.percentuale + '%';
+      document.getElementById('progressFill').style.width = data.percentuale + '%';
+    }
+  } catch (err) {
+    console.error('Errore caricamento statistiche', err);
+  }
+}
+
+// Chiama al caricamento della pagina
+caricaStatistiche();
+
