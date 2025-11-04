@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Monster Collection - Login</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container-center">
+    <div class="card">
+      <h1>🥤 Monster Collection</h1>
+      
+      <div class="tabs">
+        <button class="tab active" onclick="mostraLogin()">Login</button>
+        <button class="tab" onclick="mostraRegister()">Registrati</button>
+      </div>
+
+      <form id="formLogin" class="form-auth">
+        <input type="email" id="loginEmail" placeholder="Email" required>
+        <input type="password" id="loginPassword" placeholder="Password" required>
+        <button type="submit">Accedi</button>
+        <p class="errore" id="erroreLogin"></p>
+      </form>
+
+      <form id="formRegister" class="form-auth" style="display:none;">
+        <input type="text" id="registerUsername" placeholder="Username" required>
+        <input type="email" id="registerEmail" placeholder="Email" required>
+        <input type="password" id="registerPassword" placeholder="Password" required>
+        <button type="submit">Registrati</button>
+        <p class="errore" id="erroreRegister"></p>
+      </form>
+    </div>
+  </div>
+
+    <script src="theme.js"></script>
+  <script src="auth.js"></script>
+
+</body>
+</html>
