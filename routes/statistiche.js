@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
 const User = require('../models/User');
-const Mostro = require('../models/Mostro');
+const Mostro = require('../models/Lattina');
 const Variante = require('../models/Variante');
 
 router.get('/', auth, async (req, res) => {
