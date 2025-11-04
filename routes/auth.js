@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const auth = require('../middleware/auth');  // ← Aggiungi questo
 
 router.post('/register', async (req, res) => {
   try {
@@ -34,6 +35,40 @@ router.post('/login', async (req, res) => {
     res.json({ token, username: user.username, ruolo: user.ruolo, tema: user.tema });
   } catch (err) {
     res.status(500).json({ errore: 'Errore login' });
+  }
+});
+
+// GET profilo utente + tema
+router.get('/me', auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    res.json({
+      username: user.username,
+      tema: user.tema
+    });
+  } catch (err) {
+    res.status(500).json({ errore: 'Errore' });
+  }
+});
+
+// PUT cambio tema
+router.put('/me/tema', auth, async (req, res) => {
+  try {
+    const { tema } = req.body;
+    
+    if (!['light', 'dark', 'green', 'purple'].includes(tema)) {
+      return res.status(400).json({ errore: 'Tema non valido' });
+    }
+    
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      { tema },
+      { new: true }
+    );
+    
+    res.json({ tema: user.tema });
+  } catch (err) {
+    res.status(500).json({ errore: 'Errore cambio tema' });
   }
 });
 
