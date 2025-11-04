@@ -743,3 +743,52 @@ body {
   width: 0%;
   transition: width 0.5s ease;
 }
+
+.statistiche-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 25px;
+  max-width: 900px;
+}
+
+.stat-card {
+  background: var(--bg-secondary);
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px var(--shadow);
+  border-left: 4px solid var(--accent-color);
+}
+
+.stat-card h3 {
+  color: var(--text-primary);
+  margin-bottom: 20px;
+  font-size: 18px;
+}
+
+.stat-big {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.stat-big .numero {
+  display: block;
+  font-size: 48px;
+  font-weight: 700;
+  color: var(--accent-color);
+}
+
+.stat-big .etichetta {
+  display: block;
+  color: var(--text-secondary);
+  font-size: 14px;
+  margin-top: 5px;
+}
+
+.percentuale {
+  display: block;
+  text-align: center;
+  color: var(--accent-color);
+  font-weight: 600;
+  margin-top: 10px;
+}
+
