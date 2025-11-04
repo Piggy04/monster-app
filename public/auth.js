@@ -1,5 +1,3 @@
-const API_URL = 'http://localhost:3000/api';
-
 function mostraLogin() {
   document.getElementById('formLogin').style.display = 'block';
   document.getElementById('formRegister').style.display = 'none';
@@ -14,6 +12,13 @@ function mostraRegister() {
   document.querySelectorAll('.tab')[1].classList.add('active');
 }
 
+const token = localStorage.getItem('token');
+
+if (token) {
+  window.location.href = 'collezione.html';
+}
+
+// Form Login
 document.getElementById('formLogin').addEventListener('submit', async (e) => {
   e.preventDefault();
   
@@ -27,23 +32,23 @@ document.getElementById('formLogin').addEventListener('submit', async (e) => {
       body: JSON.stringify({ email, password })
     });
     
-    const data = await response.json();
-    
     if (response.ok) {
+      const data = await response.json();
       localStorage.setItem('token', data.token);
-      localStorage.setItem('username', data.utente.username);
-      localStorage.setItem('email', data.utente.email);
-      localStorage.setItem('ruolo', data.utente.ruolo);
-      
+      localStorage.setItem('username', data.username);
+      localStorage.setItem('ruolo', data.ruolo);
+      localStorage.setItem('tema', data.tema || 'light');
       window.location.href = 'collezione.html';
     } else {
-      document.getElementById('erroreLogin').textContent = data.errore;
+      const data = await response.json();
+      document.getElementById('erroreLogin').textContent = data.errore || 'Errore login';
     }
   } catch (errore) {
-    document.getElementById('erroreLogin').textContent = 'Errore di connessione';
+    document.getElementById('erroreLogin').textContent = 'Errore connessione';
   }
 });
 
+// Form Register
 document.getElementById('formRegister').addEventListener('submit', async (e) => {
   e.preventDefault();
   
@@ -58,19 +63,20 @@ document.getElementById('formRegister').addEventListener('submit', async (e) => 
       body: JSON.stringify({ username, email, password })
     });
     
-    const data = await response.json();
-    
     if (response.ok) {
+      const data = await response.json();
       localStorage.setItem('token', data.token);
-      localStorage.setItem('username', data.utente.username);
-      localStorage.setItem('email', data.utente.email);
-      localStorage.setItem('ruolo', data.utente.ruolo);
-      
+      localStorage.setItem('username', data.username);
+      localStorage.setItem('ruolo', data.ruolo);
+      localStorage.setItem('tema', 'light');
       window.location.href = 'collezione.html';
     } else {
-      document.getElementById('erroreRegister').textContent = data.errore;
+      const data = await response.json();
+      document.getElementById('erroreRegister').textContent = data.errore || 'Errore registrazione';
     }
   } catch (errore) {
-    document.getElementById('erroreRegister').textContent = 'Errore di connessione';
+    document.getElementById('erroreRegister').textContent = 'Errore connessione';
   }
 });
+
+mostraLogin();
