@@ -1,24 +1,44 @@
-const token = localStorage.getItem('token');
+const API_URL = 'https://monster-app-ocdj.onrender.com/api';
+let token = localStorage.getItem('token');
+
+// Controlla autenticazione
 if (!token) {
   window.location.href = 'index.html';
 }
 
+// Carica dati utente
 const username = localStorage.getItem('username');
 const ruolo = localStorage.getItem('ruolo');
 
-document.getElementById('nomeUtente').textContent = `Ciao, ${username}!`;
+document.addEventListener('DOMContentLoaded', () => {
+  // Imposta nome utente
+  const nomeElement = document.getElementById('nomeUtente');
+  if (nomeElement) {
+    nomeElement.textContent = `Ciao, ${username}!`;
+  }
 
-if (ruolo === 'admin') {
-  document.getElementById('linkAdmin').style.display = 'block';
-  document.getElementById('linkUsers').style.display = 'block';
-}
+  // Mostra link admin
+  if (ruolo === 'admin') {
+    const linkAdmin = document.getElementById('linkAdmin');
+    const linkUsers = document.getElementById('linkUsers');
+    if (linkAdmin) linkAdmin.style.display = 'block';
+    if (linkUsers) linkUsers.style.display = 'block';
+  }
 
+  // Carica la collezione
+  caricaCollezione();
+  
+  // Carica statistiche
+  caricaStatistiche();
+});
 
+// LOGOUT
 function logout() {
   localStorage.clear();
   window.location.href = 'index.html';
 }
 
+// CARICA COLLEZIONE
 async function caricaCollezione() {
   try {
     const response = await fetch(`${API_URL}/collezione/completa`, {
@@ -32,12 +52,19 @@ async function caricaCollezione() {
     const categorie = await response.json();
     mostraCollezione(categorie);
   } catch (errore) {
-    document.getElementById('collezioneContainer').innerHTML = '<p>Errore nel caricamento</p>';
+    console.error('Errore:', errore);
+    const container = document.getElementById('collezioneContainer');
+    if (container) {
+      container.innerHTML = '<p>Errore nel caricamento della collezione</p>';
+    }
   }
 }
 
+// MOSTRA COLLEZIONE
 function mostraCollezione(categorie) {
   const container = document.getElementById('collezioneContainer');
+  
+  if (!container) return;
   
   if (categorie.length === 0) {
     container.innerHTML = '<p>Nessuna categoria trovata. Usa il pannello Admin per aggiungere dati.</p>';
@@ -91,6 +118,7 @@ function mostraCollezione(categorie) {
   });
 }
 
+// AGGIORNA VARIANTE
 async function aggiornaVariante(variante_id, posseduta) {
   try {
     const response = await fetch(`${API_URL}/collezione/possesso`, {
@@ -105,32 +133,41 @@ async function aggiornaVariante(variante_id, posseduta) {
     if (!response.ok) {
       throw new Error('Errore aggiornamento');
     }
+    
+    // Ricarica statistiche dopo aggiornamento
+    caricaStatistiche();
   } catch (errore) {
+    console.error('Errore:', errore);
     alert('Errore nell\'aggiornamento');
   }
 }
 
-caricaCollezione();
-
+// CARICA STATISTICHE
 async function caricaStatistiche() {
   try {
     const response = await fetch(`${API_URL}/statistiche`, {
-      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+      headers: { 'Authorization': `Bearer ${token}` }
     });
     
     if (response.ok) {
       const data = await response.json();
-      document.getElementById('mostriPosseduti').textContent = data.mostriPosseduti;
-      document.getElementById('mostriTotali').textContent = data.mostriTotali;
-      document.getElementById('variantiTotali').textContent = data.variantiTotali;
-      document.getElementById('percentuale').textContent = data.percentuale + '%';
-      document.getElementById('progressFill').style.width = data.percentuale + '%';
+      console.log('Statistiche:', data);
+      
+      const mostriElement = document.getElementById('mostriPosseduti');
+      const totaliElement = document.getElementById('mostriTotali');
+      const variantiElement = document.getElementById('variantiTotali');
+      const percentElement = document.getElementById('percentuale');
+      const fillElement = document.getElementById('progressFill');
+      
+      if (mostriElement) mostriElement.textContent = data.mostriPosseduti;
+      if (totaliElement) totaliElement.textContent = data.mostriTotali;
+      if (variantiElement) variantiElement.textContent = data.variantiTotali;
+      if (percentElement) percentElement.textContent = data.percentuale + '%';
+      if (fillElement) fillElement.style.width = data.percentuale + '%';
+    } else {
+      console.error('Errore statistiche:', response.status);
     }
   } catch (err) {
-    console.error('Errore caricamento statistiche', err);
+    console.error('Errore caricamento statistiche:', err);
   }
 }
-
-// Chiama al caricamento della pagina
-caricaStatistiche();
-
