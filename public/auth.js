@@ -12,16 +12,7 @@ function mostraRegister() {
   document.querySelectorAll('.tab')[1].classList.add('active');
 }
 
-function togglePassword(inputId, button) {
-  const input = document.getElementById(inputId);
-  if (input.type === 'password') {
-    input.type = 'text';
-    button.textContent = 'nascondi';
-  } else {
-    input.type = 'password';
-    button.textContent = 'mostra';
-  }
-}
+
 
 
 
