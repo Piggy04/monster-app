@@ -1,4 +1,4 @@
-const API_URL = 'https://monster-app-ocdj.onrender.com';
+const API_URL = 'https://monster-app-ocdj.onrender.com/api';
 
 // Carica tema salvato
 async function caricaTema() {
