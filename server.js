@@ -5,7 +5,6 @@ require('dotenv').config();
 
 const app = express();
 
-// CONFIGURA CORS CORRETTAMENTE
 app.use(cors({
   origin: ['https://monster-sw.netlify.app', 'http://localhost:3000'],
   credentials: true
@@ -15,10 +14,12 @@ app.use(express.json());
 app.use(express.static('public'));
 app.use('/uploads', express.static('uploads'));
 
+// CONNETTI PRIMA
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('MongoDB connesso'))
   .catch(err => console.error(err));
 
+// POI REGISTRA LE ROUTE
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/collezione', require('./routes/collezione'));
 app.use('/api/users', require('./routes/users'));
