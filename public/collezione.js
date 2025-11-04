@@ -23,12 +23,65 @@ document.addEventListener('DOMContentLoaded', () => {
     if (linkUsers) linkUsers.style.display = 'block';
   }
 
+  // Carica tema
+  caricaTema();
+  
   // Carica la collezione
   caricaCollezione();
   
   // Carica statistiche
   caricaStatistiche();
 });
+
+// CARICA E APPLICA TEMA
+async function caricaTema() {
+  try {
+    const response = await fetch(`${API_URL}/auth/me`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    
+    if (response.ok) {
+      const user = await response.json();
+      const tema = user.tema || 'light';
+      document.documentElement.setAttribute('data-theme', tema);
+      
+      // Aggiorna bottone tema attivo
+      document.querySelectorAll('.theme-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      const activeBtn = document.querySelector(`.theme-btn.${tema}`);
+      if (activeBtn) activeBtn.classList.add('active');
+    }
+  } catch (err) {
+    console.error('Errore caricamento tema:', err);
+  }
+}
+
+// CAMBIA TEMA
+async function cambiaTema(nuovoTema) {
+  try {
+    document.documentElement.setAttribute('data-theme', nuovoTema);
+    
+    const response = await fetch(`${API_URL}/auth/me/tema`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ tema: nuovoTema })
+    });
+    
+    if (response.ok) {
+      // Aggiorna bottone attivo
+      document.querySelectorAll('.theme-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      document.querySelector(`.theme-btn.${nuovoTema}`).classList.add('active');
+    }
+  } catch (err) {
+    console.error('Errore cambio tema:', err);
+  }
+}
 
 // LOGOUT
 function logout() {

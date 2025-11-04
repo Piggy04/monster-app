@@ -1,5 +1,3 @@
-// config.js contiene API_URL globalmente
-
 document.addEventListener('DOMContentLoaded', () => {
   const token = localStorage.getItem('token');
   if (!token) {
@@ -13,17 +11,72 @@ document.addEventListener('DOMContentLoaded', () => {
     nomeElement.textContent = username;
   }
 
+  caricaTema();
   caricaStatistiche();
   verificaAdmin();
 });
 
+// CARICA E APPLICA TEMA
+async function caricaTema() {
+  try {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${API_URL}/auth/me`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    
+    if (response.ok) {
+      const user = await response.json();
+      const tema = user.tema || 'light';
+      document.documentElement.setAttribute('data-theme', tema);
+      
+      // Aggiorna bottone tema attivo
+      document.querySelectorAll('.theme-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      const activeBtn = document.querySelector(`.theme-btn.${tema}`);
+      if (activeBtn) activeBtn.classList.add('active');
+    }
+  } catch (err) {
+    console.error('Errore caricamento tema:', err);
+  }
+}
+
+// CAMBIA TEMA
+async function cambiaTema(nuovoTema) {
+  try {
+    const token = localStorage.getItem('token');
+    document.documentElement.setAttribute('data-theme', nuovoTema);
+    
+    const response = await fetch(`${API_URL}/auth/me/tema`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ tema: nuovoTema })
+    });
+    
+    if (response.ok) {
+      // Aggiorna bottone attivo
+      document.querySelectorAll('.theme-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      document.querySelector(`.theme-btn.${nuovoTema}`).classList.add('active');
+    }
+  } catch (err) {
+    console.error('Errore cambio tema:', err);
+  }
+}
+
+// CARICA STATISTICHE
 async function caricaStatistiche() {
   try {
     console.log('Caricamento statistiche...');
-    console.log('Token:', localStorage.getItem('token'));
+    const token = localStorage.getItem('token');
+    console.log('Token:', token);
     
     const response = await fetch(`${API_URL}/statistiche`, {
-      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+      headers: { 'Authorization': `Bearer ${token}` }
     });
 
     console.log('Risposta:', response.status);
@@ -53,6 +106,7 @@ async function caricaStatistiche() {
   }
 }
 
+// VERIFICA ADMIN
 function verificaAdmin() {
   const ruolo = localStorage.getItem('ruolo');
   if (ruolo === 'admin') {
@@ -63,6 +117,7 @@ function verificaAdmin() {
   }
 }
 
+// LOGOUT
 function logout() {
   localStorage.removeItem('token');
   localStorage.removeItem('username');
