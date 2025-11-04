@@ -7,29 +7,30 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="sidebar">
+ <div class="sidebar">
   <h2>🥤 Monster</h2>
+  
+
   <nav>
     <a href="collezione.html" class="active">La Mia Collezione</a>
     <a href="admin.html" id="linkAdmin" style="display:none;">Gestione Contenuti</a>
     <a href="users.html" id="linkUsers" style="display:none;">Gestione Utenti</a>
+    <a href="statistiche.html" class="active">Statistiche</a>
     <a href="#" onclick="logout()">Logout</a>
   </nav>
 </div>
 
-
-  <div class="main-content">
-    <div class="header">
-      <h1>La Mia Collezione</h1>
-      <p id="nomeUtente"></p>
-    </div>
-
-    <div id="collezioneContainer" class="collezione-container">
-      <p>Caricamento...</p>
+  <!-- THEME SELECTOR -->
+  <div class="theme-selector">
+    <h4>Tema</h4>
+    <div class="theme-buttons">
+      <button class="theme-btn light active" onclick="cambiatema('light')" title="Light"></button>
+      <button class="theme-btn dark" onclick="cambiatema('dark')" title="Dark"></button>
+      <button class="theme-btn green" onclick="cambiatema('green')" title="Green"></button>
+      <button class="theme-btn purple" onclick="cambiatema('purple')" title="Purple"></button>
     </div>
   </div>
 
-  
   <script src="theme.js"></script>
   <script src="collezione.js"></script>
 </body>

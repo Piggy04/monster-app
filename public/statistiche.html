@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Statistiche</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="sidebar">
+    <h2>🥤 Monster</h2>
+    <nav>
+      <a href="collezione.html">La Mia Collezione</a>
+      <a href="statistiche.html" class="active">Statistiche</a>
+      <a href="admin.html" id="linkAdmin" style="display:none;">Gestione Contenuti</a>
+      <a href="users.html" id="linkUsers" style="display:none;">Gestione Utenti</a>
+      <a href="#" onclick="logout()">Logout</a>
+    </nav>
+  </div>
+
+  <div class="main-content">
+    <div class="header">
+      <h1>📊 Le Tue Statistiche</h1>
+      <p id="nomeUtente"></p>
+    </div>
+
+    <div class="statistiche-container">
+      <div class="stat-card">
+        <h3>Collezione</h3>
+        <div class="stat-big">
+          <span class="numero" id="mostriPosseduti">-</span>
+          <span class="etichetta">su <span id="mostriTotali">-</span> mostri</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <span class="percentuale" id="percentuale">-%</span>
+      </div>
+
+      <div class="stat-card">
+        <h3>Varianti Totali</h3>
+        <div class="stat-big">
+          <span class="numero" id="variantiTotali">-</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- THEME SELECTOR -->
+  <div class="theme-selector">
+    <h4>Tema</h4>
+    <div class="theme-buttons">
+      <button class="theme-btn light active" onclick="cambiatema('light')" title="Light"></button>
+      <button class="theme-btn dark" onclick="cambiatema('dark')" title="Dark"></button>
+      <button class="theme-btn green" onclick="cambiatema('green')" title="Green"></button>
+      <button class="theme-btn purple" onclick="cambiatema('purple')" title="Purple"></button>
+    </div>
+  </div>
+
+  <script src="theme.js"></script>
+  <script src="statistiche.js"></script>
+</body>
+</html>
