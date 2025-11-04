@@ -1,0 +1,1 @@
+const API_URL = 'https://monster-app-ocdj.onrender.com/api';

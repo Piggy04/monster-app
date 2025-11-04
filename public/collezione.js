@@ -1,7 +1,5 @@
-const API_URL = 'https://monster-app-ocdj.onrender.com/api';
 let token = localStorage.getItem('token');
 
-// Controlla autenticazione
 if (!token) {
   window.location.href = 'index.html';
 }
