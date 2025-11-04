@@ -680,15 +680,15 @@ body {
   display: flex;
   align-items: center;
   margin-bottom: 12px;
-  gap: 8px;
+  gap: 6px;
 }
 
 .input-group input {
   flex: 1;
-  padding: 10px;
+  padding: 12px;  /* ← Aumentato da 10px */
   border: 1px solid var(--border-color);
   border-radius: 4px;
-  font-size: 14px;
+  font-size: 16px;  /* ← Aumentato da 14px */
   background: var(--bg-secondary);
   color: var(--text-primary);
 }
@@ -704,10 +704,12 @@ body {
   white-space: nowrap;
   text-decoration: underline;
   transition: 0.2s;
+  flex-shrink: 0;  /* ← Non ridurre il bottone */
 }
 
 .toggle-link:hover {
   color: var(--accent-hover);
   opacity: 0.8;
 }
+
 
