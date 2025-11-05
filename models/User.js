@@ -27,12 +27,24 @@ const userSchema = new mongoose.Schema({
     enum: ['light', 'dark', 'green', 'purple'],
     default: 'light'
   },
-  collezione: [
+
+  // Nuovi campi per collezioni distinte
+  mostriPosseduti: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Variante'
+      ref: 'Lattina',
+      default: []
+    }
+  ],
+
+  variantiPossedute: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Variante',
+      default: []
     }
   ]
+
 }, { timestamps: true });
 
 userSchema.pre('save', async function(next) {
