@@ -12,10 +12,6 @@ function mostraRegister() {
   document.querySelectorAll('.tab')[1].classList.add('active');
 }
 
-
-
-
-
 const token = localStorage.getItem('token');
 
 if (token) {
@@ -26,14 +22,14 @@ if (token) {
 document.getElementById('formLogin').addEventListener('submit', async (e) => {
   e.preventDefault();
   
-  const username = document.getElementById('loginUsername').value;  // ← CAMBIATO
+  const username = document.getElementById('loginUsername').value;
   const password = document.getElementById('loginPassword').value;
   
   try {
     const response = await fetch(`${API_URL}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password })  // ← CAMBIATO
+      body: JSON.stringify({ username, password })
     });
     
     if (response.ok) {
@@ -51,36 +47,6 @@ document.getElementById('formLogin').addEventListener('submit', async (e) => {
     document.getElementById('erroreLogin').textContent = 'Errore connessione';
   }
 });
-
-document.getElementById('formRegister').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  
-  const username = document.getElementById('registerUsername').value;  // ← CAMBIATO
-  const password = document.getElementById('registerPassword').value;
-  
-  try {
-    const response = await fetch(`${API_URL}/auth/register`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password })  // ← CAMBIATO
-    });
-    
-    if (response.ok) {
-      const data = await response.json();
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('username', data.username);
-      localStorage.setItem('ruolo', data.ruolo);
-      localStorage.setItem('tema', 'light');
-      window.location.href = 'collezione.html';
-    } else {
-      const data = await response.json();
-      document.getElementById('erroreRegister').textContent = data.errore || 'Errore registrazione';
-    }
-  } catch (errore) {
-    document.getElementById('erroreRegister').textContent = 'Errore connessione';
-  }
-});
-
 
 // Form Register
 document.getElementById('formRegister').addEventListener('submit', async (e) => {
@@ -101,7 +67,7 @@ document.getElementById('formRegister').addEventListener('submit', async (e) => 
       localStorage.setItem('token', data.token);
       localStorage.setItem('username', data.username);
       localStorage.setItem('ruolo', data.ruolo);
-      localStorage.setItem('tema', 'light');
+      localStorage.setItem('tema', data.tema || 'light');
       window.location.href = 'collezione.html';
     } else {
       const data = await response.json();
@@ -111,6 +77,5 @@ document.getElementById('formRegister').addEventListener('submit', async (e) => 
     document.getElementById('erroreRegister').textContent = 'Errore connessione';
   }
 });
-
 
 mostraLogin();
