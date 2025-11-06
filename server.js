@@ -31,6 +31,8 @@ app.use('/api/collezione', require('./routes/collezione'));
 app.use('/api/users', require('./routes/users'));
 app.use('/api/upload', require('./routes/upload'));
 app.use('/api/statistiche', require('./routes/statistiche'));
+const amiciRouter = require('./routes/amici');
+app.use('/api/amici', amiciRouter);
 
 
 const PORT = process.env.PORT || 3000;

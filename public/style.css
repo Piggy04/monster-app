@@ -962,3 +962,132 @@ body {
   transform: scale(1.15);
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
 }
+
+
+/* ===== PAGINA AMICI ===== */
+.amici-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 30px;
+}
+
+.amici-tab {
+  padding: 12px 24px;
+  border: none;
+  background: var(--bg-primary);
+  cursor: pointer;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: 0.3s;
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+.amici-tab.active {
+  background: var(--accent-color);
+  color: white;
+}
+
+.amici-tab:hover {
+  background: var(--accent-color);
+  color: white;
+  opacity: 0.8;
+}
+
+.amici-tab-content {
+  max-width: 700px;
+}
+
+.ricerca-box {
+  margin-bottom: 20px;
+}
+
+.ricerca-box input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 14px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.risultati-ricerca,
+.amici-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.amico-card {
+  background: var(--bg-secondary);
+  padding: 15px;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 6px var(--shadow);
+  border-left: 3px solid var(--accent-color);
+}
+
+.amico-card h4 {
+  margin: 0 0 5px 0;
+  color: var(--text-primary);
+  font-size: 16px;
+}
+
+.amico-card small {
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.btn-add-friend,
+.btn-accept,
+.btn-reject,
+.btn-cancel,
+.btn-view,
+.btn-delete {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: 0.3s;
+}
+
+.btn-add-friend,
+.btn-accept,
+.btn-view {
+  background: var(--accent-color);
+  color: white;
+}
+
+.btn-add-friend:hover,
+.btn-accept:hover,
+.btn-view:hover {
+  background: var(--accent-hover);
+}
+
+.btn-reject,
+.btn-cancel,
+.btn-delete {
+  background: #e74c3c;
+  color: white;
+}
+
+.btn-reject:hover,
+.btn-cancel:hover,
+.btn-delete:hover {
+  background: #c0392b;
+}
+
+.btn-group {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-mini {
+  padding: 6px 10px;
+  font-size: 12px;
+}
