@@ -69,6 +69,12 @@ async function cambiaTema(nuovoTema) {
       });
       document.querySelector(`.theme-btn.${nuovoTema}`).classList.add('active');
     }
+    
+    // Chiudi theme drawer
+    const drawer = document.getElementById('themeDrawer');
+    if (drawer) {
+      drawer.classList.remove('active');
+    }
   } catch (err) {
     console.error('Errore cambio tema:', err);
   }
@@ -78,6 +84,12 @@ async function cambiaTema(nuovoTema) {
 function logout() {
   localStorage.clear();
   window.location.href = 'index.html';
+}
+
+// TOGGLE THEME DRAWER
+function toggleThemeDrawer() {
+  const drawer = document.getElementById('themeDrawer');
+  drawer.classList.toggle('active');
 }
 
 // MOSTRA TAB
@@ -299,62 +311,37 @@ async function caricaAmici() {
 }
 
 // VISUALIZZA COLLEZIONE AMICO
-async function visualizzaCollezione(amicoId, amicoUsername) {
-  try {
-    const [collezione, statistiche] = await Promise.all([
-      fetch(`${API_URL}/collezione/amico/${amicoId}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      }).then(r => r.json()),
-      fetch(`${API_URL}/statistiche/${amicoId}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      }).then(r => r.json())
-    ]);
-    
-    // Salva i dati globali
-    window.amicoData = {
-      collezione,
-      statistiche,
-      username: amicoUsername,
-      id: amicoId
-    };
-    
-    // Apri modale o vai a pagina
-    window.location.href = `collezione-amico.html`;
-  } catch (err) {
-    console.error('Errore:', err);
-    alert('Errore caricamento collezione');
-  }
+function visualizzaCollezione(amicoId, amicoUsername) {
+  // Passa l'ID via URL
+  window.location.href = `collezione-amico.html?amico=${amicoId}&username=${encodeURIComponent(amicoUsername)}`;
 }
-
 
 // RIMUOVI AMICO
 async function rimuoviAmico(amicoId) {
   if (!confirm('Sei sicuro di voler rimuovere questo amico?')) return;
   
   try {
-    // Trova l'ID della relazione amicizia
+    // Trovare l'ID della relazione amicizia
     const response = await fetch(`${API_URL}/amici`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     
-    // Qui potremmo migliorare passando l'ID diretto dalla API
-    alert('Amico rimosso');
-    caricaAmici();
+    const amici = await response.json();
+    const amicizia = amici.find(a => a._id === amicoId);
+    
+    if (amicizia) {
+      const deleteResponse = await fetch(`${API_URL}/amici/${amicizia._id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      
+      if (deleteResponse.ok) {
+        alert('Amico rimosso');
+        caricaAmici();
+      }
+    }
   } catch (err) {
+    console.error('Errore rimozione:', err);
     alert('Errore rimozione amico');
   }
 }
-
-// TOGGLE THEME DRAWER
-function toggleThemeDrawer() {
-  const drawer = document.getElementById('themeDrawer');
-  drawer.classList.toggle('active');
-}
-
-// Chiudi drawer quando clicchi su un tema
-const originalCambiaTema = cambiaTema;
-window.cambiaTema = function(nuovoTema) {
-  originalCambiaTema(nuovoTema);
-  document.getElementById('themeDrawer').classList.remove('active');
-};
-

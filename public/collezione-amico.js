@@ -69,75 +69,94 @@ function tornaAmici() {
 }
 
 // MOSTRA COLLEZIONE AMICO
-function mostraCollezioneAmico() {
-  if (!window.amicoData) {
-    alert('Errore: dati amico non trovati');
+async function mostraCollezioneAmico() {
+  // Estrai ID dell'amico dall'URL
+  const params = new URLSearchParams(window.location.search);
+  const amicoId = params.get('amico');
+  const amicoUsername = params.get('username');
+
+  if (!amicoId || !amicoUsername) {
+    alert('Errore: ID amico non trovato');
     window.location.href = 'amici.html';
     return;
   }
 
-  const { collezione, statistiche, username } = window.amicoData;
+  try {
+    // Fetch dei dati direttamente
+    const [collezione, statistiche] = await Promise.all([
+      fetch(`${API_URL}/collezione/amico/${amicoId}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      }).then(r => r.json()),
+      fetch(`${API_URL}/statistiche/${amicoId}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      }).then(r => r.json())
+    ]);
 
-  // Mostra nome
-  document.getElementById('nomeAmico').textContent = username;
+    // Mostra nome
+    document.getElementById('nomeAmico').textContent = amicoUsername;
 
-  // Mostra statistiche
-  document.querySelectorAll('.stat-card-amico')[0].querySelector('.stat-value').textContent = statistiche.mostriPosseduti;
-  document.querySelectorAll('.stat-card-amico')[1].querySelector('.stat-value').textContent = statistiche.variantiPosseduti;
-  document.querySelectorAll('.stat-card-amico')[2].querySelector('.stat-value').textContent = statistiche.percentuale + '%';
+    // Mostra statistiche
+    document.querySelectorAll('.stat-card-amico')[0].querySelector('.stat-value').textContent = statistiche.mostriPosseduti;
+    document.querySelectorAll('.stat-card-amico')[1].querySelector('.stat-value').textContent = statistiche.variantiPosseduti;
+    document.querySelectorAll('.stat-card-amico')[2].querySelector('.stat-value').textContent = statistiche.percentuale + '%';
 
-  // Mostra collezione (read-only, no checkbox)
-  const container = document.getElementById('collezioneAmicoContainer');
-  
-  if (collezione.length === 0) {
-    container.innerHTML = '<p>Nessun dato disponibile.</p>';
-    return;
-  }
-  
-  container.innerHTML = '';
-  
-  collezione.forEach(categoria => {
-    const divCategoria = document.createElement('div');
-    divCategoria.className = 'categoria';
+    // Mostra collezione (read-only, no checkbox)
+    const container = document.getElementById('collezioneAmicoContainer');
     
-    let htmlLattine = '';
+    if (collezione.length === 0) {
+      container.innerHTML = '<p>Nessun dato disponibile.</p>';
+      return;
+    }
     
-    categoria.lattine.forEach(lattina => {
-      let htmlVarianti = '';
+    container.innerHTML = '';
+    
+    collezione.forEach(categoria => {
+      const divCategoria = document.createElement('div');
+      divCategoria.className = 'categoria';
       
-      lattina.varianti.forEach(variante => {
-        const imgHtml = variante.immagine ? 
-          `<img src="${variante.immagine}" alt="${variante.nome}" class="variante-img">` : 
-          '';
+      let htmlLattine = '';
+      
+      categoria.lattine.forEach(lattina => {
+        let htmlVarianti = '';
         
-        const checkIcon = variante.posseduta ? '✓' : '✕';
-        const checkClass = variante.posseduta ? 'posseduta' : 'mancante';
+        lattina.varianti.forEach(variante => {
+          const imgHtml = variante.immagine ? 
+            `<img src="${variante.immagine}" alt="${variante.nome}" class="variante-img">` : 
+            '';
+          
+          const checkIcon = variante.posseduta ? '✓' : '✕';
+          const checkClass = variante.posseduta ? 'posseduta' : 'mancante';
+          
+          htmlVarianti += `
+            <div class="variante ${checkClass}">
+              <span class="check-icon">${checkIcon}</span>
+              <label>${variante.nome}</label>
+              ${imgHtml}
+            </div>
+          `;
+        });
         
-        htmlVarianti += `
-          <div class="variante ${checkClass}">
-            <span class="check-icon">${checkIcon}</span>
-            <label>${variante.nome}</label>
-            ${imgHtml}
+        htmlLattine += `
+          <div class="lattina">
+            <h3>${lattina.nome}</h3>
+            ${htmlVarianti}
           </div>
         `;
       });
       
-      htmlLattine += `
-        <div class="lattina">
-          <h3>${lattina.nome}</h3>
-          ${htmlVarianti}
-        </div>
+      divCategoria.innerHTML = `
+        <h2>${categoria.nome}</h2>
+        ${htmlLattine}
       `;
+      
+      container.appendChild(divCategoria);
     });
-    
-    divCategoria.innerHTML = `
-      <h2>${categoria.nome}</h2>
-      ${htmlLattine}
-    `;
-    
-    container.appendChild(divCategoria);
-  });
+  } catch (err) {
+    console.error('Errore caricamento:', err);
+    alert('Errore nel caricamento della collezione');
+  }
 }
+
 
 // TOGGLE THEME DRAWER
 function toggleThemeDrawer() {
