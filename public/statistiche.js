@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
   verificaAdmin();
 });
 
+
 // CARICA E APPLICA TEMA
 async function caricaTema() {
   try {
@@ -40,6 +41,7 @@ async function caricaTema() {
     console.error('Errore caricamento tema:', err);
   }
 }
+
 
 // CAMBIA TEMA
 async function cambiaTema(nuovoTema) {
@@ -68,6 +70,7 @@ async function cambiaTema(nuovoTema) {
   }
 }
 
+
 // CARICA STATISTICHE
 async function caricaStatistiche() {
   try {
@@ -93,7 +96,7 @@ async function caricaStatistiche() {
 
       if (mostriElement) mostriElement.textContent = data.mostriPosseduti;
       if (totaliElement) totaliElement.textContent = data.mostriTotali;
-      if (variantiElement) variantiElement.textContent = data.variantiTotali;
+      if (variantiElement) variantiElement.textContent = data.variantiPossedute;  // ← CORRETTO
       if (percentElement) percentElement.textContent = data.percentuale + '%';
       if (fillElement) fillElement.style.width = data.percentuale + '%';
     } else {
@@ -106,6 +109,7 @@ async function caricaStatistiche() {
   }
 }
 
+
 // VERIFICA ADMIN
 function verificaAdmin() {
   const ruolo = localStorage.getItem('ruolo');
@@ -116,6 +120,7 @@ function verificaAdmin() {
     if (linkUsers) linkUsers.style.display = 'block';
   }
 }
+
 
 // LOGOUT
 function logout() {
