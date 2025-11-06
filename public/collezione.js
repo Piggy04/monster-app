@@ -138,43 +138,43 @@ function applicaFiltri() {
     categorieSel.push(checkbox.value);
   });
   
+  // Crea una copia profonda dei dati originali
+  const datiFiltrati = JSON.parse(JSON.stringify(datiCollezione));
+  
   // Filtra i dati
-  let datiFiltrati = datiCollezione.filter(categoria => {
+  const risultato = datiFiltrati.filter(categoria => {
     // Filtra per categoria
     if (!categorieSel.includes(categoria._id)) return false;
     
-    // Filtra per lattine e varianti
-    if (ricerca || filtroStato) {
-      categoria.lattine = categoria.lattine.filter(lattina => {
-        // Filtra per ricerca nel nome della lattina
-        const nomeMatch = lattina.nome.toLowerCase().includes(ricerca);
-        
-        if (filtroStato) {
-          // Filtra varianti per stato posseduta/mancante
-          lattina.varianti = lattina.varianti.filter(variante => {
-            if (filtroStato === 'possedute') {
-              return variante.posseduta;
-            } else if (filtroStato === 'mancanti') {
-              return !variante.posseduta;
-            }
-            return true;
-          });
-          
-          // Se non ci sono varianti dopo il filtro e la ricerca non corrisponde, escludila
-          if (lattina.varianti.length === 0 && !nomeMatch) return false;
-        }
-        
-        return true;
-      });
+    // Filtra lattine e varianti
+    categoria.lattine = categoria.lattine.filter(lattina => {
+      // Filtra per ricerca nel nome della lattina
+      const nomeMatch = lattina.nome.toLowerCase().includes(ricerca);
       
-      return categoria.lattine.length > 0;
-    }
+      if (filtroStato) {
+        // Filtra varianti per stato posseduta/mancante
+        lattina.varianti = lattina.varianti.filter(variante => {
+          if (filtroStato === 'possedute') {
+            return variante.posseduta;
+          } else if (filtroStato === 'mancanti') {
+            return !variante.posseduta;
+          }
+          return true;
+        });
+        
+        // Se non ci sono varianti dopo il filtro e la ricerca non corrisponde, escludila
+        if (lattina.varianti.length === 0 && !nomeMatch) return false;
+      }
+      
+      return lattina.varianti.length > 0;
+    });
     
-    return true;
+    return categoria.lattine.length > 0;
   });
   
-  mostraCollezione(datiFiltrati);
+  mostraCollezione(risultato);
 }
+
 
 // MOSTRA COLLEZIONE
 function mostraCollezione(categorie) {
