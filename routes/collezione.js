@@ -8,6 +8,7 @@ const Variante = require('../models/Variante');
 const Possesso = require('../models/Possesso');
 
 
+
 // Route normali (tutti gli utenti)
 router.get('/completa', auth, async (req, res) => {
   try {
@@ -26,7 +27,7 @@ router.get('/completa', auth, async (req, res) => {
             const variantiConPossesso = await Promise.all(
               varianti.map(async (variante) => {
                 const possesso = await Possesso.findOne({
-                  utente_id: req.user.id,  // ← CAMBIA QUI
+                  utente_id: req.user.id,
                   variante_id: variante._id
                 });
                 
@@ -66,6 +67,7 @@ router.get('/completa', auth, async (req, res) => {
 });
 
 
+
 router.post('/possesso', auth, async (req, res) => {
   try {
     console.log('1. req.user.id:', req.user.id);
@@ -74,7 +76,7 @@ router.post('/possesso', auth, async (req, res) => {
     console.log('2. variante_id:', variante_id, 'posseduta:', posseduta);
     
     let possesso = await Possesso.findOne({
-      utente_id: req.user.id,  // ← CAMBIA QUI
+      utente_id: req.user.id,
       variante_id: variante_id
     });
     
@@ -85,7 +87,7 @@ router.post('/possesso', auth, async (req, res) => {
       await possesso.save();
     } else {
       possesso = new Possesso({
-        utente_id: req.user.id,  // ← CAMBIA QUI
+        utente_id: req.user.id,
         variante_id: variante_id,
         posseduta: posseduta
       });
@@ -101,7 +103,9 @@ router.post('/possesso', auth, async (req, res) => {
 });
 
 
+
 // ===== ROUTE ADMIN =====
+
 
 
 // CATEGORIE
@@ -115,6 +119,7 @@ router.post('/categoria', adminAuth, async (req, res) => {
     res.status(500).json({ errore: 'Errore creazione categoria' });
   }
 });
+
 
 
 router.put('/categoria/:id', adminAuth, async (req, res) => {
@@ -135,6 +140,7 @@ router.put('/categoria/:id', adminAuth, async (req, res) => {
 });
 
 
+
 router.delete('/categoria/:id', adminAuth, async (req, res) => {
   try {
     // Elimina anche tutte le lattine e varianti associate
@@ -151,6 +157,7 @@ router.delete('/categoria/:id', adminAuth, async (req, res) => {
 });
 
 
+
 // LATTINE
 router.post('/lattina', adminAuth, async (req, res) => {
   try {
@@ -162,6 +169,7 @@ router.post('/lattina', adminAuth, async (req, res) => {
     res.status(500).json({ errore: 'Errore creazione lattina' });
   }
 });
+
 
 
 router.put('/lattina/:id', adminAuth, async (req, res) => {
@@ -182,6 +190,7 @@ router.put('/lattina/:id', adminAuth, async (req, res) => {
 });
 
 
+
 router.delete('/lattina/:id', adminAuth, async (req, res) => {
   try {
     // Elimina anche tutte le varianti associate
@@ -194,11 +203,12 @@ router.delete('/lattina/:id', adminAuth, async (req, res) => {
 });
 
 
+
 // VARIANTI
 router.post('/variante', adminAuth, async (req, res) => {
   try {
-    const { lattina_id, nome, ordine } = req.body;
-    const variante = new Variante({ lattina_id, nome, ordine });
+    const { lattina_id, nome, ordine, immagine } = req.body;
+    const variante = new Variante({ lattina_id, nome, ordine, immagine });
     await variante.save();
     res.status(201).json(variante);
   } catch (errore) {
@@ -207,12 +217,13 @@ router.post('/variante', adminAuth, async (req, res) => {
 });
 
 
+
 router.put('/variante/:id', adminAuth, async (req, res) => {
   try {
-    const { nome, ordine } = req.body;
+    const { nome, ordine, immagine } = req.body;
     const variante = await Variante.findByIdAndUpdate(
       req.params.id,
-      { nome, ordine },
+      { nome, ordine, immagine },
       { new: true, runValidators: true }
     );
     if (!variante) {
@@ -225,6 +236,7 @@ router.put('/variante/:id', adminAuth, async (req, res) => {
 });
 
 
+
 router.delete('/variante/:id', adminAuth, async (req, res) => {
   try {
     await Variante.findByIdAndDelete(req.params.id);
@@ -233,6 +245,7 @@ router.delete('/variante/:id', adminAuth, async (req, res) => {
     res.status(500).json({ errore: 'Errore eliminazione variante' });
   }
 });
+
 
 
 module.exports = router;
