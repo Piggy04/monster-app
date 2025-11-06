@@ -247,5 +247,64 @@ router.delete('/variante/:id', adminAuth, async (req, res) => {
 });
 
 
+// GET - Collezione di un altro utente (per amici)
+router.get('/amico/:userId', auth, async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    
+    const categorie = await Categoria.find().sort({ ordine: 1 });
+    
+    const datiCompleti = await Promise.all(
+      categorie.map(async (categoria) => {
+        const lattine = await Lattina.find({ categoria_id: categoria._id }).sort({ ordine: 1 });
+        
+        const lattineConVarianti = await Promise.all(
+          lattine.map(async (lattina) => {
+            const varianti = await Variante.find({ lattina_id: lattina._id }).sort({ ordine: 1 });
+            
+            const variantiConPossesso = await Promise.all(
+              varianti.map(async (variante) => {
+                const possesso = await Possesso.findOne({
+                  utente_id: userId,
+                  variante_id: variante._id
+                });
+                
+                return {
+                  _id: variante._id,
+                  nome: variante.nome,
+                  ordine: variante.ordine,
+                  immagine: variante.immagine,
+                  posseduta: possesso ? possesso.posseduta : false
+                };
+              })
+            );
+            
+            return {
+              _id: lattina._id,
+              nome: lattina.nome,
+              ordine: lattina.ordine,
+              varianti: variantiConPossesso
+            };
+          })
+        );
+        
+        return {
+          _id: categoria._id,
+          nome: categoria.nome,
+          ordine: categoria.ordine,
+          lattine: lattineConVarianti
+        };
+      })
+    );
+    
+    res.json(datiCompleti);
+  } catch (errore) {
+    console.error('Errore collezione amico:', errore);
+    res.status(500).json({ errore: 'Errore nel recupero dati' });
+  }
+});
+
+
+
 
 module.exports = router;

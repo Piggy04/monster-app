@@ -5,50 +5,98 @@ const Possesso = require('../models/Possesso');
 const Lattina = require('../models/Lattina');
 const Variante = require('../models/Variante');
 
+
+
+// GET - Statistiche dell'utente loggato
 router.get('/', auth, async (req, res) => {
   try {
-    console.log('1. req.user.id:', req.user.id);
-    
-    // Conta i possessi dell'utente (varianti possedute)
-    const possessiUtente = await Possesso.find({
+    // Conta varianti possedute
+    const possessiRaw = await Possesso.find({
       utente_id: req.user.id,
       posseduta: true
-    });
+    }).select('variante_id');
+
+    const variantiPossedute = possessiRaw.length;
+
+    // Conta mostri posseduti (lattine uniche)
+    const lattinePossedute = new Set();
     
-    console.log('2. Possessi trovati:', possessiUtente.length);
-    
-    const variantiPosseduteCount = possessiUtente.length;
-    
-    // Conta le lattine uniche possedute (dai possessi)
-    const variantiIds = possessiUtente.map(p => p.variante_id);
-    const varianti = await Variante.find({ _id: { $in: variantiIds } });
-    
-    // Estrai le lattine_id uniche dalle varianti
-    const lattineIds = [...new Set(varianti.map(v => v.lattina_id.toString()))];
-    const mostriPossedutiCount = lattineIds.length;
-    
-    // Conta i mostri totali
+    for (let possesso of possessiRaw) {
+      const variante = await Variante.findById(possesso.variante_id);
+      if (variante) {
+        lattinePossedute.add(variante.lattina_id.toString());
+      }
+    }
+
+    const mostriPosseduti = lattinePossedute.size;
+
+    // Conta totali
     const mostriTotali = await Lattina.countDocuments();
-    console.log('3. Mostri totali:', mostriTotali);
-    
-    const percentuale = mostriTotali > 0
-      ? Math.round((mostriPossedutiCount / mostriTotali) * 100)
-      : 0;
-    
-    console.log('4. Mostri posseduti:', mostriPossedutiCount);
-    console.log('5. Varianti possedute:', variantiPosseduteCount);
-    console.log('6. Percentuale:', percentuale);
-    
+    const variantiTotali = await Variante.countDocuments();
+
+    // Calcola percentuale
+    const percentuale = mostriTotali > 0 ? Math.round((mostriPosseduti / mostriTotali) * 100) : 0;
+
     res.json({
-      mostriPosseduti: mostriPossedutiCount,
-      variantiPossedute: variantiPosseduteCount,
+      mostriPosseduti,
+      variantiPossedute,
       mostriTotali,
+      variantiTotali,
       percentuale
     });
-  } catch (err) {
-    console.error('❌ ERRORE STATISTICHE:', err.message);
-    res.status(500).json({ errore: 'Errore statistiche', dettagli: err.message });
+  } catch (errore) {
+    console.error('Errore statistiche:', errore);
+    res.status(500).json({ errore: 'Errore nel calcolo statistiche' });
   }
 });
+
+
+
+// GET - Statistiche di un altro utente (per amici)
+router.get('/:userId', auth, async (req, res) => {
+  try {
+    const userId = req.params.userId;
+
+    // Conta varianti possedute
+    const possessiRaw = await Possesso.find({
+      utente_id: userId,
+      posseduta: true
+    }).select('variante_id');
+
+    const variantiPossedute = possessiRaw.length;
+
+    // Conta mostri posseduti (lattine uniche)
+    const lattinePossedute = new Set();
+    
+    for (let possesso of possessiRaw) {
+      const variante = await Variante.findById(possesso.variante_id);
+      if (variante) {
+        lattinePossedute.add(variante.lattina_id.toString());
+      }
+    }
+
+    const mostriPosseduti = lattinePossedute.size;
+
+    // Conta totali
+    const mostriTotali = await Lattina.countDocuments();
+    const variantiTotali = await Variante.countDocuments();
+
+    // Calcola percentuale
+    const percentuale = mostriTotali > 0 ? Math.round((mostriPosseduti / mostriTotali) * 100) : 0;
+
+    res.json({
+      mostriPosseduti,
+      variantiPossedute,
+      mostriTotali,
+      variantiTotali,
+      percentuale
+    });
+  } catch (errore) {
+    console.error('Errore statistiche amico:', errore);
+    res.status(500).json({ errore: 'Errore nel calcolo statistiche' });
+  }
+});
+
+
 
 module.exports = router;

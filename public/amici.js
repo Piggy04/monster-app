@@ -288,7 +288,7 @@ async function caricaAmici() {
           <h4>${amico.username}</h4>
         </div>
         <div class="btn-group">
-          <button class="btn-mini btn-view" onclick="visualizzaCollezione('${amico._id}')">👁️ Visualizza</button>
+          <button class="btn-mini btn-view" onclick="visualizzaCollezione('${amico._id}', '${amico.username}')">👁️ Visualizza</button>
           <button class="btn-mini btn-delete" onclick="rimuoviAmico('${amico._id}')">🗑️ Rimuovi</button>
         </div>
       </div>
@@ -299,10 +299,33 @@ async function caricaAmici() {
 }
 
 // VISUALIZZA COLLEZIONE AMICO
-async function visualizzaCollezione(amicoId) {
-  // TODO: Implementare in futuro
-  alert('Feature in arrivo: visualizzazione collezione amico');
+async function visualizzaCollezione(amicoId, amicoUsername) {
+  try {
+    const [collezione, statistiche] = await Promise.all([
+      fetch(`${API_URL}/collezione/amico/${amicoId}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      }).then(r => r.json()),
+      fetch(`${API_URL}/statistiche/${amicoId}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      }).then(r => r.json())
+    ]);
+    
+    // Salva i dati globali
+    window.amicoData = {
+      collezione,
+      statistiche,
+      username: amicoUsername,
+      id: amicoId
+    };
+    
+    // Apri modale o vai a pagina
+    window.location.href = `collezione-amico.html`;
+  } catch (err) {
+    console.error('Errore:', err);
+    alert('Errore caricamento collezione');
+  }
 }
+
 
 // RIMUOVI AMICO
 async function rimuoviAmico(amicoId) {

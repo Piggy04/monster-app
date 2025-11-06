@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Collezione Amico</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="sidebar">
+    <h2>🥤 Monster</h2>
+    
+    <nav>
+      <a href="collezione.html">La Mia Collezione</a>
+      <a href="statistiche.html">Statistiche</a>
+      <a href="amici.html">👥 Amici</a>
+      <a href="#" onclick="tornaAmici()">← Torna agli Amici</a>
+      <a href="#" onclick="logout()">Logout</a>
+    </nav>
+  </div>
+
+  <div class="main-content">
+    <div class="header">
+      <h1>Collezione di <span id="nomeAmico"></span></h1>
+    </div>
+
+    <!-- STATISTICHE AMICO -->
+    <div class="stats-amico-container">
+      <div class="stat-card-amico">
+        <span class="stat-value">0</span>
+        <span class="stat-label">Mostri Posseduti</span>
+      </div>
+      <div class="stat-card-amico">
+        <span class="stat-value">0</span>
+        <span class="stat-label">Varianti Possedute</span>
+      </div>
+      <div class="stat-card-amico">
+        <span class="stat-value">0%</span>
+        <span class="stat-label">Completamento</span>
+      </div>
+    </div>
+
+    <!-- COLLEZIONE -->
+    <div id="collezioneAmicoContainer" class="collezione-container">
+      <p>Caricamento...</p>
+    </div>
+  </div>
+
+  <!-- THEME SELECTOR -->
+  <div class="theme-selector">
+    <h4>Tema</h4>
+    <div class="theme-buttons">
+      <button class="theme-btn light active" onclick="cambiaTema('light')" title="Light"></button>
+      <button class="theme-btn dark" onclick="cambiaTema('dark')" title="Dark"></button>
+      <button class="theme-btn green" onclick="cambiaTema('green')" title="Green"></button>
+      <button class="theme-btn purple" onclick="cambiaTema('purple')" title="Purple"></button>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="theme.js"></script>
+  <script src="collezione-amico.js"></script>
+</body>
+</html>
