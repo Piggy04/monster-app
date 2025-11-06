@@ -159,8 +159,10 @@ function applicaFiltri() {
     
     // Filtra lattine e varianti
     categoria.lattine = categoria.lattine.filter(lattina => {
-      // Filtra per ricerca nel nome della lattina
-      const nomeMatch = lattina.nome.toLowerCase().includes(ricerca);
+      // Filtra per ricerca nel nome della lattina O variante
+      const nomeLattinaMatch = lattina.nome.toLowerCase().includes(ricerca);
+      const nomeVariantiMatch = lattina.varianti.some(v => v.nome.toLowerCase().includes(ricerca));
+      const matchRicerca = nomeLattinaMatch || nomeVariantiMatch;
       
       if (filtroStato) {
         // Filtra varianti per stato posseduta/mancante
@@ -174,7 +176,7 @@ function applicaFiltri() {
         });
         
         // Se non ci sono varianti dopo il filtro e la ricerca non corrisponde, escludila
-        if (lattina.varianti.length === 0 && !nomeMatch) return false;
+        if (lattina.varianti.length === 0 && !matchRicerca) return false;
       }
       
       return lattina.varianti.length > 0;
@@ -185,6 +187,7 @@ function applicaFiltri() {
   
   mostraCollezione(risultato);
 }
+
 
 
 

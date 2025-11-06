@@ -138,3 +138,17 @@ function mostraCollezioneAmico() {
     container.appendChild(divCategoria);
   });
 }
+
+// TOGGLE THEME DRAWER
+function toggleThemeDrawer() {
+  const drawer = document.getElementById('themeDrawer');
+  drawer.classList.toggle('active');
+}
+
+// Chiudi drawer quando clicchi su un tema
+const originalCambiaTema = cambiaTema;
+window.cambiaTema = function(nuovoTema) {
+  originalCambiaTema(nuovoTema);
+  document.getElementById('themeDrawer').classList.remove('active');
+};
+

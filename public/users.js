@@ -121,3 +121,18 @@ async function eliminaUtente(id, username) {
 if (ruolo === 'admin') {
   caricaUtenti();
 }
+
+
+
+// TOGGLE THEME DRAWER
+function toggleThemeDrawer() {
+  const drawer = document.getElementById('themeDrawer');
+  drawer.classList.toggle('active');
+}
+
+// Chiudi drawer quando clicchi su un tema
+const originalCambiaTema = cambiaTema;
+window.cambiaTema = function(nuovoTema) {
+  originalCambiaTema(nuovoTema);
+  document.getElementById('themeDrawer').classList.remove('active');
+};

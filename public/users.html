@@ -57,8 +57,11 @@
     </div>
   </div>
 
-  <!-- THEME SELECTOR -->
-  <div class="theme-selector">
+<!-- THEME DRAWER (estraibile) -->
+<div class="theme-drawer" id="themeDrawer">
+  <button class="theme-drawer-toggle" onclick="toggleThemeDrawer()">🎨</button>
+  
+  <div class="theme-drawer-content">
     <h4>Tema</h4>
     <div class="theme-buttons">
       <button class="theme-btn light active" onclick="cambiaTema('light')" title="Light"></button>
@@ -67,6 +70,8 @@
       <button class="theme-btn purple" onclick="cambiaTema('purple')" title="Purple"></button>
     </div>
   </div>
+</div>
+
 
   <script src="config.js"></script>
   <script src="theme.js"></script>
