@@ -1,18 +1,22 @@
 let token = localStorage.getItem('token');
 let datiCollezione = []; // Salva i dati originali
 
+
 if (!token) {
   window.location.href = 'index.html';
 }
 
+
 const username = localStorage.getItem('username');
 const ruolo = localStorage.getItem('ruolo');
+
 
 document.addEventListener('DOMContentLoaded', () => {
   const nomeElement = document.getElementById('nomeUtente');
   if (nomeElement) {
     nomeElement.textContent = `Ciao, ${username}!`;
   }
+
 
   if (ruolo === 'admin') {
     const linkAdmin = document.getElementById('linkAdmin');
@@ -21,10 +25,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (linkUsers) linkUsers.style.display = 'block';
   }
 
+
   caricaTema();
   caricaCollezione();
   caricaStatistiche();
 });
+
 
 // CARICA E APPLICA TEMA
 async function caricaTema() {
@@ -48,6 +54,7 @@ async function caricaTema() {
     console.error('Errore caricamento tema:', err);
   }
 }
+
 
 // CAMBIA TEMA
 async function cambiaTema(nuovoTema) {
@@ -74,11 +81,13 @@ async function cambiaTema(nuovoTema) {
   }
 }
 
+
 // LOGOUT
 function logout() {
   localStorage.clear();
   window.location.href = 'index.html';
 }
+
 
 // CARICA COLLEZIONE
 async function caricaCollezione() {
@@ -103,6 +112,7 @@ async function caricaCollezione() {
   }
 }
 
+
 // INIZIALIZZA FILTRI CATEGORIE
 function inizializzaFiltri(categorie) {
   const container = document.getElementById('categorieCheckboxes');
@@ -126,6 +136,7 @@ function inizializzaFiltri(categorie) {
     container.appendChild(div);
   });
 }
+
 
 // APPLICA FILTRI
 function applicaFiltri() {
@@ -176,6 +187,7 @@ function applicaFiltri() {
 }
 
 
+
 // SELEZIONA TUTTE LE CATEGORIE
 function selezionatutte() {
   document.querySelectorAll('#categorieCheckboxes input').forEach(checkbox => {
@@ -184,6 +196,7 @@ function selezionatutte() {
   applicaFiltri();
 }
 
+
 // DESELEZIONA TUTTE LE CATEGORIE
 function deselezionatutte() {
   document.querySelectorAll('#categorieCheckboxes input').forEach(checkbox => {
@@ -191,6 +204,7 @@ function deselezionatutte() {
   });
   applicaFiltri();
 }
+
 
 
 // MOSTRA COLLEZIONE
@@ -217,7 +231,7 @@ function mostraCollezione(categorie) {
       
       lattina.varianti.forEach(variante => {
         const imgHtml = variante.immagine ? 
-          `<img src="${variante.immagine}" alt="${variante.nome}" class="variante-img">` : 
+          `<img src="${variante.immagine}" alt="${variante.nome}" class="variante-img" onclick="apriModalImmagine('${variante.immagine}')">` : 
           '';
         
         htmlVarianti += `
@@ -250,6 +264,7 @@ function mostraCollezione(categorie) {
     container.appendChild(divCategoria);
   });
 }
+
 
 // AGGIORNA VARIANTE
 async function aggiornaVariante(variante_id, posseduta) {
@@ -285,6 +300,7 @@ async function aggiornaVariante(variante_id, posseduta) {
   }
 }
 
+
 // CARICA STATISTICHE
 async function caricaStatistiche() {
   try {
@@ -302,3 +318,26 @@ async function caricaStatistiche() {
     console.error('Errore caricamento statistiche:', err);
   }
 }
+
+
+// ===== MODAL IMMAGINI =====
+function apriModalImmagine(src) {
+  const modal = document.getElementById('modalImmagine');
+  const img = document.getElementById('immagineModal');
+  img.src = src;
+  modal.classList.add('active');
+}
+
+
+function chiudiModalImmagine() {
+  const modal = document.getElementById('modalImmagine');
+  modal.classList.remove('active');
+}
+
+
+// Chiudi modal quando premi ESC
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    chiudiModalImmagine();
+  }
+});

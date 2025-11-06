@@ -19,11 +19,13 @@
     </nav>
   </div>
 
+
   <div class="main-content">
     <div class="header">
       <h1>La Mia Collezione</h1>
       <p id="nomeUtente"></p>
     </div>
+
 
     <!-- FILTRI E RICERCA -->
     <div class="filtri-container">
@@ -36,15 +38,14 @@
         >
       </div>
 
-                <div class="filtro-categorie">
-          <label>Categorie:</label>
-          <div class="categorie-controls">
-            <button class="btn-small" onclick="selezionatutte()">Seleziona tutte</button>
-            <button class="btn-small" onclick="deselezionatutte()">Deseleziona tutte</button>
-          </div>
-          <div id="categorieCheckboxes"></div>
+      <div class="filtro-categorie">
+        <label>Categorie:</label>
+        <div class="categorie-controls">
+          <button class="btn-small" onclick="selezionatutte()">Seleziona tutte</button>
+          <button class="btn-small" onclick="deselezionatutte()">Deseleziona tutte</button>
         </div>
-
+        <div id="categorieCheckboxes"></div>
+      </div>
 
       <div class="filtri-box">
         <div class="filtro-stato">
@@ -55,12 +56,15 @@
             <option value="mancanti">Mancanti</option>
           </select>
         </div>
+      </div>
     </div>
+
 
     <div id="collezioneContainer" class="collezione-container">
       <p>Caricamento...</p>
     </div>
   </div>
+
 
   <!-- THEME SELECTOR -->
   <div class="theme-selector">
@@ -72,6 +76,14 @@
       <button class="theme-btn purple" onclick="cambiaTema('purple')" title="Purple"></button>
     </div>
   </div>
+
+
+  <!-- MODAL IMMAGINE -->
+  <div id="modalImmagine" class="modal-img" onclick="chiudiModalImmagine()">
+    <span class="close-img">&times;</span>
+    <img id="immagineModal" src="" alt="" class="img-modal-content">
+  </div>
+
 
   <script src="config.js"></script>
   <script src="theme.js"></script>

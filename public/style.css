@@ -903,3 +903,62 @@ body {
 .btn-small:hover {
   background: var(--primary-hover, #0056b3);
 }
+
+
+/* ===== MODAL IMMAGINI ===== */
+.modal-img {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  cursor: pointer;
+}
+
+.modal-img.active {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.img-modal-content {
+  max-width: 90%;
+  max-height: 90%;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.9);
+}
+
+.close-img {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+  font-size: 32px;
+  font-weight: bold;
+  color: white;
+  cursor: pointer;
+  z-index: 1001;
+  transition: 0.3s;
+}
+
+.close-img:hover {
+  color: #ff6b6b;
+  transform: scale(1.2);
+}
+
+/* Rendi l'immagine cliccabile */
+.variante-img {
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  max-width: 80px;
+  height: auto;
+  border-radius: 6px;
+}
+
+.variante-img:hover {
+  transform: scale(1.15);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
