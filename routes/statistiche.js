@@ -1,32 +1,44 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
-const User = require('../models/User');
-const Mostro = require('../models/Lattina');
+const Possesso = require('../models/Possesso');
+const Lattina = require('../models/Lattina');
 const Variante = require('../models/Variante');
 
 router.get('/', auth, async (req, res) => {
   try {
     console.log('1. req.user.id:', req.user.id);
-    // Carica utente con popolamento
-    const user = await User.findById(req.user.id)
-      .populate('mostriPosseduti')
-      .populate('variantiPossedute');
-
-    console.log('2. User trovato:', user);
-    console.log('3. Mostri posseduti:', user?.mostriPosseduti);
-    console.log('4. Varianti possedute:', user?.variantiPossedute);
-
-    const mostriPossedutiCount = user?.mostriPosseduti ? user.mostriPosseduti.length : 0;
-    const variantiPosseduteCount = user?.variantiPossedute ? user.variantiPossedute.length : 0;
-
-    const mostriTotali = await Mostro.countDocuments();
-    console.log('5. Mostri totali:', mostriTotali);
-
+    
+    // Conta i possessi dell'utente (varianti possedute)
+    const possessiUtente = await Possesso.find({
+      utente_id: req.user.id,
+      posseduta: true
+    });
+    
+    console.log('2. Possessi trovati:', possessiUtente.length);
+    
+    const variantiPosseduteCount = possessiUtente.length;
+    
+    // Conta le lattine uniche possedute (dai possessi)
+    const variantiIds = possessiUtente.map(p => p.variante_id);
+    const varianti = await Variante.find({ _id: { $in: variantiIds } });
+    
+    // Estrai le lattine_id uniche dalle varianti
+    const lattineIds = [...new Set(varianti.map(v => v.lattina_id.toString()))];
+    const mostriPossedutiCount = lattineIds.length;
+    
+    // Conta i mostri totali
+    const mostriTotali = await Lattina.countDocuments();
+    console.log('3. Mostri totali:', mostriTotali);
+    
     const percentuale = mostriTotali > 0
       ? Math.round((mostriPossedutiCount / mostriTotali) * 100)
       : 0;
-
+    
+    console.log('4. Mostri posseduti:', mostriPossedutiCount);
+    console.log('5. Varianti possedute:', variantiPosseduteCount);
+    console.log('6. Percentuale:', percentuale);
+    
     res.json({
       mostriPosseduti: mostriPossedutiCount,
       variantiPossedute: variantiPosseduteCount,
