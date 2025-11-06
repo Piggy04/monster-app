@@ -24,6 +24,35 @@
       <h1>La Mia Collezione</h1>
       <p id="nomeUtente"></p>
     </div>
+
+    <!-- FILTRI E RICERCA -->
+    <div class="filtri-container">
+      <div class="ricerca-box">
+        <input 
+          type="text" 
+          id="ricercaInput" 
+          placeholder="🔍 Cerca lattina..." 
+          onkeyup="applicaFiltri()"
+        >
+      </div>
+
+      <div class="filtri-box">
+        <div class="filtro-stato">
+          <label>Stato:</label>
+          <select id="filtroStato" onchange="applicaFiltri()">
+            <option value="">Tutte</option>
+            <option value="possedute">Possedute</option>
+            <option value="mancanti">Mancanti</option>
+          </select>
+        </div>
+
+        <div class="filtro-categorie">
+          <label>Categorie:</label>
+          <div id="categorieCheckboxes"></div>
+        </div>
+      </div>
+    </div>
+
     <div id="collezioneContainer" class="collezione-container">
       <p>Caricamento...</p>
     </div>

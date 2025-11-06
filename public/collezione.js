@@ -1,21 +1,19 @@
 let token = localStorage.getItem('token');
+let datiCollezione = []; // Salva i dati originali
 
 if (!token) {
   window.location.href = 'index.html';
 }
 
-// Carica dati utente
 const username = localStorage.getItem('username');
 const ruolo = localStorage.getItem('ruolo');
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Imposta nome utente
   const nomeElement = document.getElementById('nomeUtente');
   if (nomeElement) {
     nomeElement.textContent = `Ciao, ${username}!`;
   }
 
-  // Mostra link admin
   if (ruolo === 'admin') {
     const linkAdmin = document.getElementById('linkAdmin');
     const linkUsers = document.getElementById('linkUsers');
@@ -23,13 +21,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (linkUsers) linkUsers.style.display = 'block';
   }
 
-  // Carica tema
   caricaTema();
-  
-  // Carica la collezione
   caricaCollezione();
-  
-  // Carica statistiche
   caricaStatistiche();
 });
 
@@ -45,7 +38,6 @@ async function caricaTema() {
       const tema = user.tema || 'light';
       document.documentElement.setAttribute('data-theme', tema);
       
-      // Aggiorna bottone tema attivo
       document.querySelectorAll('.theme-btn').forEach(btn => {
         btn.classList.remove('active');
       });
@@ -72,7 +64,6 @@ async function cambiaTema(nuovoTema) {
     });
     
     if (response.ok) {
-      // Aggiorna bottone attivo
       document.querySelectorAll('.theme-btn').forEach(btn => {
         btn.classList.remove('active');
       });
@@ -100,8 +91,9 @@ async function caricaCollezione() {
       throw new Error('Errore caricamento');
     }
     
-    const categorie = await response.json();
-    mostraCollezione(categorie);
+    datiCollezione = await response.json();
+    inizializzaFiltri(datiCollezione);
+    mostraCollezione(datiCollezione);
   } catch (errore) {
     console.error('Errore:', errore);
     const container = document.getElementById('collezioneContainer');
@@ -111,6 +103,79 @@ async function caricaCollezione() {
   }
 }
 
+// INIZIALIZZA FILTRI CATEGORIE
+function inizializzaFiltri(categorie) {
+  const container = document.getElementById('categorieCheckboxes');
+  if (!container) return;
+  
+  container.innerHTML = '';
+  
+  categorie.forEach(categoria => {
+    const div = document.createElement('div');
+    div.className = 'categoria-checkbox';
+    div.innerHTML = `
+      <input 
+        type="checkbox" 
+        id="cat_${categoria._id}" 
+        value="${categoria._id}"
+        checked
+        onchange="applicaFiltri()"
+      >
+      <label for="cat_${categoria._id}">${categoria.nome}</label>
+    `;
+    container.appendChild(div);
+  });
+}
+
+// APPLICA FILTRI
+function applicaFiltri() {
+  const ricerca = document.getElementById('ricercaInput').value.toLowerCase();
+  const filtroStato = document.getElementById('filtroStato').value;
+  
+  // Categorie selezionate
+  const categorieSel = [];
+  document.querySelectorAll('#categorieCheckboxes input:checked').forEach(checkbox => {
+    categorieSel.push(checkbox.value);
+  });
+  
+  // Filtra i dati
+  let datiFiltrati = datiCollezione.filter(categoria => {
+    // Filtra per categoria
+    if (!categorieSel.includes(categoria._id)) return false;
+    
+    // Filtra per lattine e varianti
+    if (ricerca || filtroStato) {
+      categoria.lattine = categoria.lattine.filter(lattina => {
+        // Filtra per ricerca nel nome della lattina
+        const nomeMatch = lattina.nome.toLowerCase().includes(ricerca);
+        
+        if (filtroStato) {
+          // Filtra varianti per stato posseduta/mancante
+          lattina.varianti = lattina.varianti.filter(variante => {
+            if (filtroStato === 'possedute') {
+              return variante.posseduta;
+            } else if (filtroStato === 'mancanti') {
+              return !variante.posseduta;
+            }
+            return true;
+          });
+          
+          // Se non ci sono varianti dopo il filtro e la ricerca non corrisponde, escludila
+          if (lattina.varianti.length === 0 && !nomeMatch) return false;
+        }
+        
+        return true;
+      });
+      
+      return categoria.lattine.length > 0;
+    }
+    
+    return true;
+  });
+  
+  mostraCollezione(datiFiltrati);
+}
+
 // MOSTRA COLLEZIONE
 function mostraCollezione(categorie) {
   const container = document.getElementById('collezioneContainer');
@@ -118,7 +183,7 @@ function mostraCollezione(categorie) {
   if (!container) return;
   
   if (categorie.length === 0) {
-    container.innerHTML = '<p>Nessuna categoria trovata. Usa il pannello Admin per aggiungere dati.</p>';
+    container.innerHTML = '<p>Nessun risultato trovato.</p>';
     return;
   }
   
@@ -185,7 +250,17 @@ async function aggiornaVariante(variante_id, posseduta) {
       throw new Error('Errore aggiornamento');
     }
     
-    // Ricarica statistiche dopo aggiornamento
+    // Aggiorna i dati locali
+    datiCollezione.forEach(categoria => {
+      categoria.lattine.forEach(lattina => {
+        lattina.varianti.forEach(variante => {
+          if (variante._id === variante_id) {
+            variante.posseduta = posseduta;
+          }
+        });
+      });
+    });
+    
     caricaStatistiche();
   } catch (errore) {
     console.error('Errore:', errore);
@@ -203,18 +278,6 @@ async function caricaStatistiche() {
     if (response.ok) {
       const data = await response.json();
       console.log('Statistiche:', data);
-      
-      const mostriElement = document.getElementById('mostriPosseduti');
-      const totaliElement = document.getElementById('mostriTotali');
-      const variantiElement = document.getElementById('variantiTotali');
-      const percentElement = document.getElementById('percentuale');
-      const fillElement = document.getElementById('progressFill');
-      
-      if (mostriElement) mostriElement.textContent = data.mostriPosseduti;
-      if (totaliElement) totaliElement.textContent = data.mostriTotali;
-      if (variantiElement) variantiElement.textContent = data.variantiTotali;
-      if (percentElement) percentElement.textContent = data.percentuale + '%';
-      if (fillElement) fillElement.style.width = data.percentuale + '%';
     } else {
       console.error('Errore statistiche:', response.status);
     }

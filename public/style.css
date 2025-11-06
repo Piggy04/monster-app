@@ -808,3 +808,76 @@ body {
   width: 0%;
   transition: width 0.5s ease;
 }
+
+
+/* FILTRI */
+.filtri-container {
+  background: var(--bg-secondary);
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.ricerca-box {
+  margin-bottom: 15px;
+}
+
+.ricerca-box input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  font-size: 14px;
+  background: var(--bg-primary);
+  color: var(--text-color);
+}
+
+.filtri-box {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.filtro-stato,
+.filtro-categorie {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.filtro-stato label,
+.filtro-categorie label {
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.filtro-stato select {
+  padding: 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  background: var(--bg-primary);
+  color: var(--text-color);
+  cursor: pointer;
+}
+
+#categorieCheckboxes {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.categoria-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.categoria-checkbox input {
+  cursor: pointer;
+}
+
+.categoria-checkbox label {
+  cursor: pointer;
+  font-size: 14px;
+}
