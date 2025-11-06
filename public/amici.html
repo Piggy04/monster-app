@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Amici</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="sidebar">
+    <h2>🥤 Monster</h2>
+    
+    <nav>
+      <a href="collezione.html">La Mia Collezione</a>
+      <a href="statistiche.html">Statistiche</a>
+      <a href="amici.html" class="active">Amici</a>
+      <a href="admin.html" id="linkAdmin" style="display:none;">Gestione Contenuti</a>
+      <a href="users.html" id="linkUsers" style="display:none;">Gestione Utenti</a>
+      <a href="#" onclick="logout()">Logout</a>
+    </nav>
+  </div>
+
+  <div class="main-content">
+    <div class="header">
+      <h1>Amici</h1>
+      <p id="nomeUtente"></p>
+    </div>
+
+    <!-- TAB NAVIGATION -->
+    <div class="amici-tabs">
+      <button class="amici-tab active" onclick="mostraTab('ricerca')">🔍 Ricerca</button>
+      <button class="amici-tab" onclick="mostraTab('richieste')">📬 Richieste</button>
+      <button class="amici-tab" onclick="mostraTab('amici')">👥 I Miei Amici</button>
+    </div>
+
+    <!-- TAB 1: RICERCA -->
+    <div id="tabRicerca" class="amici-tab-content active">
+      <div class="ricerca-box">
+        <input 
+          type="text" 
+          id="ricercaUsername" 
+          placeholder="🔍 Cerca per username..." 
+          onkeyup="cercaUtenti()"
+        >
+      </div>
+      <div id="risultatiRicerca" class="risultati-ricerca">
+        <p>Inizia a digitare per cercare...</p>
+      </div>
+    </div>
+
+    <!-- TAB 2: RICHIESTE -->
+    <div id="tabRichieste" class="amici-tab-content" style="display:none;">
+      <h3>Richieste Ricevute</h3>
+      <div id="richiesteRicevute" class="amici-list">
+        <p>Nessuna richiesta in sospeso</p>
+      </div>
+      
+      <h3 style="margin-top: 30px;">Richieste Inviate</h3>
+      <div id="richiesteInviate" class="amici-list">
+        <p>Nessuna richiesta inviata</p>
+      </div>
+    </div>
+
+    <!-- TAB 3: AMICI -->
+    <div id="tabAmici" class="amici-tab-content" style="display:none;">
+      <div id="amiciList" class="amici-list">
+        <p>Nessun amico ancora</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- THEME SELECTOR -->
+  <div class="theme-selector">
+    <h4>Tema</h4>
+    <div class="theme-buttons">
+      <button class="theme-btn light active" onclick="cambiaTema('light')" title="Light"></button>
+      <button class="theme-btn dark" onclick="cambiaTema('dark')" title="Dark"></button>
+      <button class="theme-btn green" onclick="cambiaTema('green')" title="Green"></button>
+      <button class="theme-btn purple" onclick="cambiaTema('purple')" title="Purple"></button>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="theme.js"></script>
+  <script src="amici.js"></script>
+</body>
+</html>
