@@ -76,6 +76,7 @@
               </select>
               <input type="text" id="nomeVariante" placeholder="Nome variante (es: Edizione USA 2023)" required>
               <input type="number" id="ordineVariante" placeholder="Ordine" value="0">
+              <input type="url" id="immagineVariante" placeholder="URL immagine (facoltativo)">
               <button type="submit">Aggiungi Variante</button>
             </form>
             <p class="successo" id="successoVariante"></p>
@@ -104,11 +105,11 @@
         <button type="submit">Salva Modifiche</button>
       </form>
       
-      <!-- Upload immagine per variante -->
+      <!-- URL immagine per variante -->
       <div id="uploadForm" class="upload-form" style="display:none;">
-        <h3>📷 Upload Immagine</h3>
-        <input type="file" id="uploadImage" accept="image/*">
-        <button type="button" onclick="caricaImmagine()">Carica Immagine</button>
+        <h3>📷 Immagine</h3>
+        <input type="url" id="uploadImage" placeholder="Inserisci URL immagine (https://...)">
+        <button type="button" onclick="caricaImmagine()">Salva Immagine</button>
         <img id="previewImage" class="upload-preview" style="display:none;">
       </div>
     </div>

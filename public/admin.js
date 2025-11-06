@@ -148,6 +148,7 @@ document.getElementById('formVariante').addEventListener('submit', async (e) => 
   const lattina_id = document.getElementById('lattinaVariante').value;
   const nome = document.getElementById('nomeVariante').value;
   const ordine = document.getElementById('ordineVariante').value;
+  const immagine = document.getElementById('immagineVariante').value.trim() || null;
   
   try {
     const response = await fetch(`${API_URL}/collezione/variante`, {
@@ -156,7 +157,7 @@ document.getElementById('formVariante').addEventListener('submit', async (e) => 
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
       },
-      body: JSON.stringify({ lattina_id, nome, ordine: parseInt(ordine) })
+      body: JSON.stringify({ lattina_id, nome, ordine: parseInt(ordine), immagine })
     });
     
     if (response.ok) {
@@ -250,7 +251,7 @@ function mostraGestione(categorie) {
   });
 }
 
-// MODIFICA ITEM (CON UPLOAD IMMAGINE PER VARIANTI)
+// MODIFICA ITEM
 function modificaItem(id, nome, ordine, tipo) {
   document.getElementById('modificaId').value = id;
   document.getElementById('modificaTipo').value = tipo;
@@ -258,7 +259,7 @@ function modificaItem(id, nome, ordine, tipo) {
   document.getElementById('modificaOrdine').value = ordine;
   document.getElementById('modalTitolo').textContent = `Modifica ${tipo.charAt(0).toUpperCase() + tipo.slice(1)}`;
   
-  // Mostra upload solo per varianti
+  // Mostra form URL per varianti
   if (tipo === 'variante') {
     document.getElementById('uploadForm').style.display = 'block';
     document.getElementById('previewImage').style.display = 'none';
@@ -305,44 +306,56 @@ document.getElementById('formModifica').addEventListener('submit', async (e) => 
   }
 });
 
-// CARICA IMMAGINE
+// CARICA IMMAGINE (tramite URL)
 async function caricaImmagine() {
-  const fileInput = document.getElementById('uploadImage');
+  const urlInput = document.getElementById('uploadImage');
   const varianteId = document.getElementById('modificaId').value;
   const tipo = document.getElementById('modificaTipo').value;
+  const urlImmagine = urlInput.value.trim();
   
   if (tipo !== 'variante') {
-    alert('Upload immagine disponibile solo per varianti');
+    alert('URL immagine disponibile solo per varianti');
     return;
   }
   
-  if (!fileInput.files[0]) {
-    alert('Seleziona un\'immagine');
+  if (!urlImmagine) {
+    alert('Inserisci un URL valido');
     return;
   }
   
-  const formData = new FormData();
-  formData.append('immagine', fileInput.files[0]);
+  // Valida che sia un URL
+  try {
+    new URL(urlImmagine);
+  } catch (err) {
+    alert('Inserisci un URL valido (es: https://esempio.com/immagine.png)');
+    return;
+  }
   
   try {
-    const response = await fetch(`${API_URL}/upload/variante/${varianteId}`, {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${token}` },
-      body: formData
+    const response = await fetch(`${API_URL}/collezione/variante/${varianteId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ immagine: urlImmagine })
     });
     
     if (response.ok) {
-      const data = await response.json();
-      document.getElementById('previewImage').src = data.immagine;
-      document.getElementById('previewImage').style.display = 'block';
-      alert('✓ Immagine caricata!');
-      caricaGestione();
+      const preview = document.getElementById('previewImage');
+      preview.src = urlImmagine;
+      preview.style.display = 'block';
+      alert('✓ Immagine salvata!');
+      setTimeout(() => {
+        chiudiModal();
+        caricaGestione();
+      }, 1500);
     } else {
       const data = await response.json();
-      alert(data.errore || 'Errore upload');
+      alert(data.errore || 'Errore salvataggio');
     }
   } catch (errore) {
-    alert('Errore upload immagine');
+    alert('Errore salvataggio immagine');
   }
 }
 
