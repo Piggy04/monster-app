@@ -176,6 +176,23 @@ function applicaFiltri() {
 }
 
 
+// SELEZIONA TUTTE LE CATEGORIE
+function selezionatutte() {
+  document.querySelectorAll('#categorieCheckboxes input').forEach(checkbox => {
+    checkbox.checked = true;
+  });
+  applicaFiltri();
+}
+
+// DESELEZIONA TUTTE LE CATEGORIE
+function deselezionatutte() {
+  document.querySelectorAll('#categorieCheckboxes input').forEach(checkbox => {
+    checkbox.checked = false;
+  });
+  applicaFiltri();
+}
+
+
 // MOSTRA COLLEZIONE
 function mostraCollezione(categorie) {
   const container = document.getElementById('collezioneContainer');
