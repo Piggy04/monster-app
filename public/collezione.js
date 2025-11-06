@@ -159,27 +159,32 @@ function applicaFiltri() {
     
     // Filtra lattine e varianti
     categoria.lattine = categoria.lattine.filter(lattina => {
-      // Filtra per ricerca nel nome della lattina O variante
+      // Filtra per ricerca nel nome della lattina
       const nomeLattinaMatch = lattina.nome.toLowerCase().includes(ricerca);
-      const nomeVariantiMatch = lattina.varianti.some(v => v.nome.toLowerCase().includes(ricerca));
-      const matchRicerca = nomeLattinaMatch || nomeVariantiMatch;
       
-      if (filtroStato) {
-        // Filtra varianti per stato posseduta/mancante
-        lattina.varianti = lattina.varianti.filter(variante => {
+      // Filtra varianti per ricerca
+      lattina.varianti = lattina.varianti.filter(variante => {
+        const nomeVarianteMatch = variante.nome.toLowerCase().includes(ricerca);
+        
+        // Se c'è ricerca, la variante deve matchare
+        if (ricerca && !nomeVarianteMatch) return false;
+        
+        // Se c'è filtro di stato, applica filtro
+        if (filtroStato) {
           if (filtroStato === 'possedute') {
             return variante.posseduta;
           } else if (filtroStato === 'mancanti') {
             return !variante.posseduta;
           }
-          return true;
-        });
+        }
         
-        // Se non ci sono varianti dopo il filtro e la ricerca non corrisponde, escludila
-        if (lattina.varianti.length === 0 && !matchRicerca) return false;
-      }
+        return true;
+      });
       
-      return lattina.varianti.length > 0;
+      // Ritorna la lattina se:
+      // 1. Almeno una variante rimane dopo i filtri
+      // 2. O il nome della lattina matcha la ricerca (anche senza varianti)
+      return lattina.varianti.length > 0 || nomeLattinaMatch;
     });
     
     return categoria.lattine.length > 0;
@@ -187,6 +192,7 @@ function applicaFiltri() {
   
   mostraCollezione(risultato);
 }
+
 
 
 
