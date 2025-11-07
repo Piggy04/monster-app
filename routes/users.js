@@ -79,6 +79,32 @@ router.put('/me/tema', auth, async (req, res) => {
   }
 });
 
+// PUT - Cambia ruolo utente (SOLO ADMIN)
+router.put('/:id/ruolo', adminAuth, async (req, res) => {
+  try {
+    const { ruolo } = req.body;
+    
+    if (!['user', 'beta', 'admin'].includes(ruolo)) {
+      return res.status(400).json({ errore: 'Ruolo non valido' });
+    }
+    
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { ruolo },
+      { new: true, runValidators: true }
+    ).select('-password');
+    
+    if (!user) {
+      return res.status(404).json({ errore: 'Utente non trovato' });
+    }
+    
+    res.json(user);
+  } catch (err) {
+    console.error('Errore cambio ruolo:', err);
+    res.status(500).json({ errore: 'Errore nel cambio ruolo' });
+  }
+});
+
 
 // GET info utente corrente
 router.get('/me', auth, async (req, res) => {

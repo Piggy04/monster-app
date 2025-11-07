@@ -1419,6 +1419,35 @@ body {
   box-shadow: 0 2px 8px rgba(149, 165, 166, 0.3);
 }
 
+.role-beta {
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+}
+
+.select-ruolo {
+  padding: 8px 12px;
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.select-ruolo:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.1);
+}
+
+.select-ruolo:hover {
+  border-color: var(--accent-color);
+}
+
+
 .btn-role {
   padding: 8px 16px;
   border: none;

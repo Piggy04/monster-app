@@ -11,7 +11,13 @@ const ruolo = localStorage.getItem('ruolo');
 document.addEventListener('DOMContentLoaded', () => {
   const nomeElement = document.getElementById('nomeUtente');
   if (nomeElement) {
-    nomeElement.textContent = `Ciao, ${username}!`;
+    let badgeHtml = '';
+    if (ruolo === 'admin') {
+      badgeHtml = '<span class="role-badge role-admin">ADMIN</span>';
+    } else if (ruolo === 'beta') {
+      badgeHtml = '<span class="role-badge role-beta">BETA TESTER</span>';
+    }
+    nomeElement.innerHTML = `Ciao, ${username}! ${badgeHtml}`;
   }
 
   if (ruolo === 'admin') {

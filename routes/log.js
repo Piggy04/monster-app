@@ -1,12 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
+const betaAuth = require('../middleware/betaAuth'); // ← AGGIUNGI QUESTO
 const Log = require('../models/Log');
 
-// GET - Ultimi log dell'utente
-router.get('/', auth, async (req, res) => {
+// GET - Ultimi log dell'utente (SOLO BETA/ADMIN)
+router.get('/', betaAuth, async (req, res) => {  // ← CAMBIATO DA auth A betaAuth
   try {
-    const limite = req.query.limite || 50; // Default 50 log
+    const limite = req.query.limite || 50;
     
     const log = await Log.find({ utente_id: req.user.id })
       .sort({ timestamp: -1 })
@@ -20,7 +21,7 @@ router.get('/', auth, async (req, res) => {
 });
 
 // POST - Crea nuovo log (interno, chiamato da altre route)
-router.post('/crea', auth, async (req, res) => {
+router.post('/crea', auth, async (req, res) => {  // ← QUESTO RESTA auth
   try {
     const { azione, tipo, descrizione, dettagli } = req.body;
     
@@ -40,8 +41,8 @@ router.post('/crea', auth, async (req, res) => {
   }
 });
 
-// GET - Conta log non letti (per badge)
-router.get('/non-letti', auth, async (req, res) => {
+// GET - Conta log non letti (SOLO BETA/ADMIN)
+router.get('/non-letti', betaAuth, async (req, res) => {  // ← CAMBIATO DA auth A betaAuth
   try {
     const ultimoAccesso = req.user.ultimoAccesso || new Date(0);
     

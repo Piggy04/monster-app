@@ -33,49 +33,49 @@ async function caricaUtenti() {
 }
 
 function mostraUtenti(utenti) {
-  const tbody = document.getElementById('usersTableBody');
-  
-  if (utenti.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Nessun utente trovato</td></tr>';
-    return;
-  }
-  
+  const tbody = document.querySelector('#tabellaUtenti tbody');
   tbody.innerHTML = '';
-  
+
   utenti.forEach(utente => {
-    const data = new Date(utente.createdAt).toLocaleDateString('it-IT');
-    const badgeClass = utente.ruolo === 'admin' ? 'role-admin' : 'role-user';
-    
     const tr = document.createElement('tr');
+    
+    // Badge ruolo con colori diversi
+    let roleBadgeClass = 'role-user';
+    let roleText = 'User';
+    if (utente.ruolo === 'admin') {
+      roleBadgeClass = 'role-admin';
+      roleText = 'Admin';
+    } else if (utente.ruolo === 'beta') {
+      roleBadgeClass = 'role-beta';
+      roleText = 'Beta Tester';
+    }
+    
     tr.innerHTML = `
-      <td><strong>${utente.username}</strong></td>
+      <td>${utente.username}</td>
       <td>${utente.email}</td>
-      <td><span class="role-badge ${badgeClass}">${utente.ruolo.toUpperCase()}</span></td>
-      <td>${data}</td>
       <td>
-        <div class="btn-group">
-          <button class="btn-mini btn-role" onclick="cambiaRuolo('${utente._id}', '${utente.ruolo}')">
-            ${utente.ruolo === 'admin' ? '⬇️ Rimuovi Admin' : '⬆️ Rendi Admin'}
-          </button>
-          <button class="btn-mini btn-delete" onclick="eliminaUtente('${utente._id}', '${utente.username}')">🗑️ Elimina</button>
-        </div>
+        <span class="role-badge ${roleBadgeClass}">${roleText}</span>
+      </td>
+      <td>
+        <select class="select-ruolo" onchange="cambiaRuolo('${utente._id}', this.value)">
+          <option value="user" ${utente.ruolo === 'user' ? 'selected' : ''}>User</option>
+          <option value="beta" ${utente.ruolo === 'beta' ? 'selected' : ''}>Beta Tester</option>
+          <option value="admin" ${utente.ruolo === 'admin' ? 'selected' : ''}>Admin</option>
+        </select>
+      </td>
+      <td>
+        <button class="btn-delete btn-mini" onclick="eliminaUtente('${utente._id}')">🗑️ Elimina</button>
       </td>
     `;
-    
     tbody.appendChild(tr);
   });
 }
 
-// CAMBIA RUOLO
-async function cambiaRuolo(id, ruoloAttuale) {
-  const nuovoRuolo = ruoloAttuale === 'admin' ? 'user' : 'admin';
-  
-  if (!confirm(`Vuoi cambiare il ruolo in ${nuovoRuolo}?`)) {
-    return;
-  }
-  
+
+// CAMBIA RUOLO UTENTE
+async function cambiaRuolo(userId, nuovoRuolo) {
   try {
-    const response = await fetch(`${API_URL}/users/${id}/ruolo`, {
+    const response = await fetch(`${API_URL}/users/${userId}/ruolo`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -85,15 +85,18 @@ async function cambiaRuolo(id, ruoloAttuale) {
     });
     
     if (response.ok) {
+      alert('✓ Ruolo aggiornato!');
       caricaUtenti();
     } else {
       const data = await response.json();
       alert(data.errore || 'Errore cambio ruolo');
     }
-  } catch (errore) {
+  } catch (err) {
+    console.error('Errore:', err);
     alert('Errore cambio ruolo');
   }
 }
+
 
 // ELIMINA UTENTE
 async function eliminaUtente(id, username) {
