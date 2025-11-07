@@ -71,17 +71,16 @@ router.get('/completa', auth, async (req, res) => {
 
 router.post('/possesso', auth, async (req, res) => {
   try {
-    console.log('1. req.user.id:', req.user.id);
-    
     const { variante_id, posseduta } = req.body;
-    console.log('2. variante_id:', variante_id, 'posseduta:', posseduta);
     
     let possesso = await Possesso.findOne({
       utente_id: req.user.id,
       variante_id: variante_id
     });
     
-    console.log('3. Possesso trovato:', possesso);
+    // Recupera info variante per il log
+    const variante = await Variante.findById(variante_id);
+    const lattina = await Lattina.findById(variante.lattina_id);
     
     if (possesso) {
       possesso.posseduta = posseduta;
@@ -95,13 +94,32 @@ router.post('/possesso', auth, async (req, res) => {
       await possesso.save();
     }
     
-    console.log('4. Possesso salvato:', possesso);
+    // SALVA IL LOG
+    const Log = require('../models/Log');
+    const azione = posseduta ? 'aggiunto' : 'rimosso';
+    const descrizione = posseduta 
+      ? `Aggiunta ${variante.nome} (${lattina.nome}) alla collezione`
+      : `Rimossa ${variante.nome} (${lattina.nome}) dalla collezione`;
+    
+    await Log.create({
+      utente_id: req.user.id,
+      azione,
+      tipo: 'variante',
+      descrizione,
+      dettagli: {
+        variante_id: variante._id,
+        variante_nome: variante.nome,
+        lattina_nome: lattina.nome
+      }
+    });
+    
     res.json({ messaggio: 'Stato aggiornato', posseduta: possesso.posseduta });
   } catch (errore) {
-    console.error('❌ Errore possesso:', errore.message);
-    res.status(500).json({ errore: 'Errore nell\'aggiornamento', dettagli: errore.message });
+    console.error('Errore possesso:', errore.message);
+    res.status(500).json({ errore: 'Errore nell\'aggiornamento' });
   }
 });
+
 
 
 
@@ -309,7 +327,7 @@ router.get('/amico/:userId', auth, async (req, res) => {
 router.put('/stato/:varianteId', auth, async (req, res) => {
   try {
     const { varianteId } = req.params;
-    const { stato } = req.body; // "piena" o "vuota"
+    const { stato } = req.body;
     
     if (!['piena', 'vuota'].includes(stato)) {
       return res.status(400).json({ errore: 'Stato non valido' });
@@ -324,8 +342,27 @@ router.put('/stato/:varianteId', auth, async (req, res) => {
       return res.status(404).json({ errore: 'Possesso non trovato' });
     }
     
+    const statoVecchio = possesso.stato;
     possesso.stato = stato;
     await possesso.save();
+    
+    // SALVA IL LOG
+    const Log = require('../models/Log');
+    const variante = await Variante.findById(varianteId);
+    const lattina = await Lattina.findById(variante.lattina_id);
+    
+    await Log.create({
+      utente_id: req.user.id,
+      azione: 'aggiornato',
+      tipo: 'variante',
+      descrizione: `Cambio stato ${variante.nome}: da ${statoVecchio} a ${stato}`,
+      dettagli: {
+        variante_id: variante._id,
+        variante_nome: variante.nome,
+        lattina_nome: lattina.nome,
+        stato: stato
+      }
+    });
     
     res.json({ messaggio: 'Stato aggiornato', stato: possesso.stato });
   } catch (errore) {
@@ -333,6 +370,7 @@ router.put('/stato/:varianteId', auth, async (req, res) => {
     res.status(500).json({ errore: 'Errore nel salvataggio' });
   }
 });
+
 
 
 

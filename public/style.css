@@ -1549,6 +1549,38 @@ body {
   background: linear-gradient(135deg, #9c27b0 0%, #6a1b9a 100%);
 }
 
+/* ===== BADGE NOTIFICHE ===== */
+.badge-notifica {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+  color: white;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 700;
+  margin-left: 8px;
+  box-shadow: 0 4px 12px rgba(231, 76, 60, 0.4);
+  animation: badgePulse 2s infinite;
+}
+
+@keyframes badgePulse {
+  0%, 100% { 
+    transform: scale(1);
+    box-shadow: 0 4px 12px rgba(231, 76, 60, 0.4);
+  }
+  50% { 
+    transform: scale(1.1);
+    box-shadow: 0 6px 18px rgba(231, 76, 60, 0.6);
+  }
+}
+
+
+
+
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 1024px) {
   .main-content {

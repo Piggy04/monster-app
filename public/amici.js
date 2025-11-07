@@ -239,6 +239,7 @@ async function accettarichiesta(id) {
       alert('✓ Amico aggiunto!');
       caricaRichieste();
       caricaAmici();
+      caricaBadgeRichieste();
     }
   } catch (err) {
     alert('Errore accettazione richiesta');
@@ -255,6 +256,7 @@ async function rifiutarichiesta(id) {
     
     if (response.ok) {
       caricaRichieste();
+      caricaBadgeRichieste();
     }
   } catch (err) {
     alert('Errore rifiuto richiesta');
@@ -309,6 +311,49 @@ async function caricaAmici() {
     console.error('Errore caricamento amici:', err);
   }
 }
+
+// CARICA BADGE RICHIESTE
+async function caricaBadgeRichieste() {
+  try {
+    const response = await fetch(`${API_URL}/amici/richieste/ricevute`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    
+    if (response.ok) {
+      const richieste = await response.json();
+      const badge = document.getElementById('badge-richieste');
+      
+      if (richieste.length > 0) {
+        if (!badge) {
+          const tabRichieste = document.querySelector('.amici-tabs .amici-tab:nth-child(2)');
+          if (tabRichieste) {
+            const badgeEl = document.createElement('span');
+            badgeEl.id = 'badge-richieste';
+            badgeEl.className = 'badge-notifica';
+            badgeEl.textContent = richieste.length;
+            tabRichieste.appendChild(badgeEl);
+          }
+        } else {
+          badge.textContent = richieste.length;
+        }
+      } else if (badge) {
+        badge.remove();
+      }
+    }
+  } catch (err) {
+    console.error('Errore badge:', err);
+  }
+}
+
+// Chiama questa funzione quando carichi la pagina:
+document.addEventListener('DOMContentLoaded', () => {
+  // ... codice esistente ...
+  caricaBadgeRichieste();
+  
+  // Aggiorna badge ogni 5 secondi
+  setInterval(caricaBadgeRichieste, 5000);
+});
+
 
 // VISUALIZZA COLLEZIONE AMICO
 function visualizzaCollezione(amicoId, amicoUsername) {

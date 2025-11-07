@@ -129,26 +129,61 @@ router.post('/richiesta', auth, async (req, res) => {
 
 
 // PUT - Accetta richiesta
+// ACCETTA RICHIESTA
 router.put('/accetta/:id', auth, async (req, res) => {
   try {
-    const amicizia = await Amicizia.findById(req.params.id);
+    const richiesta = await Richiesta.findByIdAndUpdate(
+      req.params.id,
+      { stato: 'accettata' },
+      { new: true }
+    ).populate('mittente_id destinatario_id');
     
-    if (!amicizia) {
-      return res.status(404).json({ errore: 'Richiesta non trovata' });
-    }
+    if (!richiesta) return res.status(404).json({ errore: 'Richiesta non trovata' });
     
-    // Verifica che sia il destinatario
-    if (amicizia.destinatario_id.toString() !== req.user.id) {
-      return res.status(403).json({ errore: 'Non autorizzato' });
-    }
+    // SALVA IL LOG
+    const Log = require('../models/Log');
+    await Log.create({
+      utente_id: req.user.id,
+      azione: 'richiesta_accettata',
+      tipo: 'amico',
+      descrizione: `Hai accettato la richiesta di amicizia da ${richiesta.mittente_id.username}`,
+      dettagli: {
+        amico_id: richiesta.mittente_id._id,
+        amico_username: richiesta.mittente_id.username
+      }
+    });
     
-    amicizia.stato = 'confermata';
-    amicizia.rispostaAt = new Date();
-    await amicizia.save();
+    res.json(richiesta);
+  } catch (err) {
+    res.status(500).json({ errore: 'Errore' });
+  }
+});
+
+// INVIA RICHIESTA
+router.post('/richiesta', auth, async (req, res) => {
+  try {
+    const { destinatario_id } = req.body;
     
-    res.json({ messaggio: 'Richiesta accettata', amicizia });
-  } catch (errore) {
-    res.status(500).json({ errore: 'Errore accettazione richiesta' });
+    // ... codice esistente ...
+    
+    // SALVA IL LOG
+    const Log = require('../models/Log');
+    const destinatario = await User.findById(destinatario_id);
+    
+    await Log.create({
+      utente_id: req.user.id,
+      azione: 'richiesta_inviata',
+      tipo: 'amico',
+      descrizione: `Hai inviato una richiesta di amicizia a ${destinatario.username}`,
+      dettagli: {
+        amico_id: destinatario_id,
+        amico_username: destinatario.username
+      }
+    });
+    
+    res.status(201).json(richiesta);
+  } catch (err) {
+    res.status(500).json({ errore: 'Errore' });
   }
 });
 
