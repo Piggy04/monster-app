@@ -252,15 +252,18 @@ function mostraCollezione(dati) {
 
       lattina.varianti.forEach(variante => {
         const checked = variante.posseduta ? 'checked' : '';
-        const statoClass = variante.stato === 'piena' ? 'piena' : 'vuota';
+        const statoToggle = variante.stato === 'piena' ? 'piena' : 'vuota';
         const disabledToggle = !variante.posseduta ? 'disabled' : '';
+        
+        // CLASSE PER COLORARE DI VERDE SE PIENA E POSSEDUTA
+        const statoColoreClass = (variante.posseduta && variante.stato === 'piena') ? 'stato-piena' : 'stato-vuota';
         
         const imgHtml = variante.immagine ? 
           `<img src="${variante.immagine}" alt="${variante.nome}" class="variante-img" onclick="apriModalImmagine('${variante.immagine}')">` : 
           '<div class="variante-img-placeholder">📷</div>';
 
         htmlVarianti += `
-          <div class="variante">
+          <div class="variante ${statoColoreClass}">
             <div class="variante-left">
               <input 
                 type="checkbox" 
@@ -273,16 +276,16 @@ function mostraCollezione(dati) {
             <div class="variante-controls">
               <div class="stato-toggle ${disabledToggle}" id="toggle-${variante._id}">
                 <span class="stato-label">Vuota</span>
-                   <label class="switch">
-                   <input 
+                <label class="switch">
+                  <input 
                     type="checkbox" 
-                     ${variante.stato === 'piena' ? 'checked' : ''}
-                      ${disabledToggle}
+                    ${variante.stato === 'piena' ? 'checked' : ''}
+                    ${disabledToggle}
                     onchange="cambiaStato('${variante._id}', this.checked)"
-                     >
-                 <span class="slider ${statoClass}"></span>
-               </label>
-               <span class="stato-label">Piena</span>
+                  >
+                  <span class="slider ${statoToggle}"></span>
+                </label>
+                <span class="stato-label">Piena</span>
               </div>
               ${imgHtml}
             </div>
@@ -368,15 +371,18 @@ async function toggleVariante(varianteId) {
       } else {
         toggle.classList.add('disabled');
         toggleInput.disabled = true;
-        // Reset a piena quando viene deselezionata
+        // Reset a vuota quando viene deselezionata
         toggleInput.checked = false;
         const slider = toggle.querySelector('.slider');
         if (slider) {
-          slider.className = 'slider piena';
+          slider.className = 'slider vuota';
         }
         // Aggiorna anche il backend
         await cambiaStato(varianteId, false);
       }
+      
+      // Ricarica per aggiornare i colori
+      caricaCollezione();
       
       // Aggiorna statistiche
       caricaStatistiche();
@@ -406,10 +412,22 @@ async function cambiaStato(varianteId, isPiena) {
     });
     
     if (response.ok) {
-      // Aggiorna visivamente la classe
+      // Aggiorna visivamente la classe dello slider
       const slider = document.querySelector(`#toggle-${varianteId} .slider`);
       if (slider) {
         slider.className = `slider ${stato}`;
+      }
+      
+      // Aggiorna il colore della card
+      const varianteCard = slider.closest('.variante');
+      if (varianteCard) {
+        if (stato === 'piena') {
+          varianteCard.classList.remove('stato-vuota');
+          varianteCard.classList.add('stato-piena');
+        } else {
+          varianteCard.classList.remove('stato-piena');
+          varianteCard.classList.add('stato-vuota');
+        }
       }
       
       // Aggiorna i dati locali
@@ -424,13 +442,18 @@ async function cambiaStato(varianteId, isPiena) {
       });
     } else {
       alert('Errore nel cambio stato');
-      // Ripristina il toggle
-      const checkbox = event.target;
-      checkbox.checked = !checkbox.checked;
+      const toggleInput = document.querySelector(`#toggle-${varianteId} input[type="checkbox"]`);
+      if (toggleInput) {
+        toggleInput.checked = !isPiena;
+      }
     }
   } catch (err) {
     console.error('Errore:', err);
     alert('Errore nel cambio stato');
+    const toggleInput = document.querySelector(`#toggle-${varianteId} input[type="checkbox"]`);
+    if (toggleInput) {
+      toggleInput.checked = !isPiena;
+    }
   }
 }
 

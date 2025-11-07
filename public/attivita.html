@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Attività</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='75'>🥤</text></svg>">
+</head>
+<body>
+  <div class="sidebar">
+    <h2>🥤 Monster</h2>
+    
+    <nav>
+      <a href="collezione.html">La Mia Collezione</a>
+      <a href="statistiche.html">Statistiche</a>
+      <a href="amici.html">👥 Amici</a>
+      <a href="attivita.html" class="active">📝 Attività</a>
+      <a href="admin.html" id="linkAdmin" style="display:none;">Gestione Contenuti</a>
+      <a href="users.html" id="linkUsers" style="display:none;">Gestione Utenti</a>
+      <a href="#" onclick="logout()">Logout</a>
+    </nav>
+  </div>
+
+  <div class="main-content">
+    <div class="header">
+      <h1>📝 Attività Recente</h1>
+      <p id="nomeUtente"></p>
+    </div>
+
+    <div id="logContainer" class="log-container">
+      <p class="no-results">Caricamento...</p>
+    </div>
+  </div>
+
+  <!-- THEME DRAWER -->
+  <div class="theme-drawer" id="themeDrawer">
+    <button class="theme-drawer-toggle" onclick="toggleThemeDrawer()">🎨</button>
+    
+    <div class="theme-drawer-content">
+      <h4>Tema</h4>
+      <div class="theme-buttons">
+        <button class="theme-btn light active" onclick="cambiaTema('light')" title="Light"></button>
+        <button class="theme-btn dark" onclick="cambiaTema('dark')" title="Dark"></button>
+        <button class="theme-btn green" onclick="cambiaTema('green')" title="Green"></button>
+        <button class="theme-btn purple" onclick="cambiaTema('purple')" title="Purple"></button>
+      </div>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="theme.js"></script>
+  <script src="attivita.js"></script>
+</body>
+</html>
