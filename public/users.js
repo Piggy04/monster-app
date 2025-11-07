@@ -22,19 +22,34 @@ async function caricaUtenti() {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     
-    if (!response.ok) throw new Error('Errore');
+    if (!response.ok) {
+      throw new Error('Errore caricamento utenti');
+    }
     
     const utenti = await response.json();
     mostraUtenti(utenti);
-    
-  } catch (errore) {
-    document.getElementById('usersTableBody').innerHTML = '<tr><td colspan="5">Errore caricamento utenti</td></tr>';
+  } catch (err) {
+    console.error('Errore:', err);
+    const tbody = document.querySelector('#tabellaUtenti tbody');
+    if (tbody) {
+      tbody.innerHTML = '<tr><td colspan="5">Errore nel caricamento degli utenti</td></tr>';
+    }
   }
 }
 
 function mostraUtenti(utenti) {
   const tbody = document.querySelector('#tabellaUtenti tbody');
+  if (!tbody) {
+    console.error('Tbody non trovato');
+    return;
+  }
+  
   tbody.innerHTML = '';
+
+  if (!utenti || utenti.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5">Nessun utente trovato</td></tr>';
+    return;
+  }
 
   utenti.forEach(utente => {
     const tr = document.createElement('tr');
@@ -71,7 +86,6 @@ function mostraUtenti(utenti) {
   });
 }
 
-
 // CAMBIA RUOLO UTENTE
 async function cambiaRuolo(userId, nuovoRuolo) {
   try {
@@ -90,12 +104,15 @@ async function cambiaRuolo(userId, nuovoRuolo) {
     } else {
       const data = await response.json();
       alert(data.errore || 'Errore cambio ruolo');
+      caricaUtenti(); // Ricarica anche in caso di errore per ripristinare
     }
   } catch (err) {
     console.error('Errore:', err);
     alert('Errore cambio ruolo');
+    caricaUtenti();
   }
 }
+
 
 
 // ELIMINA UTENTE

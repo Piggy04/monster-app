@@ -1,42 +1,42 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
-const Amicizia = require('../models/Amicizia');
 const User = require('../models/User');
-const Richiesta = require('../models/Richiesta');
+const Amicizia = require('../models/Amicizia');
+const Log = require('../models/Log');
+const mongoose = require('mongoose');
 
-
+// ===== RICERCA UTENTI =====
 
 // GET - Ricerca utenti per username
 router.get('/ricerca/:username', auth, async (req, res) => {
   try {
     const username = req.params.username;
     
-    // Cerca utenti che non siamo noi stessi
     const utenti = await User.find({
       username: { $regex: username, $options: 'i' },
       _id: { $ne: req.user.id }
-    }).select('_id username').limit(10);
+    }).select('_id username email').limit(10);
     
     res.json(utenti);
   } catch (errore) {
+    console.error('Errore ricerca utenti:', errore);
     res.status(500).json({ errore: 'Errore ricerca utenti' });
   }
 });
 
-
+// ===== AMICI CONFERMATI =====
 
 // GET - Lista amici confermati
 router.get('/', auth, async (req, res) => {
   try {
-    // Amicizie confermati dove sono mittente O destinatario
     const amici = await Amicizia.find({
       stato: 'confermata',
       $or: [
         { mittente_id: req.user.id },
         { destinatario_id: req.user.id }
       ]
-    }).populate('mittente_id', '_id username').populate('destinatario_id', '_id username');
+    }).populate('mittente_id', '_id username email').populate('destinatario_id', '_id username email');
     
     // Estrai l'amico (non se stesso)
     const amiciList = amici.map(amicizia => {
@@ -47,27 +47,27 @@ router.get('/', auth, async (req, res) => {
     
     res.json(amiciList);
   } catch (errore) {
+    console.error('Errore caricamento amici:', errore);
     res.status(500).json({ errore: 'Errore caricamento amici' });
   }
 });
 
+// ===== RICHIESTE DI AMICIZIA =====
 
-
-// GET - Richieste in sospeso ricevute
+// GET - Richieste ricevute
 router.get('/richieste/ricevute', auth, async (req, res) => {
   try {
     const richieste = await Amicizia.find({
       destinatario_id: req.user.id,
       stato: 'in_sospeso'
-    }).populate('mittente_id', '_id username').sort({ createdAt: -1 });
+    }).populate('mittente_id', '_id username email').sort({ createdAt: -1 });
     
     res.json(richieste);
   } catch (errore) {
+    console.error('Errore caricamento richieste ricevute:', errore);
     res.status(500).json({ errore: 'Errore caricamento richieste' });
   }
 });
-
-
 
 // GET - Richieste inviate
 router.get('/richieste/inviate', auth, async (req, res) => {
@@ -75,15 +75,14 @@ router.get('/richieste/inviate', auth, async (req, res) => {
     const richieste = await Amicizia.find({
       mittente_id: req.user.id,
       stato: 'in_sospeso'
-    }).populate('destinatario_id', '_id username').sort({ createdAt: -1 });
+    }).populate('destinatario_id', '_id username email').sort({ createdAt: -1 });
     
     res.json(richieste);
   } catch (errore) {
+    console.error('Errore caricamento richieste inviate:', errore);
     res.status(500).json({ errore: 'Errore caricamento richieste inviate' });
   }
 });
-
-
 
 // POST - Invia richiesta di amicizia
 router.post('/richiesta', auth, async (req, res) => {
@@ -121,56 +120,8 @@ router.post('/richiesta', auth, async (req, res) => {
     });
     
     await amicizia.save();
-    res.status(201).json({ messaggio: 'Richiesta inviata', amicizia });
-  } catch (errore) {
-    res.status(500).json({ errore: 'Errore invio richiesta' });
-  }
-});
-
-
-
-// PUT - Accetta richiesta
-// ACCETTA RICHIESTA
-router.put('/accetta/:id', auth, async (req, res) => {
-  try {
-    const richiesta = await Richiesta.findByIdAndUpdate(
-      req.params.id,
-      { stato: 'accettata' },
-      { new: true }
-    ).populate('mittente_id destinatario_id');
-    
-    if (!richiesta) return res.status(404).json({ errore: 'Richiesta non trovata' });
     
     // SALVA IL LOG
-    const Log = require('../models/Log');
-    await Log.create({
-      utente_id: req.user.id,
-      azione: 'richiesta_accettata',
-      tipo: 'amico',
-      descrizione: `Hai accettato la richiesta di amicizia da ${richiesta.mittente_id.username}`,
-      dettagli: {
-        amico_id: richiesta.mittente_id._id,
-        amico_username: richiesta.mittente_id.username
-      }
-    });
-    
-    res.json(richiesta);
-  } catch (err) {
-    res.status(500).json({ errore: 'Errore' });
-  }
-});
-
-// INVIA RICHIESTA
-router.post('/richiesta', auth, async (req, res) => {
-  try {
-    const { destinatario_id } = req.body;
-    
-    // ... codice esistente ...
-    
-    // SALVA IL LOG
-    const Log = require('../models/Log');
-    const destinatario = await User.findById(destinatario_id);
-    
     await Log.create({
       utente_id: req.user.id,
       azione: 'richiesta_inviata',
@@ -182,13 +133,52 @@ router.post('/richiesta', auth, async (req, res) => {
       }
     });
     
-    res.status(201).json(richiesta);
-  } catch (err) {
-    res.status(500).json({ errore: 'Errore' });
+    res.status(201).json({ messaggio: 'Richiesta inviata', amicizia });
+  } catch (errore) {
+    console.error('Errore invio richiesta:', errore);
+    res.status(500).json({ errore: 'Errore invio richiesta' });
   }
 });
 
-
+// PUT - Accetta richiesta
+router.put('/accetta/:id', auth, async (req, res) => {
+  try {
+    const amicizia = await Amicizia.findById(req.params.id);
+    
+    if (!amicizia) {
+      return res.status(404).json({ errore: 'Richiesta non trovata' });
+    }
+    
+    // Verifica che sia il destinatario
+    if (amicizia.destinatario_id.toString() !== req.user.id) {
+      return res.status(403).json({ errore: 'Non autorizzato' });
+    }
+    
+    amicizia.stato = 'confermata';
+    amicizia.rispostaAt = new Date();
+    await amicizia.save();
+    
+    // Popola i dati per il log
+    await amicizia.populate('mittente_id', 'username');
+    
+    // SALVA IL LOG
+    await Log.create({
+      utente_id: req.user.id,
+      azione: 'richiesta_accettata',
+      tipo: 'amico',
+      descrizione: `Hai accettato la richiesta di amicizia da ${amicizia.mittente_id.username}`,
+      dettagli: {
+        amico_id: amicizia.mittente_id._id,
+        amico_username: amicizia.mittente_id.username
+      }
+    });
+    
+    res.json({ messaggio: 'Richiesta accettata', amicizia });
+  } catch (errore) {
+    console.error('Errore accettazione richiesta:', errore);
+    res.status(500).json({ errore: 'Errore accettazione richiesta' });
+  }
+});
 
 // PUT - Rifiuta richiesta
 router.put('/rifiuta/:id', auth, async (req, res) => {
@@ -210,35 +200,37 @@ router.put('/rifiuta/:id', auth, async (req, res) => {
     
     res.json({ messaggio: 'Richiesta rifiutata' });
   } catch (errore) {
+    console.error('Errore rifiuto richiesta:', errore);
     res.status(500).json({ errore: 'Errore rifiuto richiesta' });
   }
 });
 
+// ===== RIMOZIONE AMICI =====
 
-
-// DELETE - Rimuovi amico
+// DELETE - Annulla richiesta inviata (ID della richiesta)
 router.delete('/:id', auth, async (req, res) => {
   try {
     const amicizia = await Amicizia.findById(req.params.id);
     
     if (!amicizia) {
-      return res.status(404).json({ errore: 'Amicizia non trovata' });
+      return res.status(404).json({ errore: 'Richiesta non trovata' });
     }
     
-    // Verifica che sia uno dei due
+    // Verifica che sia uno dei due coinvolti
     if (amicizia.mittente_id.toString() !== req.user.id && 
         amicizia.destinatario_id.toString() !== req.user.id) {
       return res.status(403).json({ errore: 'Non autorizzato' });
     }
     
     await Amicizia.findByIdAndDelete(req.params.id);
-    res.json({ messaggio: 'Amico rimosso' });
+    res.json({ messaggio: 'Richiesta annullata' });
   } catch (errore) {
-    res.status(500).json({ errore: 'Errore rimozione amico' });
+    console.error('Errore annullamento richiesta:', errore);
+    res.status(500).json({ errore: 'Errore annullamento' });
   }
 });
 
-// DELETE - Rimuovi amico
+// DELETE - Rimuovi amico (usando ID amico)
 router.delete('/rimuovi/:amicoId', auth, async (req, res) => {
   try {
     const amicoId = req.params.amicoId;
@@ -246,11 +238,19 @@ router.delete('/rimuovi/:amicoId', auth, async (req, res) => {
     
     console.log('🗑️ Richiesta rimozione amico:', { userId, amicoId });
     
-    // Trova e elimina la richiesta accettata tra i due utenti
-    const risultato = await Richiesta.findOneAndDelete({
-      $or: [
-        { mittente_id: userId, destinatario_id: amicoId, stato: 'accettata' },
-        { mittente_id: amicoId, destinatario_id: userId, stato: 'accettata' }
+    const userObjectId = new mongoose.Types.ObjectId(userId);
+    const amicoObjectId = new mongoose.Types.ObjectId(amicoId);
+    
+    // Trova e elimina l'amicizia confermata tra i due utenti
+    const risultato = await Amicizia.findOneAndDelete({
+      $and: [
+        { stato: 'confermata' },
+        {
+          $or: [
+            { mittente_id: userObjectId, destinatario_id: amicoObjectId },
+            { mittente_id: amicoObjectId, destinatario_id: userObjectId }
+          ]
+        }
       ]
     });
     
@@ -266,7 +266,5 @@ router.delete('/rimuovi/:amicoId', auth, async (req, res) => {
     res.status(500).json({ errore: 'Errore nella rimozione', dettagli: err.message });
   }
 });
-
-
 
 module.exports = router;
