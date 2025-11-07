@@ -237,6 +237,30 @@ router.delete('/:id', auth, async (req, res) => {
   }
 });
 
+// DELETE - Rimuovi amico
+router.delete('/rimuovi/:amicoId', auth, async (req, res) => {
+  try {
+    const amicoId = req.params.amicoId;
+    const userId = req.user.id;
+    
+    // Trova e elimina la richiesta accettata tra i due utenti
+    const risultato = await Richiesta.deleteOne({
+      $or: [
+        { mittente_id: userId, destinatario_id: amicoId, stato: 'accettata' },
+        { mittente_id: amicoId, destinatario_id: userId, stato: 'accettata' }
+      ]
+    });
+    
+    if (risultato.deletedCount === 0) {
+      return res.status(404).json({ errore: 'Amicizia non trovata' });
+    }
+    
+    res.json({ messaggio: 'Amico rimosso con successo' });
+  } catch (err) {
+    console.error('Errore rimozione amico:', err);
+    res.status(500).json({ errore: 'Errore nella rimozione' });
+  }
+});
 
 
 module.exports = router;

@@ -251,47 +251,48 @@ function mostraCollezione(dati) {
       let htmlVarianti = '';
 
       lattina.varianti.forEach(variante => {
-        const checked = variante.posseduta ? 'checked' : '';
-        const statoToggle = variante.stato === 'piena' ? 'piena' : 'vuota';
-        const disabledToggle = !variante.posseduta ? 'disabled' : '';
-        
-        // CLASSE PER COLORARE DI VERDE SE PIENA E POSSEDUTA
-        const statoColoreClass = (variante.posseduta && variante.stato === 'piena') ? 'stato-piena' : 'stato-vuota';
-        
-        const imgHtml = variante.immagine ? 
-          `<img src="${variante.immagine}" alt="${variante.nome}" class="variante-img" onclick="apriModalImmagine('${variante.immagine}')">` : 
-          '<div class="variante-img-placeholder">📷</div>';
+  const checked = variante.posseduta ? 'checked' : '';
+  const statoToggle = variante.stato === 'piena' ? 'piena' : 'vuota';
+  const disabledToggle = !variante.posseduta ? 'disabled' : '';
+  
+  // CLASSE PER COLORARE DI VERDE SE POSSEDUTA (qualsiasi stato)
+  const classPosseduta = variante.posseduta ? 'variante-posseduta' : '';
+  
+  const imgHtml = variante.immagine ? 
+    `<img src="${variante.immagine}" alt="${variante.nome}" class="variante-img" onclick="apriModalImmagine('${variante.immagine}')">` : 
+    '<div class="variante-img-placeholder">📷</div>';
 
-        htmlVarianti += `
-          <div class="variante ${statoColoreClass}">
-            <div class="variante-left">
-              <input 
-                type="checkbox" 
-                id="check-${variante._id}"
-                ${checked} 
-                onchange="toggleVariante('${variante._id}')"
-              >
-              <label for="check-${variante._id}">${variante.nome}</label>
-            </div>
-            <div class="variante-controls">
-              <div class="stato-toggle ${disabledToggle}" id="toggle-${variante._id}">
-                <span class="stato-label">Vuota</span>
-                <label class="switch">
-                  <input 
-                    type="checkbox" 
-                    ${variante.stato === 'piena' ? 'checked' : ''}
-                    ${disabledToggle}
-                    onchange="cambiaStato('${variante._id}', this.checked)"
-                  >
-                  <span class="slider ${statoToggle}"></span>
-                </label>
-                <span class="stato-label">Piena</span>
-              </div>
-              ${imgHtml}
-            </div>
-          </div>
-        `;
-      });
+  htmlVarianti += `
+    <div class="variante ${classPosseduta}">
+      <div class="variante-left">
+        <input 
+          type="checkbox" 
+          id="check-${variante._id}"
+          ${checked} 
+          onchange="toggleVariante('${variante._id}')"
+        >
+        <label for="check-${variante._id}">${variante.nome}</label>
+      </div>
+      <div class="variante-controls">
+        <div class="stato-toggle ${disabledToggle}" id="toggle-${variante._id}">
+          <span class="stato-label">Vuota</span>
+          <label class="switch">
+            <input 
+              type="checkbox" 
+              ${variante.stato === 'piena' ? 'checked' : ''}
+              ${disabledToggle}
+              onchange="cambiaStato('${variante._id}', this.checked)"
+            >
+            <span class="slider ${statoToggle}"></span>
+          </label>
+          <span class="stato-label">Piena</span>
+        </div>
+        ${imgHtml}
+      </div>
+    </div>
+  `;
+});
+
 
       htmlLattine += `
         <div class="lattina">
@@ -412,22 +413,10 @@ async function cambiaStato(varianteId, isPiena) {
     });
     
     if (response.ok) {
-      // Aggiorna visivamente la classe dello slider
+      // Aggiorna visivamente lo slider
       const slider = document.querySelector(`#toggle-${varianteId} .slider`);
       if (slider) {
         slider.className = `slider ${stato}`;
-      }
-      
-      // Aggiorna il colore della card
-      const varianteCard = slider.closest('.variante');
-      if (varianteCard) {
-        if (stato === 'piena') {
-          varianteCard.classList.remove('stato-vuota');
-          varianteCard.classList.add('stato-piena');
-        } else {
-          varianteCard.classList.remove('stato-piena');
-          varianteCard.classList.add('stato-vuota');
-        }
       }
       
       // Aggiorna i dati locali
@@ -456,6 +445,7 @@ async function cambiaStato(varianteId, isPiena) {
     }
   }
 }
+
 
 // CARICA STATISTICHE
 async function caricaStatistiche() {

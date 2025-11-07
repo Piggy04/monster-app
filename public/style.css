@@ -364,6 +364,7 @@ body {
   border-radius: 12px;
   border: 2px solid var(--border-color);
   transition: all 0.3s ease;
+  position: relative;
 }
 
 .variante:hover {
@@ -1579,29 +1580,53 @@ body {
 
 
 /* ===== VARIANTE PIENA/VUOTA - COLORE ===== */
-.variante.stato-piena {
-  background: linear-gradient(135deg, rgba(46, 204, 113, 0.1) 0%, rgba(46, 204, 113, 0.05) 100%);
+
+.variante.variante-posseduta {
+  background: linear-gradient(135deg, rgba(46, 204, 113, 0.15) 0%, rgba(46, 204, 113, 0.08) 100%);
   border-color: var(--accent-color);
-  box-shadow: 0 2px 8px rgba(46, 204, 113, 0.2);
+  box-shadow: 0 2px 8px rgba(46, 204, 113, 0.25);
 }
 
-.variante.stato-piena .variante-left label::before {
-  content: '🟢 ';
-  margin-right: 4px;
-  font-size: 12px;
+.variante.variante-posseduta::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--accent-color);
+  border-radius: 12px 0 0 12px;
 }
 
-.variante.stato-vuota {
-  background: var(--bg-primary);
-  opacity: 0.7;
+.variante.variante-posseduta .variante-left label {
+  font-weight: 600;
+  color: var(--accent-color);
 }
 
-.variante.stato-vuota .variante-left label::before {
-  content: '⚪ ';
-  margin-right: 4px;
-  font-size: 12px;
-  opacity: 0.5;
+/* Varianti non possedute - grigie */
+.variante:not(.variante-posseduta) {
+  opacity: 0.6;
+  filter: grayscale(30%);
 }
+
+/* INTERRUTTORE - Grigio se vuota, Verde se piena */
+.slider.vuota {
+  background-color: #95a5a6 !important;
+}
+
+.slider.piena {
+  background-color: var(--accent-color) !important;
+  box-shadow: 0 0 8px rgba(46, 204, 113, 0.4);
+}
+
+input:checked + .slider.piena {
+  background-color: var(--accent-color) !important;
+}
+
+input:not(:checked) + .slider.vuota {
+  background-color: #95a5a6 !important;
+}
+
 
 /* ===== LOG ATTIVITÀ ===== */
 .log-container {

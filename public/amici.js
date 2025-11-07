@@ -24,6 +24,10 @@ document.addEventListener('DOMContentLoaded', () => {
   caricaTema();
   caricaRichieste();
   caricaAmici();
+  caricaBadgeRichieste();
+  
+  // Aggiorna badge ogni 5 secondi
+  setInterval(caricaBadgeRichieste, 5000);
 });
 
 // CARICA E APPLICA TEMA
@@ -300,10 +304,11 @@ async function caricaAmici() {
       <div class="amico-card">
         <div>
           <h4>${amico.username}</h4>
+          <small>Email: ${amico.email || 'Non disponibile'}</small>
         </div>
         <div class="btn-group">
-          <button class="btn-mini btn-view" onclick="visualizzaCollezione('${amico._id}', '${amico.username}')">👁️ Visualizza</button>
-          <button class="btn-mini btn-delete" onclick="rimuoviAmico('${amico._id}')">🗑️ Rimuovi</button>
+          <button class="btn-view" onclick="visualizzaCollezione('${amico._id}', '${amico.username}')">👁️ Visualizza</button>
+          <button class="btn-delete btn-mini" onclick="rimuoviAmico('${amico._id}', '${amico.username}')">🗑️ Rimuovi</button>
         </div>
       </div>
     `).join('');
@@ -345,48 +350,32 @@ async function caricaBadgeRichieste() {
   }
 }
 
-// Chiama questa funzione quando carichi la pagina:
-document.addEventListener('DOMContentLoaded', () => {
-  // ... codice esistente ...
-  caricaBadgeRichieste();
-  
-  // Aggiorna badge ogni 5 secondi
-  setInterval(caricaBadgeRichieste, 5000);
-});
-
-
 // VISUALIZZA COLLEZIONE AMICO
 function visualizzaCollezione(amicoId, amicoUsername) {
-  // Passa l'ID via URL
   window.location.href = `collezione-amico.html?amico=${amicoId}&username=${encodeURIComponent(amicoUsername)}`;
 }
 
-// RIMUOVI AMICO
-async function rimuoviAmico(amicoId) {
-  if (!confirm('Sei sicuro di voler rimuovere questo amico?')) return;
+// RIMUOVI AMICO (CORRETTO)
+async function rimuoviAmico(amicoId, username) {
+  if (!confirm(`Vuoi davvero rimuovere ${username} dagli amici?`)) {
+    return;
+  }
   
   try {
-    // Trovare l'ID della relazione amicizia
-    const response = await fetch(`${API_URL}/amici`, {
+    const response = await fetch(`${API_URL}/amici/rimuovi/${amicoId}`, {
+      method: 'DELETE',
       headers: { 'Authorization': `Bearer ${token}` }
     });
     
-    const amici = await response.json();
-    const amicizia = amici.find(a => a._id === amicoId);
-    
-    if (amicizia) {
-      const deleteResponse = await fetch(`${API_URL}/amici/${amicizia._id}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      
-      if (deleteResponse.ok) {
-        alert('Amico rimosso');
-        caricaAmici();
-      }
+    if (response.ok) {
+      alert('✓ Amico rimosso');
+      caricaAmici();
+    } else {
+      const data = await response.json();
+      alert(data.errore || 'Errore nella rimozione');
     }
   } catch (err) {
-    console.error('Errore rimozione:', err);
-    alert('Errore rimozione amico');
+    console.error('Errore:', err);
+    alert('Errore nella rimozione');
   }
 }
