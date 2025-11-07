@@ -16,10 +16,6 @@ const amiciziaSchema = new mongoose.Schema({
     enum: ['in_sospeso', 'confermata', 'rifiutata'],
     default: 'in_sospeso'
   },
-  createdAt: {
-    type: Date,
-    default: Date.now
-  },
   rispostaAt: {
     type: Date,
     default: null
