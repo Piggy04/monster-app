@@ -37,7 +37,7 @@ router.get('/completa', auth, async (req, res) => {
                   ordine: variante.ordine,
                   immagine: variante.immagine,
                   posseduta: possesso ? possesso.posseduta : false,
-                  stato: possesso ? possesso.stato : 'piena'
+                  stato: possesso ? possesso.stato : 'vuota'
                 };
               })
             );

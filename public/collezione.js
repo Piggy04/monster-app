@@ -272,17 +272,17 @@ function mostraCollezione(dati) {
             </div>
             <div class="variante-controls">
               <div class="stato-toggle ${disabledToggle}" id="toggle-${variante._id}">
-                <span class="stato-label">Piena</span>
-                <label class="switch">
-                  <input 
-                    type="checkbox" 
-                    ${variante.stato === 'vuota' ? 'checked' : ''}
-                    ${disabledToggle}
-                    onchange="cambiaStato('${variante._id}', this.checked)"
-                  >
-                  <span class="slider ${statoClass}"></span>
-                </label>
                 <span class="stato-label">Vuota</span>
+                   <label class="switch">
+                   <input 
+                    type="checkbox" 
+                     ${variante.stato === 'piena' ? 'checked' : ''}
+                      ${disabledToggle}
+                    onchange="cambiaStato('${variante._id}', this.checked)"
+                     >
+                 <span class="slider ${statoClass}"></span>
+               </label>
+               <span class="stato-label">Piena</span>
               </div>
               ${imgHtml}
             </div>
@@ -392,8 +392,8 @@ async function toggleVariante(varianteId) {
 }
 
 // CAMBIA STATO PIENA/VUOTA
-async function cambiaStato(varianteId, isVuota) {
-  const stato = isVuota ? 'vuota' : 'piena';
+async function cambiaStato(varianteId, isPiena) {
+  const stato = isPiena ? 'piena' : 'vuota';
   
   try {
     const response = await fetch(`${API_URL}/collezione/stato/${varianteId}`, {

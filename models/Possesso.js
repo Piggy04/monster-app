@@ -18,7 +18,7 @@ const possessoSchema = new mongoose.Schema({
   stato: {
     type: String,
     enum: ['piena', 'vuota'],
-    default: 'piena'
+    default: 'vuota'
   }
 }, { timestamps: true });
 
