@@ -3,6 +3,7 @@ const router = express.Router();
 const auth = require('../middleware/auth');
 const Amicizia = require('../models/Amicizia');
 const User = require('../models/User');
+const Richiesta = require('../models/Richiesta');
 
 
 
