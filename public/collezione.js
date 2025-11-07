@@ -159,32 +159,52 @@ function applicaFiltri() {
     
     // Filtra lattine e varianti
     categoria.lattine = categoria.lattine.filter(lattina => {
-      // Filtra per ricerca nel nome della lattina
+      // Verifica se il nome della lattina matcha
       const nomeLattinaMatch = lattina.nome.toLowerCase().includes(ricerca);
       
-      // Filtra varianti per ricerca
+      // Se il nome della lattina matcha E non c'è ricerca, mostra tutte le varianti
+      if (nomeLattinaMatch && !ricerca) {
+        // Applica solo filtro di stato
+        if (filtroStato) {
+          lattina.varianti = lattina.varianti.filter(variante => {
+            if (filtroStato === 'possedute') return variante.posseduta;
+            if (filtroStato === 'mancanti') return !variante.posseduta;
+            return true;
+          });
+        }
+        return lattina.varianti.length > 0;
+      }
+      
+      // Se il nome della lattina matcha E c'è ricerca, mostra tutte le sue varianti
+      if (nomeLattinaMatch && ricerca) {
+        // Applica solo filtro di stato, NON filtro di ricerca sulle varianti
+        if (filtroStato) {
+          lattina.varianti = lattina.varianti.filter(variante => {
+            if (filtroStato === 'possedute') return variante.posseduta;
+            if (filtroStato === 'mancanti') return !variante.posseduta;
+            return true;
+          });
+        }
+        return lattina.varianti.length > 0;
+      }
+      
+      // Se il nome della lattina NON matcha, filtra le varianti per ricerca
       lattina.varianti = lattina.varianti.filter(variante => {
         const nomeVarianteMatch = variante.nome.toLowerCase().includes(ricerca);
         
-        // Se c'è ricerca, la variante deve matchare
+        // Se c'è ricerca e la variante non matcha, escludila
         if (ricerca && !nomeVarianteMatch) return false;
         
-        // Se c'è filtro di stato, applica filtro
+        // Applica filtro di stato
         if (filtroStato) {
-          if (filtroStato === 'possedute') {
-            return variante.posseduta;
-          } else if (filtroStato === 'mancanti') {
-            return !variante.posseduta;
-          }
+          if (filtroStato === 'possedute') return variante.posseduta;
+          if (filtroStato === 'mancanti') return !variante.posseduta;
         }
         
         return true;
       });
       
-      // Ritorna la lattina se:
-      // 1. Almeno una variante rimane dopo i filtri
-      // 2. O il nome della lattina matcha la ricerca (anche senza varianti)
-      return lattina.varianti.length > 0 || nomeLattinaMatch;
+      return lattina.varianti.length > 0;
     });
     
     return categoria.lattine.length > 0;
@@ -192,6 +212,7 @@ function applicaFiltri() {
   
   mostraCollezione(risultato);
 }
+
 
 
 
