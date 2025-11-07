@@ -238,61 +238,89 @@ function deselezionatutte() {
 
 
 // MOSTRA COLLEZIONE
-function mostraCollezione(categorie) {
+function mostraCollezione(dati) {
   const container = document.getElementById('collezioneContainer');
-  
-  if (!container) return;
-  
-  if (categorie.length === 0) {
-    container.innerHTML = '<p>Nessun risultato trovato.</p>';
+  container.innerHTML = '';
+
+  if (dati.length === 0) {
+    container.innerHTML = '<p class="no-results">Nessuna lattina trovata.</p>';
     return;
   }
-  
-  container.innerHTML = '';
-  
-  categorie.forEach(categoria => {
+
+  dati.forEach(categoria => {
     const divCategoria = document.createElement('div');
     divCategoria.className = 'categoria';
-    
+    divCategoria.id = `categoria-${categoria._id}`;
+
     let htmlLattine = '';
-    
+
     categoria.lattine.forEach(lattina => {
       let htmlVarianti = '';
-      
+
       lattina.varianti.forEach(variante => {
+        const checked = variante.posseduta ? 'checked' : '';
+        
         const imgHtml = variante.immagine ? 
           `<img src="${variante.immagine}" alt="${variante.nome}" class="variante-img" onclick="apriModalImmagine('${variante.immagine}')">` : 
-          '';
-        
+          '<div class="variante-img-placeholder">📷</div>';
+
         htmlVarianti += `
           <div class="variante">
-            <input 
-              type="checkbox" 
-              id="var_${variante._id}" 
-              ${variante.posseduta ? 'checked' : ''}
-              onchange="aggiornaVariante('${variante._id}', this.checked)"
-            >
-            <label for="var_${variante._id}">${variante.nome}</label>
-            ${imgHtml}
+            <div class="variante-left">
+              <input 
+                type="checkbox" 
+                ${checked} 
+                onchange="toggleVariante('${variante._id}')"
+              >
+              <label>${variante.nome}</label>
+            </div>
+            <div class="variante-right">
+              ${imgHtml}
+            </div>
           </div>
         `;
       });
-      
+
       htmlLattine += `
         <div class="lattina">
           <h3>${lattina.nome}</h3>
-          ${htmlVarianti}
+          <div class="varianti-grid">
+            ${htmlVarianti}
+          </div>
         </div>
       `;
     });
-    
+
     divCategoria.innerHTML = `
-      <h2>${categoria.nome}</h2>
-      ${htmlLattine}
+      <div class="categoria-header" onclick="toggleCategoria('${categoria._id}')">
+        <h2>
+          <span class="toggle-icon" id="icon-${categoria._id}">▼</span>
+          ${categoria.nome}
+        </h2>
+        <span class="categoria-count">${categoria.lattine.length} lattine</span>
+      </div>
+      <div class="categoria-content">
+        ${htmlLattine}
+      </div>
     `;
-    
+
     container.appendChild(divCategoria);
   });
+}
+
+
+// TOGGLE CATEGORIA (collapse/expand)
+function toggleCategoria(categoriaId) {
+  const categoria = document.getElementById(`categoria-${categoriaId}`);
+  const icon = document.getElementById(`icon-${categoriaId}`);
+  
+  if (categoria.classList.contains('collapsed')) {
+    categoria.classList.remove('collapsed');
+    icon.textContent = '▼';
+  } else {
+    categoria.classList.add('collapsed');
+    icon.textContent = '▶';
+  }
 }
 
 
