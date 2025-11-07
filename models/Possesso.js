@@ -14,9 +14,12 @@ const possessoSchema = new mongoose.Schema({
   posseduta: {
     type: Boolean,
     default: false
+  },
+  stato: {
+    type: String,
+    enum: ['piena', 'vuota'],
+    default: 'piena'
   }
 }, { timestamps: true });
-
-possessoSchema.index({ utente_id: 1, variante_id: 1 }, { unique: true });
 
 module.exports = mongoose.model('Possesso', possessoSchema);

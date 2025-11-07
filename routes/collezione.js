@@ -36,7 +36,8 @@ router.get('/completa', auth, async (req, res) => {
                   nome: variante.nome,
                   ordine: variante.ordine,
                   immagine: variante.immagine,
-                  posseduta: possesso ? possesso.posseduta : false
+                  posseduta: possesso ? possesso.posseduta : false,
+                  stato: possesso ? possesso.stato : 'piena'
                 };
               })
             );
@@ -301,6 +302,35 @@ router.get('/amico/:userId', auth, async (req, res) => {
   } catch (errore) {
     console.error('Errore collezione amico:', errore);
     res.status(500).json({ errore: 'Errore nel recupero dati' });
+  }
+});
+
+// PUT - Aggiorna stato piena/vuota
+router.put('/stato/:varianteId', auth, async (req, res) => {
+  try {
+    const { varianteId } = req.params;
+    const { stato } = req.body; // "piena" o "vuota"
+    
+    if (!['piena', 'vuota'].includes(stato)) {
+      return res.status(400).json({ errore: 'Stato non valido' });
+    }
+    
+    let possesso = await Possesso.findOne({
+      utente_id: req.user.id,
+      variante_id: varianteId
+    });
+    
+    if (!possesso) {
+      return res.status(404).json({ errore: 'Possesso non trovato' });
+    }
+    
+    possesso.stato = stato;
+    await possesso.save();
+    
+    res.json({ messaggio: 'Stato aggiornato', stato: possesso.stato });
+  } catch (errore) {
+    console.error('Errore aggiornamento stato:', errore);
+    res.status(500).json({ errore: 'Errore nel salvataggio' });
   }
 });
 

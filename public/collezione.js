@@ -1,22 +1,18 @@
 let token = localStorage.getItem('token');
 let datiCollezione = []; // Salva i dati originali
 
-
 if (!token) {
   window.location.href = 'index.html';
 }
 
-
 const username = localStorage.getItem('username');
 const ruolo = localStorage.getItem('ruolo');
-
 
 document.addEventListener('DOMContentLoaded', () => {
   const nomeElement = document.getElementById('nomeUtente');
   if (nomeElement) {
     nomeElement.textContent = `Ciao, ${username}!`;
   }
-
 
   if (ruolo === 'admin') {
     const linkAdmin = document.getElementById('linkAdmin');
@@ -25,12 +21,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (linkUsers) linkUsers.style.display = 'block';
   }
 
-
   caricaTema();
   caricaCollezione();
   caricaStatistiche();
 });
-
 
 // CARICA E APPLICA TEMA
 async function caricaTema() {
@@ -55,7 +49,6 @@ async function caricaTema() {
   }
 }
 
-
 // CAMBIA TEMA
 async function cambiaTema(nuovoTema) {
   try {
@@ -76,18 +69,28 @@ async function cambiaTema(nuovoTema) {
       });
       document.querySelector(`.theme-btn.${nuovoTema}`).classList.add('active');
     }
+    
+    // Chiudi theme drawer
+    const drawer = document.getElementById('themeDrawer');
+    if (drawer) {
+      drawer.classList.remove('active');
+    }
   } catch (err) {
     console.error('Errore cambio tema:', err);
   }
 }
 
+// TOGGLE THEME DRAWER
+function toggleThemeDrawer() {
+  const drawer = document.getElementById('themeDrawer');
+  drawer.classList.toggle('active');
+}
 
 // LOGOUT
 function logout() {
   localStorage.clear();
   window.location.href = 'index.html';
 }
-
 
 // CARICA COLLEZIONE
 async function caricaCollezione() {
@@ -112,7 +115,6 @@ async function caricaCollezione() {
   }
 }
 
-
 // INIZIALIZZA FILTRI CATEGORIE
 function inizializzaFiltri(categorie) {
   const container = document.getElementById('categorieCheckboxes');
@@ -136,7 +138,6 @@ function inizializzaFiltri(categorie) {
     container.appendChild(div);
   });
 }
-
 
 // APPLICA FILTRI
 function applicaFiltri() {
@@ -213,11 +214,6 @@ function applicaFiltri() {
   mostraCollezione(risultato);
 }
 
-
-
-
-
-
 // SELEZIONA TUTTE LE CATEGORIE
 function selezionatutte() {
   document.querySelectorAll('#categorieCheckboxes input').forEach(checkbox => {
@@ -226,7 +222,6 @@ function selezionatutte() {
   applicaFiltri();
 }
 
-
 // DESELEZIONA TUTTE LE CATEGORIE
 function deselezionatutte() {
   document.querySelectorAll('#categorieCheckboxes input').forEach(checkbox => {
@@ -234,8 +229,6 @@ function deselezionatutte() {
   });
   applicaFiltri();
 }
-
-
 
 // MOSTRA COLLEZIONE
 function mostraCollezione(dati) {
@@ -259,6 +252,8 @@ function mostraCollezione(dati) {
 
       lattina.varianti.forEach(variante => {
         const checked = variante.posseduta ? 'checked' : '';
+        const statoClass = variante.stato === 'piena' ? 'piena' : 'vuota';
+        const disabledToggle = !variante.posseduta ? 'disabled' : '';
         
         const imgHtml = variante.immagine ? 
           `<img src="${variante.immagine}" alt="${variante.nome}" class="variante-img" onclick="apriModalImmagine('${variante.immagine}')">` : 
@@ -269,12 +264,26 @@ function mostraCollezione(dati) {
             <div class="variante-left">
               <input 
                 type="checkbox" 
+                id="check-${variante._id}"
                 ${checked} 
                 onchange="toggleVariante('${variante._id}')"
               >
-              <label>${variante.nome}</label>
+              <label for="check-${variante._id}">${variante.nome}</label>
             </div>
-            <div class="variante-right">
+            <div class="variante-controls">
+              <div class="stato-toggle ${disabledToggle}" id="toggle-${variante._id}">
+                <span class="stato-label">Piena</span>
+                <label class="switch">
+                  <input 
+                    type="checkbox" 
+                    ${variante.stato === 'vuota' ? 'checked' : ''}
+                    ${disabledToggle}
+                    onchange="cambiaStato('${variante._id}', this.checked)"
+                  >
+                  <span class="slider ${statoClass}"></span>
+                </label>
+                <span class="stato-label">Vuota</span>
+              </div>
               ${imgHtml}
             </div>
           </div>
@@ -308,7 +317,6 @@ function mostraCollezione(dati) {
   });
 }
 
-
 // TOGGLE CATEGORIA (collapse/expand)
 function toggleCategoria(categoriaId) {
   const categoria = document.getElementById(`categoria-${categoriaId}`);
@@ -323,9 +331,11 @@ function toggleCategoria(categoriaId) {
   }
 }
 
-
-// AGGIORNA VARIANTE
-async function aggiornaVariante(variante_id, posseduta) {
+// TOGGLE VARIANTE (posseduta/non posseduta)
+async function toggleVariante(varianteId) {
+  const checkbox = document.getElementById(`check-${varianteId}`);
+  const posseduta = checkbox.checked;
+  
   try {
     const response = await fetch(`${API_URL}/collezione/possesso`, {
       method: 'POST',
@@ -333,31 +343,96 @@ async function aggiornaVariante(variante_id, posseduta) {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
       },
-      body: JSON.stringify({ variante_id, posseduta })
+      body: JSON.stringify({ variante_id: varianteId, posseduta })
     });
     
-    if (!response.ok) {
-      throw new Error('Errore aggiornamento');
-    }
-    
-    // Aggiorna i dati locali
-    datiCollezione.forEach(categoria => {
-      categoria.lattine.forEach(lattina => {
-        lattina.varianti.forEach(variante => {
-          if (variante._id === variante_id) {
-            variante.posseduta = posseduta;
-          }
+    if (response.ok) {
+      // Aggiorna i dati locali
+      datiCollezione.forEach(categoria => {
+        categoria.lattine.forEach(lattina => {
+          lattina.varianti.forEach(variante => {
+            if (variante._id === varianteId) {
+              variante.posseduta = posseduta;
+            }
+          });
         });
       });
-    });
-    
-    caricaStatistiche();
-  } catch (errore) {
-    console.error('Errore:', errore);
+      
+      // Abilita/disabilita il toggle stato
+      const toggle = document.getElementById(`toggle-${varianteId}`);
+      const toggleInput = toggle.querySelector('input[type="checkbox"]');
+      
+      if (posseduta) {
+        toggle.classList.remove('disabled');
+        toggleInput.disabled = false;
+      } else {
+        toggle.classList.add('disabled');
+        toggleInput.disabled = true;
+        // Reset a piena quando viene deselezionata
+        toggleInput.checked = false;
+        const slider = toggle.querySelector('.slider');
+        if (slider) {
+          slider.className = 'slider piena';
+        }
+        // Aggiorna anche il backend
+        await cambiaStato(varianteId, false);
+      }
+      
+      // Aggiorna statistiche
+      caricaStatistiche();
+    } else {
+      checkbox.checked = !posseduta;
+      alert('Errore nell\'aggiornamento');
+    }
+  } catch (err) {
+    console.error('Errore:', err);
+    checkbox.checked = !posseduta;
     alert('Errore nell\'aggiornamento');
   }
 }
 
+// CAMBIA STATO PIENA/VUOTA
+async function cambiaStato(varianteId, isVuota) {
+  const stato = isVuota ? 'vuota' : 'piena';
+  
+  try {
+    const response = await fetch(`${API_URL}/collezione/stato/${varianteId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ stato })
+    });
+    
+    if (response.ok) {
+      // Aggiorna visivamente la classe
+      const slider = document.querySelector(`#toggle-${varianteId} .slider`);
+      if (slider) {
+        slider.className = `slider ${stato}`;
+      }
+      
+      // Aggiorna i dati locali
+      datiCollezione.forEach(categoria => {
+        categoria.lattine.forEach(lattina => {
+          lattina.varianti.forEach(variante => {
+            if (variante._id === varianteId) {
+              variante.stato = stato;
+            }
+          });
+        });
+      });
+    } else {
+      alert('Errore nel cambio stato');
+      // Ripristina il toggle
+      const checkbox = event.target;
+      checkbox.checked = !checkbox.checked;
+    }
+  } catch (err) {
+    console.error('Errore:', err);
+    alert('Errore nel cambio stato');
+  }
+}
 
 // CARICA STATISTICHE
 async function caricaStatistiche() {
@@ -377,7 +452,6 @@ async function caricaStatistiche() {
   }
 }
 
-
 // ===== MODAL IMMAGINI =====
 function apriModalImmagine(src) {
   const modal = document.getElementById('modalImmagine');
@@ -386,12 +460,10 @@ function apriModalImmagine(src) {
   modal.classList.add('active');
 }
 
-
 function chiudiModalImmagine() {
   const modal = document.getElementById('modalImmagine');
   modal.classList.remove('active');
 }
-
 
 // Chiudi modal quando premi ESC
 document.addEventListener('keydown', (e) => {
