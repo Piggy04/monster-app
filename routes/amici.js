@@ -100,11 +100,11 @@ router.post('/richiesta', auth, async (req, res) => {
       return res.status(400).json({ errore: 'Non puoi aggiungere te stesso' });
     }
     
-    // Verifica se esiste già un'amicizia
+    // Verifica se esiste già una richiesta ACCETTATA o IN_SOSPESO
     const esiste = await Amicizia.findOne({
       $or: [
-        { mittente_id: req.user.id, destinatario_id: destinatario_id },
-        { mittente_id: destinatario_id, destinatario_id: req.user.id }
+        { mittente_id: req.user.id, destinatario_id: destinatario_id, stato: { $in: ['in_sospeso', 'confermata'] } },
+        { mittente_id: destinatario_id, destinatario_id: req.user.id, stato: { $in: ['in_sospeso', 'confermata'] } }
       ]
     });
     
@@ -112,7 +112,15 @@ router.post('/richiesta', auth, async (req, res) => {
       return res.status(400).json({ errore: 'Relazione già esistente con questo utente' });
     }
     
-    // Crea la richiesta
+    // Se esiste una richiesta RIFIUTATA, elimina e ricrea
+    const rifiutata = await Amicizia.findOneAndDelete({
+      $or: [
+        { mittente_id: req.user.id, destinatario_id: destinatario_id, stato: 'rifiutata' },
+        { mittente_id: destinatario_id, destinatario_id: req.user.id, stato: 'rifiutata' }
+      ]
+    });
+    
+    // Crea la nuova richiesta
     const amicizia = new Amicizia({
       mittente_id: req.user.id,
       destinatario_id: destinatario_id,
@@ -139,6 +147,7 @@ router.post('/richiesta', auth, async (req, res) => {
     res.status(500).json({ errore: 'Errore invio richiesta' });
   }
 });
+
 
 // PUT - Accetta richiesta
 router.put('/accetta/:id', auth, async (req, res) => {
