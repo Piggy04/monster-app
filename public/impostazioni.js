@@ -195,8 +195,8 @@ async function cambiaPassword() {
     return;
   }
   
-  if (nuovaPassword.length < 6) {
-    alert('⚠️ La password deve avere almeno 6 caratteri');
+  if (nuovaPassword.length < 4) {
+    alert('⚠️ La password deve avere almeno 4 caratteri');
     return;
   }
   
