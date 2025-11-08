@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chi Siamo - Monster App</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='75'>🥤</text></svg>">
+</head>
+<body>
+  <div class="sidebar">
+    <h2>🥤 Monster</h2>
+    
+    <nav>
+      <a href="collezione.html">La Mia Collezione</a>
+      <a href="statistiche.html">Statistiche</a>
+      <a href="amici.html">👥 Amici</a>
+      <a href="attivita.html">📝 Attività</a>
+      <a href="chi-siamo.html" class="active">ℹ️ Chi Siamo</a>
+      <a href="impostazioni.html">⚙️ Impostazioni</a>
+      <a href="admin.html" id="linkAdmin" style="display:none;">Gestione Contenuti</a>
+      <a href="users.html" id="linkUsers" style="display:none;">Gestione Utenti</a>
+      <a href="#" onclick="logout()">Logout</a>
+    </nav>
+  </div>
+
+  <div class="main-content">
+    <div class="header">
+      <h1>ℹ️ Chi Siamo</h1>
+      <p id="nomeUtente"></p>
+    </div>
+
+    <div class="chi-siamo-container">
+      <!-- ABOUT -->
+      <section class="chi-siamo-section">
+        <h2>📱 Cos'è Monster App?</h2>
+        <p>Monster App è una piattaforma dedicata ai collezionisti di lattine Monster Energy. Qui puoi gestire la tua collezione, condividerla con amici e scoprire nuove varianti!</p>
+      </section>
+
+      <!-- FEATURES -->
+      <section class="chi-siamo-section">
+        <h2>✨ Funzionalità</h2>
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon">📦</div>
+            <h3>Gestisci Collezione</h3>
+            <p>Aggiungi e organizza le tue lattine in categorie</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">👥</div>
+            <h3>Condividi con Amici</h3>
+            <p>Visualizza le collezioni dei tuoi amici</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">📊</div>
+            <h3>Statistiche</h3>
+            <p>Vedi l'andamento della tua collezione</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🎨</div>
+            <h3>Temi Personalizzati</h3>
+            <p>Scegli il tema che preferisci</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- TEAM -->
+      <section class="chi-siamo-section">
+        <h2>👨‍💻 Il Progetto</h2>
+        <div class="team-card">
+          <h3>Sviluppato con ❤️</h3>
+          <p>Monster App è un progetto personale creato per i collezionisti di Monster Energy.</p>
+          <p><strong>Stack Tecnologico:</strong> Node.js, Express, MongoDB, React, JavaScript</p>
+        </div>
+      </section>
+
+      <!-- CONTATTI -->
+      <section class="chi-siamo-section">
+        <h2>📧 Contatti</h2>
+        <div class="contatti-box">
+          <p><strong>Email:</strong> support@monster-app.com</p>
+          <p><strong>Discord:</strong> Unisciti alla nostra comunità</p>
+          <p><strong>Segnala Bug:</strong> Hai trovato un errore? <a href="#">Segnalacelo</a></p>
+        </div>
+      </section>
+
+      <!-- VERSIONE -->
+      <section class="chi-siamo-section">
+        <h2>📌 Versione</h2>
+        <p><strong>Monster App v1.0.0</strong></p>
+        <p>Ultima versione: <span id="dataVersione"></span></p>
+      </section>
+    </div>
+  </div>
+
+  <!-- THEME DRAWER -->
+  <div class="theme-drawer" id="themeDrawer">
+    <button class="theme-drawer-toggle" onclick="toggleThemeDrawer()">🎨</button>
+    
+    <div class="theme-drawer-content">
+      <h4>Tema</h4>
+      <div class="theme-buttons">
+        <button class="theme-btn light active" onclick="cambiaTema('light')" title="Light"></button>
+        <button class="theme-btn dark" onclick="cambiaTema('dark')" title="Dark"></button>
+        <button class="theme-btn green" onclick="cambiaTema('green')" title="Green"></button>
+        <button class="theme-btn purple" onclick="cambiaTema('purple')" title="Purple"></button>
+      </div>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="theme.js"></script>
+  <script src="chi-siamo.js"></script>
+</body>
+</html>

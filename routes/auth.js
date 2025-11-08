@@ -72,4 +72,103 @@ router.put('/me/tema', auth, async (req, res) => {
   }
 });
 
+// PUT - Cambia username
+router.put('/cambia-username', auth, async (req, res) => {
+  try {
+    const { username } = req.body;
+    
+    if (!username || username.length < 3) {
+      return res.status(400).json({ errore: 'Username deve avere almeno 3 caratteri' });
+    }
+    
+    // Verifica che l'username non esista già
+    const esiste = await User.findOne({ username });
+    if (esiste) {
+      return res.status(400).json({ errore: 'Username già in uso' });
+    }
+    
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      { username },
+      { new: true }
+    ).select('-password');
+    
+    res.json(user);
+  } catch (err) {
+    console.error('Errore cambio username:', err);
+    res.status(500).json({ errore: 'Errore nel cambio username' });
+  }
+});
+
+// PUT - Cambia email
+router.put('/cambia-email', auth, async (req, res) => {
+  try {
+    const { email } = req.body;
+    
+    if (!email || !email.includes('@')) {
+      return res.status(400).json({ errore: 'Email non valida' });
+    }
+    
+    // Verifica che l'email non esista già
+    const esiste = await User.findOne({ email });
+    if (esiste) {
+      return res.status(400).json({ errore: 'Email già in uso' });
+    }
+    
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      { email },
+      { new: true }
+    ).select('-password');
+    
+    res.json(user);
+  } catch (err) {
+    console.error('Errore cambio email:', err);
+    res.status(500).json({ errore: 'Errore nel cambio email' });
+  }
+});
+
+// PUT - Cambia password
+router.put('/cambia-password', auth, async (req, res) => {
+  try {
+    const { passwordVecchia, nuovaPassword } = req.body;
+    
+    if (!passwordVecchia || !nuovaPassword) {
+      return res.status(400).json({ errore: 'Compila tutti i campi' });
+    }
+    
+    if (nuovaPassword.length < 6) {
+      return res.status(400).json({ errore: 'Password deve avere almeno 6 caratteri' });
+    }
+    
+    const user = await User.findById(req.user.id);
+    
+    // Verifica password vecchia
+    const valida = await user.comparePassword(passwordVecchia);
+    if (!valida) {
+      return res.status(401).json({ errore: 'Password attuale non corretta' });
+    }
+    
+    user.password = nuovaPassword;
+    await user.save();
+    
+    res.json({ messaggio: 'Password aggiornata con successo' });
+  } catch (err) {
+    console.error('Errore cambio password:', err);
+    res.status(500).json({ errore: 'Errore nel cambio password' });
+  }
+});
+
+// DELETE - Elimina account
+router.delete('/elimina-account', auth, async (req, res) => {
+  try {
+    await User.findByIdAndDelete(req.user.id);
+    res.json({ messaggio: 'Account eliminato' });
+  } catch (err) {
+    console.error('Errore eliminazione account:', err);
+    res.status(500).json({ errore: 'Errore nell\'eliminazione' });
+  }
+});
+
+
 module.exports = router;

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Impostazioni Account - Monster App</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='75'>🥤</text></svg>">
+</head>
+<body>
+  <div class="sidebar">
+    <h2>🥤 Monster</h2>
+    
+    <nav>
+      <a href="collezione.html">La Mia Collezione</a>
+      <a href="statistiche.html">Statistiche</a>
+      <a href="amici.html">👥 Amici</a>
+      <a href="attivita.html">📝 Attività</a>
+      <a href="chi-siamo.html">ℹ️ Chi Siamo</a>
+      <a href="impostazioni.html" class="active">⚙️ Impostazioni</a>
+      <a href="admin.html" id="linkAdmin" style="display:none;">Gestione Contenuti</a>
+      <a href="users.html" id="linkUsers" style="display:none;">Gestione Utenti</a>
+      <a href="#" onclick="logout()">Logout</a>
+    </nav>
+  </div>
+
+  <div class="main-content">
+    <div class="header">
+      <h1>⚙️ Impostazioni Account</h1>
+      <p id="nomeUtente"></p>
+    </div>
+
+    <div class="impostazioni-container">
+      <!-- INFO PROFILO -->
+      <div class="settings-section">
+        <h2>👤 Info Profilo</h2>
+        <div class="info-box">
+          <p><strong>Username:</strong> <span id="infoUsername"></span></p>
+          <p><strong>Email:</strong> <span id="infoEmail"></span></p>
+          <p><strong>Ruolo:</strong> <span id="infoRuolo"></span></p>
+          <p><strong>Data Iscrizione:</strong> <span id="infoData"></span></p>
+        </div>
+      </div>
+
+      <!-- CAMBIA USERNAME -->
+      <div class="settings-section">
+        <h2>📝 Cambia Username</h2>
+        <div class="form-group">
+          <label for="nuovoUsername">Nuovo Username:</label>
+          <input type="text" id="nuovoUsername" placeholder="Inserisci nuovo username">
+          <button class="btn-primary" onclick="cambiaUsername()">Aggiorna Username</button>
+        </div>
+      </div>
+
+      <!-- CAMBIA EMAIL -->
+      <div class="settings-section">
+        <h2>✉️ Cambia Email</h2>
+        <div class="form-group">
+          <label for="nuovaEmail">Nuova Email:</label>
+          <input type="email" id="nuovaEmail" placeholder="Inserisci nuova email">
+          <button class="btn-primary" onclick="cambiaEmail()">Aggiorna Email</button>
+        </div>
+      </div>
+
+      <!-- CAMBIA PASSWORD -->
+      <div class="settings-section">
+        <h2>🔐 Cambia Password</h2>
+        <div class="form-group">
+          <label for="passwordVecchia">Password Attuale:</label>
+          <input type="password" id="passwordVecchia" placeholder="Inserisci password attuale">
+          
+          <label for="nuovaPassword">Nuova Password:</label>
+          <input type="password" id="nuovaPassword" placeholder="Inserisci nuova password">
+          
+          <label for="confermaPassword">Conferma Password:</label>
+          <input type="password" id="confermaPassword" placeholder="Conferma la nuova password">
+          
+          <button class="btn-primary" onclick="cambiaPassword()">Aggiorna Password</button>
+        </div>
+      </div>
+
+      <!-- ZONA PERICOLOSA -->
+      <div class="settings-section danger-zone">
+        <h2>⚠️ Zona Pericolosa</h2>
+        <div class="danger-box">
+          <h3>Elimina Account</h3>
+          <p>Questa azione è irreversibile. Tutti i tuoi dati verranno eliminati permanentemente.</p>
+          <button class="btn-danger" onclick="confermahiEliminazioneAccount()">🗑️ Elimina Account</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- THEME DRAWER -->
+  <div class="theme-drawer" id="themeDrawer">
+    <button class="theme-drawer-toggle" onclick="toggleThemeDrawer()">🎨</button>
+    
+    <div class="theme-drawer-content">
+      <h4>Tema</h4>
+      <div class="theme-buttons">
+        <button class="theme-btn light active" onclick="cambiaTema('light')" title="Light"></button>
+        <button class="theme-btn dark" onclick="cambiaTema('dark')" title="Dark"></button>
+        <button class="theme-btn green" onclick="cambiaTema('green')" title="Green"></button>
+        <button class="theme-btn purple" onclick="cambiaTema('purple')" title="Purple"></button>
+      </div>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="theme.js"></script>
+  <script src="impostazioni.js"></script>
+</body>
+</html>
