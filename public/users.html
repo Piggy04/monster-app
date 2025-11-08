@@ -3,77 +3,73 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gestione Utenti</title>
-  <link rel="icon" type="image/png" href="favicon.png">
+  <title>Gestione Utenti - Monster App</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='75'>🥤</text></svg>">
 </head>
 <body>
   <div class="sidebar">
     <h2>🥤 Monster</h2>
+    
     <nav>
       <a href="collezione.html">La Mia Collezione</a>
       <a href="statistiche.html">Statistiche</a>
       <a href="amici.html">👥 Amici</a>
-      <a href="attivita.html">📝 Attività</a> 
+      <a href="attivita.html">📝 Attività</a>
+      <a href="chi-siamo.html">ℹ️ Chi Siamo</a>
+      <a href="impostazioni.html">⚙️ Impostazioni</a>
       <a href="admin.html">Gestione Contenuti</a>
-      <a href="users.html" class="active">Gestione Utenti</a>
+      <a href="users.html" class="active">👥 Gestione Utenti</a>
       <a href="#" onclick="logout()">Logout</a>
     </nav>
   </div>
 
   <div class="main-content">
-    <div class="header">
-      <h1>Gestione Utenti</h1>
-      <p class="admin-badge">👑 Admin</p>
-    </div>
-
-    <div id="accessoNegato" style="display:none;">
-      <div class="card">
-        <h2 style="color: #e74c3c;">🚫 Accesso Negato</h2>
-        <p>Solo gli amministratori possono accedere a questa pagina.</p>
-        <a href="collezione.html" style="color: #3498db;">← Torna alla Collezione</a>
-      </div>
-    </div>
-
     <div id="usersContent">
-      <div class="card">
-        <div class="users-table-container">
-          <table class="users-table" id="usersTable">
-            <thead>
-              <tr>
-                <th>Username</th>
-                <th>Email</th>
-                <th>Ruolo</th>
-                <th>Data Registrazione</th>
-                <th>Azioni</th>
-              </tr>
-            </thead>
-            <tbody id="usersTableBody">
-              <tr>
-                <td colspan="5" style="text-align:center;">Caricamento...</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+      <div class="header">
+        <h1>👥 Gestione Utenti</h1>
+        <p id="nomeUtente"></p>
+      </div>
+
+      <table id="tabellaUtenti" class="tabella-utenti">
+        <thead>
+          <tr>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Ruolo</th>
+            <th>Modifica Ruolo</th>
+            <th>Azioni</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Gli utenti vengono inseriti qui -->
+        </tbody>
+      </table>
+    </div>
+
+    <div id="accessoNegato" style="display: none;">
+      <div class="access-denied-box">
+        <h2>⚠️ Accesso Negato</h2>
+        <p>Questa pagina è riservata agli amministratori.</p>
+        <a href="collezione.html" class="btn-primary">Torna alla Collezione</a>
       </div>
     </div>
   </div>
 
-<!-- THEME DRAWER (estraibile) -->
-<div class="theme-drawer" id="themeDrawer">
-  <button class="theme-drawer-toggle" onclick="toggleThemeDrawer()">🎨</button>
-  
-  <div class="theme-drawer-content">
-    <h4>Tema</h4>
-    <div class="theme-buttons">
-      <button class="theme-btn light active" onclick="cambiaTema('light')" title="Light"></button>
-      <button class="theme-btn dark" onclick="cambiaTema('dark')" title="Dark"></button>
-      <button class="theme-btn green" onclick="cambiaTema('green')" title="Green"></button>
-      <button class="theme-btn purple" onclick="cambiaTema('purple')" title="Purple"></button>
+  <!-- THEME DRAWER -->
+  <div class="theme-drawer" id="themeDrawer">
+    <button class="theme-drawer-toggle" onclick="toggleThemeDrawer()">🎨</button>
+    
+    <div class="theme-drawer-content">
+      <h4>Tema</h4>
+      <div class="theme-buttons">
+        <button class="theme-btn light active" onclick="cambiaTema('light')" title="Light"></button>
+        <button class="theme-btn dark" onclick="cambiaTema('dark')" title="Dark"></button>
+        <button class="theme-btn green" onclick="cambiaTema('green')" title="Green"></button>
+        <button class="theme-btn purple" onclick="cambiaTema('purple')" title="Purple"></button>
+      </div>
     </div>
   </div>
-</div>
-
 
   <script src="config.js"></script>
   <script src="theme.js"></script>

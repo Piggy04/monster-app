@@ -1719,6 +1719,142 @@ input:not(:checked) + .slider.vuota {
 }
 
 
+/* ===== TABELLA UTENTI ===== */
+.tabella-utenti {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px var(--shadow);
+  margin-top: 24px;
+}
+
+.tabella-utenti thead {
+  background: linear-gradient(135deg, var(--accent-color) 0%, rgba(46, 204, 113, 0.8) 100%);
+  color: white;
+}
+
+.tabella-utenti th {
+  padding: 16px 20px;
+  text-align: left;
+  font-weight: 700;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.tabella-utenti td {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+.tabella-utenti tbody tr {
+  transition: all 0.3s;
+}
+
+.tabella-utenti tbody tr:hover {
+  background: rgba(46, 204, 113, 0.05);
+}
+
+.tabella-utenti tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.role-badge {
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.role-badge.role-user {
+  background: #ecf0f1;
+  color: #34495e;
+}
+
+.role-badge.role-beta {
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+}
+
+.role-badge.role-admin {
+  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3);
+}
+
+.select-ruolo {
+  padding: 8px 12px;
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.select-ruolo:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.1);
+}
+
+.select-ruolo:hover {
+  border-color: var(--accent-color);
+}
+
+.btn-mini {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.btn-delete.btn-mini {
+  background: rgba(231, 76, 60, 0.1);
+  color: #e74c3c;
+  border: 1px solid #e74c3c;
+}
+
+.btn-delete.btn-mini:hover {
+  background: #e74c3c;
+  color: white;
+  transform: translateY(-2px);
+}
+
+.access-denied-box {
+  background: var(--bg-secondary);
+  padding: 48px;
+  border-radius: 16px;
+  text-align: center;
+  border: 2px solid #e74c3c;
+}
+
+.access-denied-box h2 {
+  color: #e74c3c;
+  margin-bottom: 16px;
+  font-size: 28px;
+}
+
+.access-denied-box p {
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+  font-size: 16px;
+}
+
+
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 1024px) {
