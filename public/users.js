@@ -1,15 +1,97 @@
 const token = localStorage.getItem('token');
 const ruolo = localStorage.getItem('ruolo');
+const username = localStorage.getItem('username');
 
 if (!token) {
   window.location.href = 'index.html';
 }
 
-if (ruolo !== 'admin') {
-  document.getElementById('usersContent').style.display = 'none';
-  document.getElementById('accessoNegato').style.display = 'block';
+document.addEventListener('DOMContentLoaded', () => {
+  const nomeElement = document.getElementById('nomeUtente');
+  if (nomeElement) {
+    nomeElement.textContent = `Ciao, ${username}!`;
+  }
+
+  console.log('👤 Username:', username);
+  console.log('👮 Ruolo:', ruolo);
+  console.log('🔑 Token:', token ? 'Present' : 'Missing');
+
+  if (ruolo !== 'admin') {
+    console.log('❌ Non sei admin! Ruolo:', ruolo);
+    const accessoNegato = document.getElementById('accessoNegato');
+    const usersContent = document.getElementById('usersContent');
+    if (accessoNegato) accessoNegato.style.display = 'block';
+    if (usersContent) usersContent.style.display = 'none';
+  } else {
+    console.log('✓ Accesso admin confermato');
+  }
+
+  caricaTema();
+  if (ruolo === 'admin') {
+    caricaUtenti();
+  }
+});
+
+// CARICA E APPLICA TEMA
+async function caricaTema() {
+  try {
+    const response = await fetch(`${API_URL}/auth/me`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    
+    if (response.ok) {
+      const user = await response.json();
+      const tema = user.tema || 'light';
+      document.documentElement.setAttribute('data-theme', tema);
+      
+      document.querySelectorAll('.theme-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      const activeBtn = document.querySelector(`.theme-btn.${tema}`);
+      if (activeBtn) activeBtn.classList.add('active');
+    }
+  } catch (err) {
+    console.error('Errore caricamento tema:', err);
+  }
 }
 
+// CAMBIA TEMA
+async function cambiaTema(nuovoTema) {
+  try {
+    document.documentElement.setAttribute('data-theme', nuovoTema);
+    
+    const response = await fetch(`${API_URL}/auth/me/tema`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ tema: nuovoTema })
+    });
+    
+    if (response.ok) {
+      document.querySelectorAll('.theme-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      document.querySelector(`.theme-btn.${nuovoTema}`).classList.add('active');
+    }
+    
+    const drawer = document.getElementById('themeDrawer');
+    if (drawer) {
+      drawer.classList.remove('active');
+    }
+  } catch (err) {
+    console.error('Errore cambio tema:', err);
+  }
+}
+
+// TOGGLE THEME DRAWER
+function toggleThemeDrawer() {
+  const drawer = document.getElementById('themeDrawer');
+  drawer.classList.toggle('active');
+}
+
+// LOGOUT
 function logout() {
   localStorage.clear();
   window.location.href = 'index.html';
@@ -18,21 +100,28 @@ function logout() {
 // CARICA LISTA UTENTI
 async function caricaUtenti() {
   try {
+    console.log('📡 Caricamento utenti...');
+    
     const response = await fetch(`${API_URL}/users`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     
+    console.log('📊 Risposta status:', response.status);
+    
     if (!response.ok) {
-      throw new Error('Errore caricamento utenti');
+      const errorData = await response.json();
+      throw new Error(errorData.errore || `Errore ${response.status}`);
     }
     
     const utenti = await response.json();
+    console.log('✓ Utenti ricevuti:', utenti.length);
+    
     mostraUtenti(utenti);
   } catch (err) {
-    console.error('Errore:', err);
+    console.error('❌ Errore caricamento:', err);
     const tbody = document.querySelector('#tabellaUtenti tbody');
     if (tbody) {
-      tbody.innerHTML = '<tr><td colspan="5">Errore nel caricamento degli utenti</td></tr>';
+      tbody.innerHTML = `<tr><td colspan="5">❌ Errore: ${err.message}</td></tr>`;
     }
   }
 }
@@ -79,7 +168,7 @@ function mostraUtenti(utenti) {
         </select>
       </td>
       <td>
-        <button class="btn-delete btn-mini" onclick="eliminaUtente('${utente._id}')">🗑️ Elimina</button>
+        <button class="btn-delete btn-mini" onclick="eliminaUtente('${utente._id}', '${utente.username}')">🗑️ Elimina</button>
       </td>
     `;
     tbody.appendChild(tr);
@@ -89,6 +178,8 @@ function mostraUtenti(utenti) {
 // CAMBIA RUOLO UTENTE
 async function cambiaRuolo(userId, nuovoRuolo) {
   try {
+    console.log('🔄 Cambio ruolo:', { userId, nuovoRuolo });
+    
     const response = await fetch(`${API_URL}/users/${userId}/ruolo`, {
       method: 'PUT',
       headers: {
@@ -99,21 +190,21 @@ async function cambiaRuolo(userId, nuovoRuolo) {
     });
     
     if (response.ok) {
+      console.log('✓ Ruolo aggiornato');
       alert('✓ Ruolo aggiornato!');
       caricaUtenti();
     } else {
       const data = await response.json();
+      console.error('❌ Errore:', data);
       alert(data.errore || 'Errore cambio ruolo');
-      caricaUtenti(); // Ricarica anche in caso di errore per ripristinare
+      caricaUtenti();
     }
   } catch (err) {
-    console.error('Errore:', err);
+    console.error('❌ Errore cambio ruolo:', err);
     alert('Errore cambio ruolo');
     caricaUtenti();
   }
 }
-
-
 
 // ELIMINA UTENTE
 async function eliminaUtente(id, username) {
@@ -122,37 +213,24 @@ async function eliminaUtente(id, username) {
   }
   
   try {
+    console.log('🗑️ Eliminazione utente:', id);
+    
     const response = await fetch(`${API_URL}/users/${id}`, {
       method: 'DELETE',
       headers: { 'Authorization': `Bearer ${token}` }
     });
     
     if (response.ok) {
+      console.log('✓ Utente eliminato');
+      alert('✓ Utente eliminato');
       caricaUtenti();
     } else {
       const data = await response.json();
+      console.error('❌ Errore:', data);
       alert(data.errore || 'Errore eliminazione');
     }
   } catch (errore) {
+    console.error('❌ Errore eliminazione:', errore);
     alert('Errore eliminazione');
   }
 }
-
-if (ruolo === 'admin') {
-  caricaUtenti();
-}
-
-
-
-// TOGGLE THEME DRAWER
-function toggleThemeDrawer() {
-  const drawer = document.getElementById('themeDrawer');
-  drawer.classList.toggle('active');
-}
-
-// Chiudi drawer quando clicchi su un tema
-const originalCambiaTema = cambiaTema;
-window.cambiaTema = function(nuovoTema) {
-  originalCambiaTema(nuovoTema);
-  document.getElementById('themeDrawer').classList.remove('active');
-};
