@@ -2605,10 +2605,12 @@ input:checked + .slider:before {
 }
 
 .sidebar-logo {
-  max-width: 10px;       /* Massimo 40px */
-  height: auto;          /* Altezza proporzionale */
+  width: 40px !important;
+  height: 40px !important;
+  max-width: 40px !important;
   object-fit: contain;
 }
+
 
 
 .sidebar-header h2 {
