@@ -2427,7 +2427,6 @@ input:checked + .slider:before {
   border: 2px solid var(--border-color);
   transition: all 0.3s ease;
   position: relative;
-  min-height: 70px; /* ← AGGIUNGI altezza minima */
 }
 
 .variante-left {
