@@ -43,6 +43,8 @@ function logout() {
 let deferredPrompt;
 const installButton = document.getElementById('installButton');
 
+
+
 // Intercetta evento installazione
 window.addEventListener('beforeinstallprompt', (e) => {
   console.log('✅ App installabile!');
@@ -84,9 +86,33 @@ window.addEventListener('appinstalled', () => {
 });
 
 
-// CARICA COLLEZIONE
+// CARICA COLLEZIONE CON CACHE
 async function caricaCollezione() {
+  const cacheKey = 'collezione-cache';
+  const cacheTimeKey = 'collezione-timestamp';
+  const cacheExpiry = 5 * 60 * 1000; // 5 minuti
+  
   try {
+    // 1. Controlla se c'è cache valida
+    const cachedData = localStorage.getItem(cacheKey);
+    const cachedTime = localStorage.getItem(cacheTimeKey);
+    
+    if (cachedData && cachedTime) {
+      const elapsed = Date.now() - parseInt(cachedTime);
+      
+      if (elapsed < cacheExpiry) {
+        console.log('📦 Caricamento da cache (istantaneo)');
+        datiCollezione = JSON.parse(cachedData);
+        inizializzaFiltri(datiCollezione);
+        mostraCollezione(datiCollezione);
+        return; // Esce subito
+      } else {
+        console.log('⏰ Cache scaduta, ricarico...');
+      }
+    }
+    
+    // 2. Fetch dal server (prima volta o cache scaduta)
+    console.log('🌐 Caricamento dal server...');
     const response = await fetch(`${API_URL}/collezione/completa`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
@@ -96,8 +122,16 @@ async function caricaCollezione() {
     }
     
     datiCollezione = await response.json();
+    
+    // 3. Salva in cache
+    localStorage.setItem(cacheKey, JSON.stringify(datiCollezione));
+    localStorage.setItem(cacheTimeKey, Date.now().toString());
+    console.log('✅ Dati salvati in cache');
+    
+    // 4. Mostra dati
     inizializzaFiltri(datiCollezione);
     mostraCollezione(datiCollezione);
+    
   } catch (errore) {
     console.error('Errore:', errore);
     const container = document.getElementById('collezioneContainer');
@@ -106,6 +140,14 @@ async function caricaCollezione() {
     }
   }
 }
+
+// INVALIDA CACHE (da chiamare quando serve ricaricare)
+function invalidaCache() {
+  localStorage.removeItem('collezione-cache');
+  localStorage.removeItem('collezione-timestamp');
+  console.log('🗑️ Cache invalidata');
+}
+
 
 // INIZIALIZZA FILTRI CATEGORIE
 function inizializzaFiltri(categorie) {
