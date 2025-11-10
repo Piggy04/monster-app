@@ -8,6 +8,12 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <script>
+    (function() {
+      const tema = localStorage.getItem('tema') || 'light';
+      document.documentElement.setAttribute('data-theme', tema);
+    })();
+  </script>
   <div class="sidebar">
     <h2>🥤 Monster</h2>
     

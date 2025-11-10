@@ -8,6 +8,12 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <script>
+    (function() {
+      const tema = localStorage.getItem('tema') || 'light';
+      document.documentElement.setAttribute('data-theme', tema);
+    })();
+  </script>
   <div class="sidebar">
     <h2>🥤 Monster</h2>
     <nav>
@@ -18,7 +24,7 @@
       <a href="chi-siamo.html">ℹ️ Chi Siamo</a>
       <a href="impostazioni.html">⚙️ Impostazioni</a>
       <a href="admin.html" id="linkAdmin" style="display:none;">Gestione Contenuti</a>
-      <a href="users.html" id="linkUsers" style="display:none;">Gestione Utenti</a>
+      <a href="users.html" id="linkUsers" style="display:none;">👥 Gestione Utenti</a>
       <a href="#" onclick="logout()">Logout</a>
     </nav>
   </div>
