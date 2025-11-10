@@ -2596,3 +2596,23 @@ input:checked + .slider:before {
   50% { box-shadow: 0 4px 20px rgba(0, 255, 65, 0.6); }
 }
 
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-logo {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+.sidebar-header h2 {
+  margin: 0;
+  font-size: 24px;
+}
+
+
