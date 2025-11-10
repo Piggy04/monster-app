@@ -244,7 +244,6 @@ async function caricaAmici() {
       <div class="amico-card">
         <div>
           <h4>${amico.username}</h4>
-          <small>Email: ${amico.email || 'Non disponibile'}</small>
         </div>
         <div class="btn-group">
           <button class="btn-view" onclick="visualizzaCollezione('${amico._id}', '${amico.username}')">👁️ Visualizza</button>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Log Utenti - Monster App</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='75'>🥤</text></svg>">
+</head>
+<body>
+  <!-- ⚡ CARICAMENTO ISTANTANEO TEMA -->
+  <script>
+    (function() {
+      const tema = localStorage.getItem('tema') || 'light';
+      document.documentElement.setAttribute('data-theme', tema);
+    })();
+  </script>
+
+  <div class="sidebar">
+    <h2>🥤 Monster</h2>
+    
+    <nav>
+      <a href="collezione.html">La Mia Collezione</a>
+      <a href="statistiche.html">Statistiche</a>
+      <a href="amici.html">👥 Amici</a>
+      <a href="attivita.html">📝 Attività</a>
+      <a href="chi-siamo.html">ℹ️ Chi Siamo</a>
+      <a href="impostazioni.html">⚙️ Impostazioni</a>
+      <a href="admin.html">Gestione Contenuti</a>
+      <a href="users.html">👥 Gestione Utenti</a>
+      <a href="log-admin.html" class="active">📊 Log Utenti</a>
+      <a href="#" onclick="logout()">Logout</a>
+    </nav>
+  </div>
+
+  <div class="main-content">
+    <div class="header">
+      <h1>📊 Log Attività Utenti</h1>
+      <p id="nomeUtente"></p>
+    </div>
+
+    <div class="log-admin-controls">
+      <div class="form-group">
+        <label for="filtroUtente">Filtra per Utente:</label>
+        <select id="filtroUtente" onchange="caricaLogAdmin()">
+          <option value="">Tutti gli utenti</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label for="limite">Limite risultati:</label>
+        <select id="limite" onchange="caricaLogAdmin()">
+          <option value="50">50</option>
+          <option value="100" selected>100</option>
+          <option value="200">200</option>
+          <option value="500">500</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="logAdminContainer" class="log-container">
+      <p>Caricamento...</p>
+    </div>
+  </div>
+
+  <!-- THEME DRAWER -->
+  <div class="theme-drawer" id="themeDrawer">
+    <button class="theme-drawer-toggle" onclick="toggleThemeDrawer()">🎨</button>
+    
+    <div class="theme-drawer-content">
+      <h4>Tema</h4>
+      <div class="theme-buttons">
+        <button class="theme-btn light active" onclick="cambiaTema('light')" title="Light"></button>
+        <button class="theme-btn dark" onclick="cambiaTema('dark')" title="Dark"></button>
+        <button class="theme-btn green" onclick="cambiaTema('green')" title="Green"></button>
+        <button class="theme-btn purple" onclick="cambiaTema('purple')" title="Purple"></button>
+      </div>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="theme.js"></script>
+  <script src="log-admin.js"></script>
+</body>
+</html>

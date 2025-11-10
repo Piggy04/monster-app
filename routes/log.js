@@ -58,4 +58,56 @@ router.get('/non-letti', betaAuth, async (req, res) => {  // ← CAMBIATO DA aut
   }
 });
 
+const adminAuth = require('../middleware/adminAuth'); // ← Aggiungi import in cima
+
+// GET - Log di tutti gli utenti (SOLO ADMIN)
+router.get('/admin/tutti', adminAuth, async (req, res) => {
+  try {
+    const limite = req.query.limite || 100;
+    const userId = req.query.userId; // Opzionale: filtra per utente specifico
+    
+    let query = {};
+    if (userId) {
+      query.utente_id = userId;
+    }
+    
+    const log = await Log.find(query)
+      .populate('utente_id', 'username email')
+      .sort({ timestamp: -1 })
+      .limit(parseInt(limite));
+    
+    res.json(log);
+  } catch (errore) {
+    console.error('Errore caricamento log admin:', errore);
+    res.status(500).json({ errore: 'Errore nel recupero log' });
+  }
+});
+
+// GET - Statistiche log (SOLO ADMIN)
+router.get('/admin/stats', adminAuth, async (req, res) => {
+  try {
+    const totale = await Log.countDocuments();
+    
+    const perTipo = await Log.aggregate([
+      { $group: { _id: '$tipo', count: { $sum: 1 } } }
+    ]);
+    
+    const perAzione = await Log.aggregate([
+      { $group: { _id: '$azione', count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+      { $limit: 10 }
+    ]);
+    
+    res.json({
+      totale,
+      perTipo,
+      perAzione
+    });
+  } catch (errore) {
+    console.error('Errore statistiche log:', errore);
+    res.status(500).json({ errore: 'Errore nel recupero statistiche' });
+  }
+});
+
+
 module.exports = router;

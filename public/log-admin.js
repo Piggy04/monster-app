@@ -1,11 +1,10 @@
-let token = localStorage.getItem('token');
+const token = localStorage.getItem('token');
+const ruolo = localStorage.getItem('ruolo');
+const username = localStorage.getItem('username');
 
 if (!token) {
   window.location.href = 'index.html';
 }
-
-const username = localStorage.getItem('username');
-const ruolo = localStorage.getItem('ruolo');
 
 document.addEventListener('DOMContentLoaded', () => {
   const nomeElement = document.getElementById('nomeUtente');
@@ -13,47 +12,77 @@ document.addEventListener('DOMContentLoaded', () => {
     nomeElement.textContent = `Ciao, ${username}!`;
   }
 
-  if (ruolo === 'admin') {
-    const linkAdmin = document.getElementById('linkAdmin');
-    const linkUsers = document.getElementById('linkUsers');
-    if (linkAdmin) linkAdmin.style.display = 'block';
-    if (linkUsers) linkUsers.style.display = 'block';
+  if (ruolo !== 'admin') {
+    alert('⚠️ Accesso riservato agli admin');
+    window.location.href = 'collezione.html';
+    return;
   }
 
-  caricaTema(); // ← Usa theme.js
-  caricaLog();
+  caricaTema();
+  caricaUtenti();
+  caricaLogAdmin();
 });
 
-// LOGOUT
 function logout() {
   localStorage.clear();
   window.location.href = 'index.html';
 }
 
-// CARICA LOG ATTIVITÀ
-async function caricaLog() {
+// CARICA LISTA UTENTI PER FILTRO
+async function caricaUtenti() {
   try {
-    const response = await fetch(`${API_URL}/log?limite=100`, {
+    const response = await fetch(`${API_URL}/users`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    
+    if (response.ok) {
+      const utenti = await response.json();
+      const select = document.getElementById('filtroUtente');
+      
+      utenti.forEach(utente => {
+        const option = document.createElement('option');
+        option.value = utente._id;
+        option.textContent = `${utente.username} (${utente.email})`;
+        select.appendChild(option);
+      });
+    }
+  } catch (err) {
+    console.error('Errore caricamento utenti:', err);
+  }
+}
+
+// CARICA LOG ADMIN
+async function caricaLogAdmin() {
+  try {
+    const userId = document.getElementById('filtroUtente').value;
+    const limite = document.getElementById('limite').value;
+    
+    let url = `${API_URL}/log/admin/tutti?limite=${limite}`;
+    if (userId) {
+      url += `&userId=${userId}`;
+    }
+    
+    const response = await fetch(url, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     
     if (response.ok) {
       const log = await response.json();
-      mostraLog(log);
+      mostraLogAdmin(log);
     } else {
-      const container = document.getElementById('logContainer');
+      const container = document.getElementById('logAdminContainer');
       container.innerHTML = '<p class="no-results">Errore nel caricamento</p>';
     }
   } catch (err) {
     console.error('Errore:', err);
-    const container = document.getElementById('logContainer');
+    const container = document.getElementById('logAdminContainer');
     container.innerHTML = '<p class="no-results">Errore nel caricamento</p>';
   }
 }
 
-// MOSTRA LOG
-function mostraLog(log) {
-  const container = document.getElementById('logContainer');
+// MOSTRA LOG ADMIN
+function mostraLogAdmin(log) {
+  const container = document.getElementById('logAdminContainer');
   container.innerHTML = '';
 
   if (log.length === 0) {
@@ -66,7 +95,7 @@ function mostraLog(log) {
     const ora = data.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
     const giorno = data.toLocaleDateString('it-IT');
     
-    // ✅ ICONE AGGIORNATE
+    // Icone per tipo di azione
     let icona = '📝';
     if (item.azione === 'aggiunto') icona = '✅';
     if (item.azione === 'rimosso') icona = '❌';
@@ -78,12 +107,18 @@ function mostraLog(log) {
     if (item.azione === 'cambio_password') icona = '🔐';
     if (item.azione === 'account_eliminato') icona = '🗑️';
 
+    const utenteNome = item.utente_id ? item.utente_id.username : 'Utente eliminato';
+
     return `
-      <div class="log-item">
+      <div class="log-item-admin">
         <div class="log-icon">${icona}</div>
         <div class="log-content">
+          <div class="log-user">
+            <strong>${utenteNome}</strong>
+          </div>
           <p class="log-descrizione">${item.descrizione}</p>
           <div class="log-meta">
+            <span class="log-tipo">${item.tipo}</span>
             <span class="log-data">${giorno}</span>
             <span class="log-ora">${ora}</span>
           </div>
@@ -94,4 +129,3 @@ function mostraLog(log) {
 
   container.innerHTML = logHtml;
 }
-

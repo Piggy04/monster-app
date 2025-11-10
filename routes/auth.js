@@ -72,6 +72,8 @@ router.put('/me/tema', auth, async (req, res) => {
   }
 });
 
+const Log = require('../models/Log'); // ← Aggiungi import in cima
+
 // PUT - Cambia username
 router.put('/cambia-username', auth, async (req, res) => {
   try {
@@ -87,11 +89,25 @@ router.put('/cambia-username', auth, async (req, res) => {
       return res.status(400).json({ errore: 'Username già in uso' });
     }
     
+    const vecchioUsername = (await User.findById(req.user.id)).username;
+    
     const user = await User.findByIdAndUpdate(
       req.user.id,
       { username },
       { new: true }
     ).select('-password');
+    
+    // ✅ SALVA LOG
+    await Log.create({
+      utente_id: req.user.id,
+      azione: 'cambio_username',
+      tipo: 'account',
+      descrizione: `Hai cambiato username da "${vecchioUsername}" a "${username}"`,
+      dettagli: {
+        vecchio_username: vecchioUsername,
+        nuovo_username: username
+      }
+    });
     
     res.json(user);
   } catch (err) {
@@ -115,11 +131,25 @@ router.put('/cambia-email', auth, async (req, res) => {
       return res.status(400).json({ errore: 'Email già in uso' });
     }
     
+    const vecchiaEmail = (await User.findById(req.user.id)).email;
+    
     const user = await User.findByIdAndUpdate(
       req.user.id,
       { email },
       { new: true }
     ).select('-password');
+    
+    // ✅ SALVA LOG
+    await Log.create({
+      utente_id: req.user.id,
+      azione: 'cambio_email',
+      tipo: 'account',
+      descrizione: `Hai cambiato email`,
+      dettagli: {
+        vecchia_email: vecchiaEmail,
+        nuova_email: email
+      }
+    });
     
     res.json(user);
   } catch (err) {
@@ -137,7 +167,7 @@ router.put('/cambia-password', auth, async (req, res) => {
       return res.status(400).json({ errore: 'Compila tutti i campi' });
     }
     
-    if (nuovaPassword.length < 4) {  // ← CAMBIATO da 6 a 4
+    if (nuovaPassword.length < 4) {
       return res.status(400).json({ errore: 'Password deve avere almeno 4 caratteri' });
     }
     
@@ -152,6 +182,17 @@ router.put('/cambia-password', auth, async (req, res) => {
     user.password = nuovaPassword;
     await user.save();
     
+    // ✅ SALVA LOG
+    await Log.create({
+      utente_id: req.user.id,
+      azione: 'cambio_password',
+      tipo: 'account',
+      descrizione: `Hai cambiato la password`,
+      dettagli: {
+        timestamp: new Date()
+      }
+    });
+    
     res.json({ messaggio: 'Password aggiornata con successo' });
   } catch (err) {
     console.error('Errore cambio password:', err);
@@ -159,10 +200,24 @@ router.put('/cambia-password', auth, async (req, res) => {
   }
 });
 
-
 // DELETE - Elimina account
 router.delete('/elimina-account', auth, async (req, res) => {
   try {
+    const user = await User.findById(req.user.id);
+    
+    // ✅ SALVA LOG PRIMA DI ELIMINARE
+    await Log.create({
+      utente_id: req.user.id,
+      azione: 'account_eliminato',
+      tipo: 'account',
+      descrizione: `Account "${user.username}" eliminato`,
+      dettagli: {
+        username: user.username,
+        email: user.email,
+        timestamp: new Date()
+      }
+    });
+    
     await User.findByIdAndDelete(req.user.id);
     res.json({ messaggio: 'Account eliminato' });
   } catch (err) {
@@ -170,6 +225,7 @@ router.delete('/elimina-account', auth, async (req, res) => {
     res.status(500).json({ errore: 'Errore nell\'eliminazione' });
   }
 });
+
 
 
 module.exports = router;
