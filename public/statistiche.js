@@ -114,11 +114,13 @@ async function caricaStatistiche() {
 function verificaAdmin() {
   const ruolo = localStorage.getItem('ruolo');
   if (ruolo === 'admin') {
-    const linkAdmin = document.getElementById('linkAdmin');
-    const linkUsers = document.getElementById('linkUsers');
-    if (linkAdmin) linkAdmin.style.display = 'block';
-    if (linkUsers) linkUsers.style.display = 'block';
-  }
+  const linkAdmin = document.getElementById('linkAdmin');
+  const linkUsers = document.getElementById('linkUsers');
+  const linkLogAdmin = document.getElementById('linkLogAdmin');
+  if (linkAdmin) linkAdmin.style.display = 'block';
+  if (linkUsers) linkUsers.style.display = 'block';
+  if (linkLogAdmin) linkLogAdmin.style.display = 'block';
+}
 }
 
 
