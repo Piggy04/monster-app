@@ -6,6 +6,12 @@
   <title>Gestione Utenti - Monster App</title>
   <link rel="stylesheet" href="style.css">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='75'>🥤</text></svg>">
+  <link rel="manifest" href="/manifest.json">
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js');
+  }
+</script>
 </head>
 <body>
   <script>
@@ -44,6 +50,7 @@
             <th>Username</th>
             <th>Email</th>
             <th>Ruolo</th>
+            <th>Ultimo Accesso</th>
             <th>Modifica Ruolo</th>
             <th>Azioni</th>
           </tr>

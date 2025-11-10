@@ -28,7 +28,12 @@ const userSchema = new mongoose.Schema({
     default: 'light'
   },
 
-  // Nuovi campi per collezioni distinte
+  // ⬇️ AGGIUNGI SOLO QUESTO CAMPO
+  lastSeen: {
+    type: Date,
+    default: Date.now
+  },
+
   mostriPosseduti: [
     {
       type: mongoose.Schema.Types.ObjectId,

@@ -29,6 +29,8 @@ document.addEventListener('DOMContentLoaded', () => {
   caricaTema();
   if (ruolo === 'admin') {
     caricaUtenti();
+    // ⬇️ AGGIUNGI: Aggiorna ogni 30 secondi
+    setInterval(caricaUtenti, 30000);
   }
 });
 
@@ -121,11 +123,12 @@ async function caricaUtenti() {
     console.error('❌ Errore caricamento:', err);
     const tbody = document.querySelector('#tabellaUtenti tbody');
     if (tbody) {
-      tbody.innerHTML = `<tr><td colspan="5">❌ Errore: ${err.message}</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="6">❌ Errore: ${err.message}</td></tr>`;
     }
   }
 }
 
+// ⬇️ MODIFICATA - Aggiunto stato online e ultimo accesso
 function mostraUtenti(utenti) {
   const tbody = document.querySelector('#tabellaUtenti tbody');
   if (!tbody) {
@@ -136,7 +139,7 @@ function mostraUtenti(utenti) {
   tbody.innerHTML = '';
 
   if (!utenti || utenti.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="5">Nessun utente trovato</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6">Nessun utente trovato</td></tr>';
     return;
   }
 
@@ -154,11 +157,22 @@ function mostraUtenti(utenti) {
       roleText = 'Beta Tester';
     }
     
+    // ⬇️ AGGIUNGI: Calcola stato online
+    const isOnline = utente.isOnline || false;
+    const statusDot = `<span class="status-dot ${isOnline ? 'online' : 'offline'}"></span>`;
+    const statusText = utente.testoStato || 'Mai connesso';
+    
     tr.innerHTML = `
-      <td>${utente.username}</td>
+      <td>
+        ${statusDot}
+        ${utente.username}
+      </td>
       <td>${utente.email}</td>
       <td>
         <span class="role-badge ${roleBadgeClass}">${roleText}</span>
+      </td>
+      <td>
+        <small style="color: #888;">${statusText}</small>
       </td>
       <td>
         <select class="select-ruolo" onchange="cambiaRuolo('${utente._id}', this.value)">

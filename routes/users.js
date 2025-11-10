@@ -41,13 +41,53 @@ router.put('/me/tema', auth, async (req, res) => {
 
 // ===== ROUTE ADMIN =====
 
-// GET lista tutti gli utenti (solo admin)
+// GET lista tutti gli utenti (solo admin) - ⬇️ MODIFICATA
 router.get('/', adminAuth, async (req, res) => {
   try {
     const utenti = await User.find()
       .select('-password')
-      .sort({ createdAt: -1 });
-    res.json(utenti);
+      .sort({ lastSeen: -1 }); // Ordina per ultimo accesso
+    
+    // ⬇️ AGGIUNGI: Calcola stato online per ogni utente
+    const utentiConStato = utenti.map(u => {
+      const ora = Date.now();
+      const lastSeenTime = u.lastSeen ? u.lastSeen.getTime() : 0;
+      const minutiFa = (ora - lastSeenTime) / 60000;
+      
+      let testoStato;
+      if (!u.lastSeen) {
+        testoStato = 'Mai connesso';
+      } else if (minutiFa < 5) {
+        testoStato = 'Online';
+      } else if (minutiFa < 60) {
+        testoStato = `${Math.floor(minutiFa)} min fa`;
+      } else if (minutiFa < 1440) {
+        testoStato = `${Math.floor(minutiFa / 60)} ore fa`;
+      } else {
+        testoStato = u.lastSeen.toLocaleDateString('it-IT', { 
+          day: '2-digit', 
+          month: '2-digit', 
+          year: 'numeric' 
+        });
+      }
+      
+      return {
+        _id: u._id,
+        username: u.username,
+        email: u.email,
+        ruolo: u.ruolo,
+        tema: u.tema,
+        lastSeen: u.lastSeen,
+        isOnline: minutiFa < 5,
+        testoStato: testoStato,
+        createdAt: u.createdAt,
+        updatedAt: u.updatedAt,
+        mostriPosseduti: u.mostriPosseduti,
+        variantiPossedute: u.variantiPossedute
+      };
+    });
+    
+    res.json(utentiConStato);
   } catch (errore) {
     console.error('Errore recupero utenti:', errore);
     res.status(500).json({ errore: 'Errore recupero utenti' });
