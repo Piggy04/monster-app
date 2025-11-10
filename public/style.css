@@ -2605,7 +2605,7 @@ input:checked + .slider:before {
 }
 
 .sidebar-logo {
-  max-width: 40px;       /* Massimo 40px */
+  max-width: 10px;       /* Massimo 40px */
   height: auto;          /* Altezza proporzionale */
   object-fit: contain;
 }
