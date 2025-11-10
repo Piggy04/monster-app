@@ -1,14 +1,29 @@
 const token = localStorage.getItem('token');
 const ruolo = localStorage.getItem('ruolo');
+const username = localStorage.getItem('username');
 
 if (!token) {
   window.location.href = 'index.html';
 }
 
-if (ruolo !== 'admin') {
-  document.getElementById('adminContent').style.display = 'none';
-  document.getElementById('accessoNegato').style.display = 'block';
-}
+document.addEventListener('DOMContentLoaded', () => {
+  const nomeElement = document.getElementById('nomeUtente');
+  if (nomeElement) {
+    nomeElement.textContent = `Ciao, ${username}!`;
+  }
+
+  if (ruolo !== 'admin') {
+    const accessoNegato = document.getElementById('accessoNegato');
+    const adminContent = document.getElementById('adminContent');
+    if (accessoNegato) accessoNegato.style.display = 'block';
+    if (adminContent) adminContent.style.display = 'none';
+  }
+
+  caricaTema(); // ← Usa theme.js
+  if (ruolo === 'admin') {
+    caricaCategorie();
+  }
+});
 
 function logout() {
   localStorage.clear();
@@ -388,21 +403,3 @@ window.onclick = function(event) {
     chiudiModal();
   }
 }
-
-if (ruolo === 'admin') {
-  caricaCategorie();
-}
-
-// TOGGLE THEME DRAWER
-function toggleThemeDrawer() {
-  const drawer = document.getElementById('themeDrawer');
-  drawer.classList.toggle('active');
-}
-
-// Chiudi drawer quando clicchi su un tema
-const originalCambiaTema = cambiaTema;
-window.cambiaTema = function(nuovoTema) {
-  originalCambiaTema(nuovoTema);
-  document.getElementById('themeDrawer').classList.remove('active');
-};
-

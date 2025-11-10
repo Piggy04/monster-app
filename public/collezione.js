@@ -1,5 +1,5 @@
 let token = localStorage.getItem('token');
-let datiCollezione = []; // Salva i dati originali
+let datiCollezione = [];
 
 if (!token) {
   window.location.href = 'index.html';
@@ -27,70 +27,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (linkUsers) linkUsers.style.display = 'block';
   }
 
-  caricaTema();
+  caricaTema(); // ← Usa theme.js
   caricaCollezione();
   caricaStatistiche();
 });
-
-// CARICA E APPLICA TEMA
-async function caricaTema() {
-  try {
-    const response = await fetch(`${API_URL}/auth/me`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-    
-    if (response.ok) {
-      const user = await response.json();
-      const tema = user.tema || 'light';
-      document.documentElement.setAttribute('data-theme', tema);
-      
-      document.querySelectorAll('.theme-btn').forEach(btn => {
-        btn.classList.remove('active');
-      });
-      const activeBtn = document.querySelector(`.theme-btn.${tema}`);
-      if (activeBtn) activeBtn.classList.add('active');
-    }
-  } catch (err) {
-    console.error('Errore caricamento tema:', err);
-  }
-}
-
-// CAMBIA TEMA
-async function cambiaTema(nuovoTema) {
-  try {
-    document.documentElement.setAttribute('data-theme', nuovoTema);
-    
-    const response = await fetch(`${API_URL}/auth/me/tema`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify({ tema: nuovoTema })
-    });
-    
-    if (response.ok) {
-      document.querySelectorAll('.theme-btn').forEach(btn => {
-        btn.classList.remove('active');
-      });
-      document.querySelector(`.theme-btn.${nuovoTema}`).classList.add('active');
-    }
-    
-    // Chiudi theme drawer
-    const drawer = document.getElementById('themeDrawer');
-    if (drawer) {
-      drawer.classList.remove('active');
-    }
-  } catch (err) {
-    console.error('Errore cambio tema:', err);
-  }
-}
-
-// TOGGLE THEME DRAWER
-function toggleThemeDrawer() {
-  const drawer = document.getElementById('themeDrawer');
-  drawer.classList.toggle('active');
-}
 
 // LOGOUT
 function logout() {
@@ -150,28 +90,20 @@ function applicaFiltri() {
   const ricerca = document.getElementById('ricercaInput').value.toLowerCase();
   const filtroStato = document.getElementById('filtroStato').value;
   
-  // Categorie selezionate
   const categorieSel = [];
   document.querySelectorAll('#categorieCheckboxes input:checked').forEach(checkbox => {
     categorieSel.push(checkbox.value);
   });
   
-  // Crea una copia profonda dei dati originali
   const datiFiltrati = JSON.parse(JSON.stringify(datiCollezione));
   
-  // Filtra i dati
   const risultato = datiFiltrati.filter(categoria => {
-    // Filtra per categoria
     if (!categorieSel.includes(categoria._id)) return false;
     
-    // Filtra lattine e varianti
     categoria.lattine = categoria.lattine.filter(lattina => {
-      // Verifica se il nome della lattina matcha
       const nomeLattinaMatch = lattina.nome.toLowerCase().includes(ricerca);
       
-      // Se il nome della lattina matcha E non c'è ricerca, mostra tutte le varianti
       if (nomeLattinaMatch && !ricerca) {
-        // Applica solo filtro di stato
         if (filtroStato) {
           lattina.varianti = lattina.varianti.filter(variante => {
             if (filtroStato === 'possedute') return variante.posseduta;
@@ -182,9 +114,7 @@ function applicaFiltri() {
         return lattina.varianti.length > 0;
       }
       
-      // Se il nome della lattina matcha E c'è ricerca, mostra tutte le sue varianti
       if (nomeLattinaMatch && ricerca) {
-        // Applica solo filtro di stato, NON filtro di ricerca sulle varianti
         if (filtroStato) {
           lattina.varianti = lattina.varianti.filter(variante => {
             if (filtroStato === 'possedute') return variante.posseduta;
@@ -195,14 +125,11 @@ function applicaFiltri() {
         return lattina.varianti.length > 0;
       }
       
-      // Se il nome della lattina NON matcha, filtra le varianti per ricerca
       lattina.varianti = lattina.varianti.filter(variante => {
         const nomeVarianteMatch = variante.nome.toLowerCase().includes(ricerca);
         
-        // Se c'è ricerca e la variante non matcha, escludila
         if (ricerca && !nomeVarianteMatch) return false;
         
-        // Applica filtro di stato
         if (filtroStato) {
           if (filtroStato === 'possedute') return variante.posseduta;
           if (filtroStato === 'mancanti') return !variante.posseduta;
@@ -220,7 +147,7 @@ function applicaFiltri() {
   mostraCollezione(risultato);
 }
 
-// SELEZIONA TUTTE LE CATEGORIE
+// SELEZIONA/DESELEZIONA TUTTE
 function selezionatutte() {
   document.querySelectorAll('#categorieCheckboxes input').forEach(checkbox => {
     checkbox.checked = true;
@@ -228,7 +155,6 @@ function selezionatutte() {
   applicaFiltri();
 }
 
-// DESELEZIONA TUTTE LE CATEGORIE
 function deselezionatutte() {
   document.querySelectorAll('#categorieCheckboxes input').forEach(checkbox => {
     checkbox.checked = false;
@@ -257,48 +183,45 @@ function mostraCollezione(dati) {
       let htmlVarianti = '';
 
       lattina.varianti.forEach(variante => {
-  const checked = variante.posseduta ? 'checked' : '';
-  const statoToggle = variante.stato === 'piena' ? 'piena' : 'vuota';
-  const disabledToggle = !variante.posseduta ? 'disabled' : '';
-  
-  // CLASSE PER COLORARE DI VERDE SE POSSEDUTA (qualsiasi stato)
-  const classPosseduta = variante.posseduta ? 'variante-posseduta' : '';
-  
-  const imgHtml = variante.immagine ? 
-    `<img src="${variante.immagine}" alt="${variante.nome}" class="variante-img" onclick="apriModalImmagine('${variante.immagine}')">` : 
-    '<div class="variante-img-placeholder">📷</div>';
+        const checked = variante.posseduta ? 'checked' : '';
+        const statoToggle = variante.stato === 'piena' ? 'piena' : 'vuota';
+        const disabledToggle = !variante.posseduta ? 'disabled' : '';
+        const classPosseduta = variante.posseduta ? 'variante-posseduta' : '';
+        
+        const imgHtml = variante.immagine ? 
+          `<img src="${variante.immagine}" alt="${variante.nome}" class="variante-img" onclick="apriModalImmagine('${variante.immagine}')">` : 
+          '<div class="variante-img-placeholder">📷</div>';
 
-  htmlVarianti += `
-    <div class="variante ${classPosseduta}">
-      <div class="variante-left">
-        <input 
-          type="checkbox" 
-          id="check-${variante._id}"
-          ${checked} 
-          onchange="toggleVariante('${variante._id}')"
-        >
-        <label for="check-${variante._id}">${variante.nome}</label>
-      </div>
-      <div class="variante-controls">
-        <div class="stato-toggle ${disabledToggle}" id="toggle-${variante._id}">
-          <span class="stato-label">Vuota</span>
-          <label class="switch">
-            <input 
-              type="checkbox" 
-              ${variante.stato === 'piena' ? 'checked' : ''}
-              ${disabledToggle}
-              onchange="cambiaStato('${variante._id}', this.checked)"
-            >
-            <span class="slider ${statoToggle}"></span>
-          </label>
-          <span class="stato-label">Piena</span>
-        </div>
-        ${imgHtml}
-      </div>
-    </div>
-  `;
-});
-
+        htmlVarianti += `
+          <div class="variante ${classPosseduta}">
+            <div class="variante-left">
+              <input 
+                type="checkbox" 
+                id="check-${variante._id}"
+                ${checked} 
+                onchange="toggleVariante('${variante._id}')"
+              >
+              <label for="check-${variante._id}">${variante.nome}</label>
+            </div>
+            <div class="variante-controls">
+              <div class="stato-toggle ${disabledToggle}" id="toggle-${variante._id}">
+                <span class="stato-label">Vuota</span>
+                <label class="switch">
+                  <input 
+                    type="checkbox" 
+                    ${variante.stato === 'piena' ? 'checked' : ''}
+                    ${disabledToggle}
+                    onchange="cambiaStato('${variante._id}', this.checked)"
+                  >
+                  <span class="slider ${statoToggle}"></span>
+                </label>
+                <span class="stato-label">Piena</span>
+              </div>
+              ${imgHtml}
+            </div>
+          </div>
+        `;
+      });
 
       htmlLattine += `
         <div class="lattina">
@@ -327,7 +250,7 @@ function mostraCollezione(dati) {
   });
 }
 
-// TOGGLE CATEGORIA (collapse/expand)
+// TOGGLE CATEGORIA
 function toggleCategoria(categoriaId) {
   const categoria = document.getElementById(`categoria-${categoriaId}`);
   const icon = document.getElementById(`icon-${categoriaId}`);
@@ -341,7 +264,7 @@ function toggleCategoria(categoriaId) {
   }
 }
 
-// TOGGLE VARIANTE (posseduta/non posseduta)
+// TOGGLE VARIANTE
 async function toggleVariante(varianteId) {
   const checkbox = document.getElementById(`check-${varianteId}`);
   const posseduta = checkbox.checked;
@@ -357,7 +280,6 @@ async function toggleVariante(varianteId) {
     });
     
     if (response.ok) {
-      // Aggiorna i dati locali
       datiCollezione.forEach(categoria => {
         categoria.lattine.forEach(lattina => {
           lattina.varianti.forEach(variante => {
@@ -368,7 +290,6 @@ async function toggleVariante(varianteId) {
         });
       });
       
-      // Abilita/disabilita il toggle stato
       const toggle = document.getElementById(`toggle-${varianteId}`);
       const toggleInput = toggle.querySelector('input[type="checkbox"]');
       
@@ -378,20 +299,15 @@ async function toggleVariante(varianteId) {
       } else {
         toggle.classList.add('disabled');
         toggleInput.disabled = true;
-        // Reset a vuota quando viene deselezionata
         toggleInput.checked = false;
         const slider = toggle.querySelector('.slider');
         if (slider) {
           slider.className = 'slider vuota';
         }
-        // Aggiorna anche il backend
         await cambiaStato(varianteId, false);
       }
       
-      // Ricarica per aggiornare i colori
       caricaCollezione();
-      
-      // Aggiorna statistiche
       caricaStatistiche();
     } else {
       checkbox.checked = !posseduta;
@@ -404,7 +320,7 @@ async function toggleVariante(varianteId) {
   }
 }
 
-// CAMBIA STATO PIENA/VUOTA
+// CAMBIA STATO
 async function cambiaStato(varianteId, isPiena) {
   const stato = isPiena ? 'piena' : 'vuota';
   
@@ -419,13 +335,11 @@ async function cambiaStato(varianteId, isPiena) {
     });
     
     if (response.ok) {
-      // Aggiorna visivamente lo slider
       const slider = document.querySelector(`#toggle-${varianteId} .slider`);
       if (slider) {
         slider.className = `slider ${stato}`;
       }
       
-      // Aggiorna i dati locali
       datiCollezione.forEach(categoria => {
         categoria.lattine.forEach(lattina => {
           lattina.varianti.forEach(variante => {
@@ -452,7 +366,6 @@ async function cambiaStato(varianteId, isPiena) {
   }
 }
 
-
 // CARICA STATISTICHE
 async function caricaStatistiche() {
   try {
@@ -471,7 +384,7 @@ async function caricaStatistiche() {
   }
 }
 
-// ===== MODAL IMMAGINI =====
+// MODAL IMMAGINI
 function apriModalImmagine(src) {
   const modal = document.getElementById('modalImmagine');
   const img = document.getElementById('immagineModal');
@@ -484,7 +397,6 @@ function chiudiModalImmagine() {
   modal.classList.remove('active');
 }
 
-// Chiudi modal quando premi ESC
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
     chiudiModalImmagine();

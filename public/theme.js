@@ -1,16 +1,25 @@
+// ⚡ CARICAMENTO ISTANTANEO - Applica tema subito da localStorage
+(function() {
+  const temaSalvato = localStorage.getItem('tema') || 'light';
+  document.documentElement.setAttribute('data-theme', temaSalvato);
+})();
 
-// Carica tema salvato
+// Carica tema dal server
 async function caricaTema() {
   const token = localStorage.getItem('token');
   if (!token) return;
   
   try {
-    const response = await fetch(`${API_URL}/auth/me`, {  // ← CAMBIA in /auth/me
+    const response = await fetch(`${API_URL}/auth/me`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     
     if (response.ok) {
       const utente = await response.json();
+      
+      // Salva in localStorage
+      localStorage.setItem('tema', utente.tema);
+      
       applicaTema(utente.tema);
       console.log('Tema caricato:', utente.tema);
     }
@@ -40,7 +49,14 @@ async function cambiaTema(tema) {
   if (!token) return;
   
   try {
-    const response = await fetch(`${API_URL}/auth/me/tema`, {  // ← CAMBIA in /auth/me/tema
+    // ⚡ Salva subito in localStorage
+    localStorage.setItem('tema', tema);
+    
+    // Applica subito visivamente
+    applicaTema(tema);
+    
+    // Aggiorna sul server
+    const response = await fetch(`${API_URL}/auth/me/tema`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -49,15 +65,29 @@ async function cambiaTema(tema) {
       body: JSON.stringify({ tema })
     });
     
-    if (response.ok) {
-      applicaTema(tema);
+    if (!response.ok) {
+      console.error('Errore salvataggio tema sul server');
+    }
+    
+    // Chiudi drawer se esiste
+    const drawer = document.getElementById('themeDrawer');
+    if (drawer) {
+      drawer.classList.remove('active');
     }
   } catch (errore) {
-    console.error('Errore cambio tema');
+    console.error('Errore cambio tema:', errore);
   }
 }
 
-// Aggiungi selettore tema alla pagina
+// Toggle theme drawer
+function toggleThemeDrawer() {
+  const drawer = document.getElementById('themeDrawer');
+  if (drawer) {
+    drawer.classList.toggle('active');
+  }
+}
+
+// Aggiungi selettore tema alla pagina (vecchia versione, probabilmente non usi più)
 function aggiungiSelettoreTema() {
   const selector = document.createElement('div');
   selector.className = 'theme-selector';
@@ -77,5 +107,5 @@ function aggiungiSelettoreTema() {
 // Inizializza tema
 if (localStorage.getItem('token')) {
   caricaTema();
-  aggiungiSelettoreTema();
+  // aggiungiSelettoreTema(); // ← Probabilmente non serve più se usi theme drawer
 }

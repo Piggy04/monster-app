@@ -5,57 +5,9 @@ if (!token) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  caricaTema();
+  caricaTema(); // ← Usa theme.js
   mostraCollezioneAmico();
 });
-
-// CARICA E APPLICA TEMA
-async function caricaTema() {
-  try {
-    const response = await fetch(`${API_URL}/auth/me`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-    
-    if (response.ok) {
-      const user = await response.json();
-      const tema = user.tema || 'light';
-      document.documentElement.setAttribute('data-theme', tema);
-      
-      document.querySelectorAll('.theme-btn').forEach(btn => {
-        btn.classList.remove('active');
-      });
-      const activeBtn = document.querySelector(`.theme-btn.${tema}`);
-      if (activeBtn) activeBtn.classList.add('active');
-    }
-  } catch (err) {
-    console.error('Errore caricamento tema:', err);
-  }
-}
-
-// CAMBIA TEMA
-async function cambiaTema(nuovoTema) {
-  try {
-    document.documentElement.setAttribute('data-theme', nuovoTema);
-    
-    const response = await fetch(`${API_URL}/auth/me/tema`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify({ tema: nuovoTema })
-    });
-    
-    if (response.ok) {
-      document.querySelectorAll('.theme-btn').forEach(btn => {
-        btn.classList.remove('active');
-      });
-      document.querySelector(`.theme-btn.${nuovoTema}`).classList.add('active');
-    }
-  } catch (err) {
-    console.error('Errore cambio tema:', err);
-  }
-}
 
 // LOGOUT
 function logout() {
@@ -70,7 +22,6 @@ function tornaAmici() {
 
 // MOSTRA COLLEZIONE AMICO
 async function mostraCollezioneAmico() {
-  // Estrai ID dell'amico dall'URL
   const params = new URLSearchParams(window.location.search);
   const amicoId = params.get('amico');
   const amicoUsername = params.get('username');
@@ -82,7 +33,6 @@ async function mostraCollezioneAmico() {
   }
 
   try {
-    // Fetch dei dati direttamente
     const [collezione, statistiche] = await Promise.all([
       fetch(`${API_URL}/collezione/amico/${amicoId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
@@ -92,15 +42,12 @@ async function mostraCollezioneAmico() {
       }).then(r => r.json())
     ]);
 
-    // Mostra nome
     document.getElementById('nomeAmico').textContent = amicoUsername;
 
-    // Mostra statistiche
     document.querySelectorAll('.stat-card-amico')[0].querySelector('.stat-value').textContent = statistiche.mostriPosseduti;
     document.querySelectorAll('.stat-card-amico')[1].querySelector('.stat-value').textContent = statistiche.variantiPosseduti;
     document.querySelectorAll('.stat-card-amico')[2].querySelector('.stat-value').textContent = statistiche.percentuale + '%';
 
-    // Mostra collezione (read-only, no checkbox)
     const container = document.getElementById('collezioneAmicoContainer');
     
     if (collezione.length === 0) {
@@ -156,18 +103,3 @@ async function mostraCollezioneAmico() {
     alert('Errore nel caricamento della collezione');
   }
 }
-
-
-// TOGGLE THEME DRAWER
-function toggleThemeDrawer() {
-  const drawer = document.getElementById('themeDrawer');
-  drawer.classList.toggle('active');
-}
-
-// Chiudi drawer quando clicchi su un tema
-const originalCambiaTema = cambiaTema;
-window.cambiaTema = function(nuovoTema) {
-  originalCambiaTema(nuovoTema);
-  document.getElementById('themeDrawer').classList.remove('active');
-};
-
