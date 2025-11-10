@@ -40,6 +40,50 @@ function logout() {
   window.location.href = 'index.html';
 }
 
+let deferredPrompt;
+const installButton = document.getElementById('installButton');
+
+// Intercetta evento installazione
+window.addEventListener('beforeinstallprompt', (e) => {
+  console.log('✅ App installabile!');
+  
+  // Previeni il prompt automatico di Chrome
+  e.preventDefault();
+  
+  // Salva l'evento per usarlo dopo
+  deferredPrompt = e;
+  
+  // Mostra il pulsante custom
+  installButton.style.display = 'block';
+});
+
+// Click sul pulsante
+installButton.addEventListener('click', async () => {
+  if (!deferredPrompt) {
+    console.log('❌ Prompt non disponibile');
+    return;
+  }
+  
+  // Mostra il prompt nativo
+  deferredPrompt.prompt();
+  
+  // Aspetta la scelta utente
+  const { outcome } = await deferredPrompt.userChoice;
+  console.log(`Utente ha scelto: ${outcome}`);
+  
+  // Reset
+  deferredPrompt = null;
+  installButton.style.display = 'none';
+});
+
+// Nasconde pulsante se app già installata
+window.addEventListener('appinstalled', () => {
+  console.log('✅ App installata!');
+  installButton.style.display = 'none';
+  deferredPrompt = null;
+});
+
+
 // CARICA COLLEZIONE
 async function caricaCollezione() {
   try {
