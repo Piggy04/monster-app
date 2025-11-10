@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (linkUsers) linkUsers.style.display = 'block';
   }
 
-  caricaTema();
+  caricaTema(); // ← Usa theme.js
   caricaRichieste();
   caricaAmici();
   caricaBadgeRichieste();
@@ -30,70 +30,10 @@ document.addEventListener('DOMContentLoaded', () => {
   setInterval(caricaBadgeRichieste, 5000);
 });
 
-// CARICA E APPLICA TEMA
-async function caricaTema() {
-  try {
-    const response = await fetch(`${API_URL}/auth/me`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-    
-    if (response.ok) {
-      const user = await response.json();
-      const tema = user.tema || 'light';
-      document.documentElement.setAttribute('data-theme', tema);
-      
-      document.querySelectorAll('.theme-btn').forEach(btn => {
-        btn.classList.remove('active');
-      });
-      const activeBtn = document.querySelector(`.theme-btn.${tema}`);
-      if (activeBtn) activeBtn.classList.add('active');
-    }
-  } catch (err) {
-    console.error('Errore caricamento tema:', err);
-  }
-}
-
-// CAMBIA TEMA
-async function cambiaTema(nuovoTema) {
-  try {
-    document.documentElement.setAttribute('data-theme', nuovoTema);
-    
-    const response = await fetch(`${API_URL}/auth/me/tema`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify({ tema: nuovoTema })
-    });
-    
-    if (response.ok) {
-      document.querySelectorAll('.theme-btn').forEach(btn => {
-        btn.classList.remove('active');
-      });
-      document.querySelector(`.theme-btn.${nuovoTema}`).classList.add('active');
-    }
-    
-    // Chiudi theme drawer
-    const drawer = document.getElementById('themeDrawer');
-    if (drawer) {
-      drawer.classList.remove('active');
-    }
-  } catch (err) {
-    console.error('Errore cambio tema:', err);
-  }
-}
-
 // LOGOUT
 function logout() {
   localStorage.clear();
   window.location.href = 'index.html';
-}
-
-// TOGGLE THEME DRAWER
-function toggleThemeDrawer() {
-  const drawer = document.getElementById('themeDrawer');
-  drawer.classList.toggle('active');
 }
 
 // MOSTRA TAB
@@ -355,7 +295,7 @@ function visualizzaCollezione(amicoId, amicoUsername) {
   window.location.href = `collezione-amico.html?amico=${amicoId}&username=${encodeURIComponent(amicoUsername)}`;
 }
 
-// RIMUOVI AMICO (CORRETTO)
+// RIMUOVI AMICO
 async function rimuoviAmico(amicoId, username) {
   if (!confirm(`Vuoi davvero rimuovere ${username} dagli amici?`)) {
     return;
