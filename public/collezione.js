@@ -264,7 +264,7 @@ function toggleCategoria(categoriaId) {
   }
 }
 
-// TOGGLE VARIANTE
+// TOGGLE VARIANTE (OTTIMIZZATO - non ricarica tutto)
 async function toggleVariante(varianteId) {
   const checkbox = document.getElementById(`check-${varianteId}`);
   const posseduta = checkbox.checked;
@@ -280,6 +280,7 @@ async function toggleVariante(varianteId) {
     });
     
     if (response.ok) {
+      // ✅ Aggiorna SOLO i dati locali, senza ricaricare
       datiCollezione.forEach(categoria => {
         categoria.lattine.forEach(lattina => {
           lattina.varianti.forEach(variante => {
@@ -290,24 +291,38 @@ async function toggleVariante(varianteId) {
         });
       });
       
+      // ✅ Aggiorna SOLO la card della variante
+      const varianteCard = checkbox.closest('.variante');
       const toggle = document.getElementById(`toggle-${varianteId}`);
       const toggleInput = toggle.querySelector('input[type="checkbox"]');
       
       if (posseduta) {
+        // Aggiungi classe verde
+        varianteCard.classList.add('variante-posseduta');
+        
+        // Abilita toggle
         toggle.classList.remove('disabled');
         toggleInput.disabled = false;
       } else {
+        // Rimuovi classe verde
+        varianteCard.classList.remove('variante-posseduta');
+        
+        // Disabilita toggle
         toggle.classList.add('disabled');
         toggleInput.disabled = true;
+        
+        // Reset a vuota
         toggleInput.checked = false;
         const slider = toggle.querySelector('.slider');
         if (slider) {
           slider.className = 'slider vuota';
         }
+        
+        // Aggiorna backend
         await cambiaStato(varianteId, false);
       }
       
-      caricaCollezione();
+      // ✅ Aggiorna statistiche in background (senza bloccare)
       caricaStatistiche();
     } else {
       checkbox.checked = !posseduta;
@@ -320,11 +335,19 @@ async function toggleVariante(varianteId) {
   }
 }
 
-// CAMBIA STATO
+
+// CAMBIA STATO PIENA/VUOTA (OTTIMIZZATO)
 async function cambiaStato(varianteId, isPiena) {
   const stato = isPiena ? 'piena' : 'vuota';
   
   try {
+    // ✅ Aggiorna UI SUBITO (ottimistic update)
+    const slider = document.querySelector(`#toggle-${varianteId} .slider`);
+    if (slider) {
+      slider.className = `slider ${stato}`;
+    }
+    
+    // ✅ Poi invia al server
     const response = await fetch(`${API_URL}/collezione/stato/${varianteId}`, {
       method: 'PUT',
       headers: {
@@ -335,11 +358,7 @@ async function cambiaStato(varianteId, isPiena) {
     });
     
     if (response.ok) {
-      const slider = document.querySelector(`#toggle-${varianteId} .slider`);
-      if (slider) {
-        slider.className = `slider ${stato}`;
-      }
-      
+      // Aggiorna dati locali
       datiCollezione.forEach(categoria => {
         categoria.lattine.forEach(lattina => {
           lattina.varianti.forEach(variante => {
@@ -350,7 +369,11 @@ async function cambiaStato(varianteId, isPiena) {
         });
       });
     } else {
+      // ✅ Rollback se errore
       alert('Errore nel cambio stato');
+      if (slider) {
+        slider.className = `slider ${isPiena ? 'vuota' : 'piena'}`;
+      }
       const toggleInput = document.querySelector(`#toggle-${varianteId} input[type="checkbox"]`);
       if (toggleInput) {
         toggleInput.checked = !isPiena;
@@ -359,12 +382,17 @@ async function cambiaStato(varianteId, isPiena) {
   } catch (err) {
     console.error('Errore:', err);
     alert('Errore nel cambio stato');
+    // Rollback
+    if (slider) {
+      slider.className = `slider ${isPiena ? 'vuota' : 'piena'}`;
+    }
     const toggleInput = document.querySelector(`#toggle-${varianteId} input[type="checkbox"]`);
     if (toggleInput) {
       toggleInput.checked = !isPiena;
     }
   }
 }
+
 
 // CARICA STATISTICHE
 async function caricaStatistiche() {

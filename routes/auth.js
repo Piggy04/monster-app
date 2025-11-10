@@ -137,8 +137,8 @@ router.put('/cambia-password', auth, async (req, res) => {
       return res.status(400).json({ errore: 'Compila tutti i campi' });
     }
     
-    if (nuovaPassword.length < 6) {
-      return res.status(400).json({ errore: 'Password deve avere almeno 6 caratteri' });
+    if (nuovaPassword.length < 4) {  // ← CAMBIATO da 6 a 4
+      return res.status(400).json({ errore: 'Password deve avere almeno 4 caratteri' });
     }
     
     const user = await User.findById(req.user.id);
@@ -158,6 +158,7 @@ router.put('/cambia-password', auth, async (req, res) => {
     res.status(500).json({ errore: 'Errore nel cambio password' });
   }
 });
+
 
 // DELETE - Elimina account
 router.delete('/elimina-account', auth, async (req, res) => {
