@@ -2,7 +2,7 @@
   "name": "SW Archive App",
   "short_name": "SW Archive",
   "description": "Gestisci la tua collezione di lattine Monster Energy",
-  "start_url": "/collezione.html",
+  "start_url": "/collezione",
   "scope": "/",
   "display": "standalone",
   "background_color": "#1a1a1a",
