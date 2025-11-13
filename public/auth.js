@@ -38,7 +38,7 @@ document.getElementById('formLogin').addEventListener('submit', async (e) => {
       localStorage.setItem('username', data.username);
       localStorage.setItem('ruolo', data.ruolo);
       localStorage.setItem('tema', data.tema || 'light');
-      window.location.href = 'collezione.html';
+      window.location.href = '/collezione';
     } else {
       const data = await response.json();
       document.getElementById('erroreLogin').textContent = data.errore || 'Errore login';
