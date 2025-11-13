@@ -21,6 +21,7 @@
       document.documentElement.setAttribute('data-theme', tema);
     })();
   </script>
+  
   <div class="sidebar">
     <h2>SW Archive</h2>
     <nav>
@@ -104,12 +105,33 @@
       </div>
 
       <div id="tabGestisci" class="tab-content" style="display:none;">
-        <div class="gestione-container" id="gestioneContainer">
-          <p>Caricamento...</p>
-        </div>
-      </div>
-    </div>
+  <!-- ⬇️ AGGIUNGI QUESTA SEZIONE -->
+  <div class="admin-filtri">
+    <input 
+      type="text" 
+      id="ricercaAdmin" 
+      placeholder="🔍 Cerca per nome..."
+      oninput="filtraAdmin()"
+    >
+    
+    <select id="filtroTipo" onchange="filtraAdmin()">
+      <option value="tutti">Tutti i tipi</option>
+      <option value="categoria">Solo Categorie</option>
+      <option value="lattina">Solo Lattine</option>
+      <option value="variante">Solo Varianti</option>
+    </select>
+    
+    <select id="filtroCategoriaAdmin" onchange="filtraAdmin()">
+      <option value="">Tutte le categorie</option>
+      <!-- Popolato dinamicamente -->
+    </select>
   </div>
+  
+  <div class="gestione-container" id="gestioneContainer">
+    <p>Caricamento...</p>
+  </div>
+</div>
+
 
   <!-- Modal Modifica -->
   <div id="modalModifica" class="modal">
@@ -148,6 +170,11 @@
     </div>
   </div>
 </div>
+<!-- Pulsante torna su -->
+<button class="scroll-to-top" id="scrollToTop" onclick="scrollToTop()">
+  ↑
+</button>
+
 
 
   <script src="config.js"></script>

@@ -207,6 +207,68 @@ async function caricaGestione() {
   }
 }
 
+// Dati originali (globali)
+let datiGestioneOriginali = [];
+
+// Modifica la funzione che carica i dati gestione
+async function caricaGestione() {
+  // ... il tuo codice esistente per caricare dati ...
+  
+  datiGestioneOriginali = dati; // Salva originali
+  popolaFiltroCategorie(dati);
+  mostraGestione(dati);
+}
+
+// Popola select categorie
+function popolaFiltroCategorie(dati) {
+  const select = document.getElementById('filtroCategoriaAdmin');
+  if (!select) return;
+  
+  select.innerHTML = '<option value="">Tutte le categorie</option>';
+  
+  const categorie = dati.filter(item => item.tipo === 'categoria');
+  categorie.forEach(cat => {
+    const option = document.createElement('option');
+    option.value = cat._id;
+    option.textContent = cat.nome;
+    select.appendChild(option);
+  });
+}
+
+// Filtra dati admin
+function filtraAdmin() {
+  const ricerca = document.getElementById('ricercaAdmin').value.toLowerCase();
+  const tipo = document.getElementById('filtroTipo').value;
+  const categoriaId = document.getElementById('filtroCategoriaAdmin').value;
+  
+  let risultato = [...datiGestioneOriginali];
+  
+  // Filtro per tipo
+  if (tipo !== 'tutti') {
+    risultato = risultato.filter(item => item.tipo === tipo);
+  }
+  
+  // Filtro per categoria (solo per lattine e varianti)
+  if (categoriaId) {
+    risultato = risultato.filter(item => {
+      if (item.tipo === 'categoria') return item._id === categoriaId;
+      if (item.tipo === 'lattina') return item.categoria_id === categoriaId;
+      if (item.tipo === 'variante') return item.categoria_id === categoriaId;
+      return false;
+    });
+  }
+  
+  // Filtro per ricerca testo
+  if (ricerca) {
+    risultato = risultato.filter(item => 
+      item.nome.toLowerCase().includes(ricerca)
+    );
+  }
+  
+  mostraGestione(risultato);
+}
+
+
 function mostraGestione(categorie) {
   const container = document.getElementById('gestioneContainer');
   

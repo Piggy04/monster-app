@@ -20,22 +20,29 @@
       document.documentElement.setAttribute('data-theme', tema);
     })();
   </script>
-  <div class="sidebar">
+  <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">
+  <span></span>
+  <span></span>
+  <span></span>
+</button>
+
+<div class="sidebar">
     <h2>SW Archive</h2>
-    
-    <nav>
+  
+  <nav>
       <a href="collezione.html">La Mia Collezione</a>
+      <a href="chi-siamo.html">ℹ️ Chi Siamo</a>
       <a href="statistiche.html">Statistiche</a>
       <a href="amici.html" class="active">👥 Amici</a>
       <a href="attivita.html">📝 Attività</a> 
-      <a href="chi-siamo.html">ℹ️ Chi Siamo</a>
       <a href="impostazioni.html">⚙️ Impostazioni</a>
       <a href="admin.html" id="linkAdmin" style="display:none;">Gestione Contenuti</a>
       <a href="users.html" id="linkUsers" style="display:none;">👥 Gestione Utenti</a>
-    <a href="log-admin.html" id="linkLogAdmin" style="display:none;">📊 Log Utenti</a>
+      <a href="log-admin.html" id="linkLogAdmin" style="display:none;">📊 Log Utenti</a>
       <a href="#" onclick="logout()">Logout</a>
     </nav>
   </div>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
   <div class="main-content">
     <div class="header">
@@ -100,6 +107,11 @@
     </div>
   </div>
 </div>
+<!-- Pulsante torna su -->
+<button class="scroll-to-top" id="scrollToTop" onclick="scrollToTop()">
+  ↑
+</button>
+
 
 
   <script src="config.js"></script>
