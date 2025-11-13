@@ -1,6 +1,6 @@
 {
-  "name": "Monster Collection App",
-  "short_name": "Monster",
+  "name": "SW Archive App",
+  "short_name": "SW Archive",
   "description": "Gestisci la tua collezione di lattine Monster Energy",
   "start_url": "/collezione.html",
   "scope": "/",
