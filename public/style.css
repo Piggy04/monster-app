@@ -2733,8 +2733,8 @@ input:checked + .slider:before {
   font-size: 24px;
   cursor: pointer;
   z-index: 9999;
-  opacity: 0;
-  visibility: hidden;
+  opacity: 1 !important;        /* ⬅️ FORZA VISIBILE */
+  visibility: visible !important; /* ⬅️ FORZA VISIBILE */
   transition: opacity 0.3s, visibility 0.3s;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
@@ -2748,6 +2748,7 @@ input:checked + .slider:before {
   opacity: 1;
   visibility: visible;
 }
+
 
 
 /* Filtri admin */
