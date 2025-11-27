@@ -161,46 +161,31 @@ router.put('/cambia-email', auth, async (req, res) => {
 // PUT - Cambia password
 router.put('/cambia-password', auth, async (req, res) => {
   try {
-    console.log('🎯 /cambia-password body:', req.body);
-    console.log('🎯 /cambia-password user id:', req.user?.id);
-
     const { passwordVecchia, nuovaPassword } = req.body;
-    
+
     if (!passwordVecchia || !nuovaPassword) {
       return res.status(400).json({ errore: 'Compila tutti i campi' });
     }
-    
+
     if (nuovaPassword.length < 4) {
       return res.status(400).json({ errore: 'Password deve avere almeno 4 caratteri' });
     }
-    
+
     const user = await User.findById(req.user.id);
     if (!user) {
-      console.log('❌ Utente non trovato per id', req.user.id);
       return res.status(404).json({ errore: 'Utente non trovato' });
     }
 
-    console.log('✅ Utente trovato:', user.username);
-
-    // ATTENZIONE: quale metodo esiste davvero sul modello?
-    if (typeof user.verificaPassword !== 'function' && typeof user.comparePassword !== 'function') {
-      console.error('❌ Nessun metodo verificaPassword/comparePassword definito su User');
-      return res.status(500).json({ errore: 'Metodo verifica password non definito' });
-    }
-
-    const valida = typeof user.verificaPassword === 'function'
-      ? await user.verificaPassword(passwordVecchia)
-      : await user.comparePassword(passwordVecchia);
-
-    console.log('🔐 Password vecchia valida?', valida);
-
+    // Usa lo stesso metodo del login
+    const valida = await user.verificaPassword(passwordVecchia);
     if (!valida) {
       return res.status(401).json({ errore: 'Password attuale non corretta' });
     }
-    
-    user.password = nuovaPassword; // hashata dal pre-save
+
+    // Aggiorna password (pre-save del modello deve fare l'hash)
+    user.password = nuovaPassword;
     await user.save();
-    
+
     await Log.create({
       utente_id: req.user.id,
       azione: 'cambio_password',
@@ -208,11 +193,12 @@ router.put('/cambia-password', auth, async (req, res) => {
       descrizione: 'Hai cambiato la password',
       dettagli: { timestamp: new Date() }
     });
-    
-    res.json({ messaggio: 'Password aggiornata con successo' });
+
+    // ✅ Risposta OK chiara
+    return res.status(200).json({ messaggio: 'Password aggiornata con successo' });
   } catch (err) {
-    console.error('❌ Errore cambio password:', err);
-    res.status(500).json({ errore: 'Errore nel cambio password' });
+    console.error('Errore cambio password:', err);
+    return res.status(500).json({ errore: 'Errore nel cambio password' });
   }
 });
 

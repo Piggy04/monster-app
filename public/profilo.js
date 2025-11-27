@@ -248,14 +248,14 @@ async function cambiaPassword() {
       })
     });
 
+    const data = await res.json().catch(() => ({}));
+
     if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      console.error('Errore cambia-password:', err);
-      alert(err.errore || 'Errore interno del server (500)');
-      return;
+      console.error('Errore cambia-password:', data);
+      return alert(data.errore || 'Errore nel cambio password');
     }
 
-    alert('Password aggiornata');
+    alert(data.messaggio || 'Password aggiornata');
     ['oldPassword','newPassword','confirmPassword'].forEach(id => {
       document.getElementById(id).value = '';
     });
@@ -264,6 +264,7 @@ async function cambiaPassword() {
     alert('Errore di rete');
   }
 }
+
 
 
 // ELIMINA ACCOUNT
