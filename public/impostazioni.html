@@ -53,14 +53,18 @@
     <div class="impostazioni-container">
       <!-- INFO PROFILO -->
       <div class="settings-section">
-        <h2>👤 Info Profilo</h2>
-        <div class="info-box">
-          <p><strong>Username:</strong> <span id="infoUsername"></span></p>
-          <p><strong>Email:</strong> <span id="infoEmail"></span></p>
-          <p><strong>Ruolo:</strong> <span id="infoRuolo"></span></p>
-          <p><strong>Data Iscrizione:</strong> <span id="infoData"></span></p>
-        </div>
-      </div>
+  <h2>👤 Info Profilo</h2>
+  <div class="profile-header">
+    <img id="avatarPreview" class="avatar-large" src="https://via.placeholder.com/128/4a4a4a/ffffff?text=👤" alt="Avatar" style="display:none;">
+    <button class="btn-primary" onclick="apriAvatarPicker()" style="margin-top:10px;">Cambia Avatar</button>
+  </div>
+  <div class="info-box">
+    <p><strong>Username:</strong> <span id="infoUsername">Caricamento...</span></p>
+    <p><strong>Email:</strong> <span id="infoEmail">Caricamento...</span></p>
+    <p><strong>Ruolo:</strong> <span id="infoRuolo">Caricamento...</span></p>
+    <p><strong>Data Iscrizione:</strong> <span id="infoData">Caricamento...</span></p>
+  </div>
+</div>
 
       <!-- CAMBIA USERNAME -->
       <div class="settings-section">
