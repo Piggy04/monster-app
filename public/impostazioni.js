@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 async function caricaAvatar() {
   try {
-    const res = await fetch(`${API_URL}/users/avatar`, {
+    const res = await fetch(`${API_URL}/api/users/avatar`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     if (res.ok) {
@@ -46,7 +46,7 @@ async function caricaAvatar() {
 
 async function caricaInfoProfilo() {
   try {
-    const res = await fetch(`${API_URL}/users/me`, {
+    const res = await fetch(`${API_URL}/api/users/me`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     if (res.ok) {
@@ -118,13 +118,14 @@ function selezionaAvatar(url) {
 
 async function salvaAvatar() {
   try {
-    const res = await fetch(`${API_URL}/users/avatar`, {
+    const res = await fetch(`${API_URL}/api/users/avatar`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
       body: JSON.stringify({ avatarUrl: avatarSelezionato })
     });
     if (res.ok) {
-      alert('✅ Avatar salvato!');
+      const data = await res.json();
+      alert(data.messaggio || '✅ Avatar salvato!');
       chiudiModalAvatar();
     } else {
       alert('⚠️ Errore salvataggio');
@@ -139,12 +140,15 @@ function chiudiModalAvatar() { document.getElementById('modalAvatar').style.disp
 
 async function caricaTema() {
   try {
-    const res = await fetch(`${API_URL}/auth/me`, {
+    const res = await fetch(`${API_URL}/api/auth/me`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     if (res.ok) {
       const user = await res.json();
       document.documentElement.setAttribute('data-theme', user.tema || 'light');
+      document.querySelectorAll('.theme-btn').forEach(btn => btn.classList.remove('active'));
+      const activeBtn = document.querySelector(`.theme-btn.${user.tema || 'light'}`);
+      if (activeBtn) activeBtn.classList.add('active');
     }
   } catch {}
 }
@@ -152,11 +156,15 @@ async function caricaTema() {
 async function cambiaTema(tema) {
   document.documentElement.setAttribute('data-theme', tema);
   try {
-    await fetch(`${API_URL}/auth/me/tema`, {
+    await fetch(`${API_URL}/api/auth/me/tema`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
       body: JSON.stringify({ tema })
     });
+    document.querySelectorAll('.theme-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelector(`.theme-btn.${tema}`).classList.add('active');
+    const drawer = document.getElementById('themeDrawer');
+    if (drawer) drawer.classList.remove('active');
   } catch {}
 }
 
@@ -175,7 +183,7 @@ async function cambiaUsername() {
   const nuovo = document.getElementById('nuovoUsername').value.trim();
   if (!nuovo) return alert('⚠️ Inserisci username');
   try {
-    const res = await fetch(`${API_URL}/auth/cambia-username`, {
+    const res = await fetch(`${API_URL}/api/auth/cambia-username`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
       body: JSON.stringify({ username: nuovo })
@@ -196,7 +204,7 @@ async function cambiaEmail() {
   const nuova = document.getElementById('nuovaEmail').value.trim();
   if (!nuova) return alert('⚠️ Inserisci email');
   try {
-    const res = await fetch(`${API_URL}/auth/cambia-email`, {
+    const res = await fetch(`${API_URL}/api/auth/cambia-email`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
       body: JSON.stringify({ email: nuova })
@@ -221,7 +229,7 @@ async function cambiaPassword() {
   if (nu.length < 6) return alert('⚠️ Minimo 6 caratteri');
   
   try {
-    const res = await fetch(`${API_URL}/auth/cambia-password`, {
+    const res = await fetch(`${API_URL}/api/auth/cambia-password`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
       body: JSON.stringify({ passwordVecchia: vec, nuovaPassword: nu })
@@ -245,7 +253,7 @@ function confermaEliminazioneAccount() {
 
 async function eliminaAccount() {
   try {
-    await fetch(`${API_URL}/auth/elimina-account`, {
+    await fetch(`${API_URL}/api/auth/elimina-account`, {
       method: 'DELETE',
       headers: { 'Authorization': `Bearer ${token}` }
     });
