@@ -6,108 +6,43 @@ const Amicizia = require('../models/Amicizia');
 const Log = require('../models/Log');
 const mongoose = require('mongoose');
 
-// ===== STATS LIVE (NUOVO) =====
-router.get('/stats', auth, async (req, res) => {
-  try {
-    const userId = req.user.id;
-    
-    // Conta amici confermati
-    const amiciConfermati = await Amicizia.countDocuments({
-      stato: 'confermata',
-      $or: [{ mittente_id: userId }, { destinatario_id: userId }]
-    });
-    
-    // Conta richieste ricevute
-    const richiesteRicevute = await Amicizia.countDocuments({
-      destinatario_id: userId,
-      stato: 'in_sospeso'
-    });
-    
-    // Conta amici online (ultimo accesso < 5 min)
-    const cinqueMinutiFa = new Date(Date.now() - 5 * 60 * 1000);
-    const amiciOnline = await Amicizia.aggregate([
-      {
-        $match: {
-          stato: 'confermata',
-          $or: [{ mittente_id: userId }, { destinatario_id: userId }]
-        }
-      },
-      {
-        $lookup: {
-          from: 'users',
-          localField: 'mittente_id',
-          foreignField: '_id',
-          as: 'mittente'
-        }
-      },
-      {
-        $lookup: {
-          from: 'users',
-          localField: 'destinatario_id',
-          foreignField: '_id',
-          as: 'destinatario'
-        }
-      },
-      {
-        $addFields: {
-          amico: {
-            $cond: [
-              { $eq: [{ $arrayElemAt: ['$mittente._id', 0] }, mongoose.Types.ObjectId(userId)] },
-              { $arrayElemAt: ['$destinatario', 0] },
-              { $arrayElemAt: ['$mittente', 0] }
-            ]
-          }
-        }
-      },
-      {
-        $match: {
-          'amico.ultimoAccesso': { $gt: cinqueMinutiFa },
-          'amico._id': { $ne: mongoose.Types.ObjectId(userId) }
-        }
-      },
-      { $count: 'online' }
-    ]);
+// ===== RICERCA UTENTI =====
 
-    res.json({
-      amiciTotali: amiciConfermati,
-      richieste: richiesteRicevute,
-      online: amiciOnline[0]?.online || 0
-    });
+// GET - Ricerca utenti per username
+router.get('/ricerca/:username', auth, async (req, res) => {
+  try {
+    const username = req.params.username;
+    
+    const utenti = await User.find({
+      username: { $regex: username, $options: 'i' },
+      _id: { $ne: req.user.id }
+    }).select('_id username email').limit(10);
+    
+    res.json(utenti);
   } catch (errore) {
-    console.error('Errore stats amici:', errore);
-    res.status(500).json({ errore: 'Errore stats' });
+    console.error('Errore ricerca utenti:', errore);
+    res.status(500).json({ errore: 'Errore ricerca utenti' });
   }
 });
 
-// ===== AMICI CON DATI ESTESI (MODIFICATO) =====
+// ===== AMICI CONFERMATI =====
+
+// GET - Lista amici confermati
 router.get('/', auth, async (req, res) => {
   try {
-    const includeStats = req.query.include?.includes('stats');
-    const userId = req.user.id;
-    
     const amici = await Amicizia.find({
       stato: 'confermata',
-      $or: [{ mittente_id: userId }, { destinatario_id: userId }]
-    }).populate('mittente_id', '_id username email avatar ruolo ultimoAccesso mostriPosseduti percentuale')
-      .populate('destinatario_id', '_id username email avatar ruolo ultimoAccesso mostriPosseduti percentuale');
+      $or: [
+        { mittente_id: req.user.id },
+        { destinatario_id: req.user.id }
+      ]
+    }).populate('mittente_id', '_id username email').populate('destinatario_id', '_id username email');
     
-    // Estrai l'amico (non se stesso) + aggiungi online status
+    // Estrai l'amico (non se stesso)
     const amiciList = amici.map(amicizia => {
-      const amico = amicizia.mittente_id._id.toString() === userId 
+      return amicizia.mittente_id._id.toString() === req.user.id 
         ? amicizia.destinatario_id 
         : amicizia.mittente_id;
-      
-      return {
-        _id: amico._id,
-        username: amico.username,
-        email: amico.email,
-        avatar: amico.avatar,
-        ruolo: amico.ruolo,
-        online: amico.ultimoAccesso && (new Date() - new Date(amico.ultimoAccesso)) < 5 * 60 * 1000,
-        ultimaAttivita: amico.ultimoAccesso?.toLocaleString('it-IT'),
-        mostriPosseduti: includeStats ? amico.mostriPosseduti || 0 : undefined,
-        percentuale: includeStats ? amico.percentuale || 0 : undefined
-      };
     });
     
     res.json(amiciList);
@@ -117,30 +52,15 @@ router.get('/', auth, async (req, res) => {
   }
 });
 
-// ===== RICERCA UTENTI (MIGLIORATA) =====
-router.get('/ricerca/:username', auth, async (req, res) => {
-  try {
-    const username = req.params.username;
-    
-    const utenti = await User.find({
-      username: { $regex: username, $options: 'i' },
-      _id: { $ne: req.user.id }
-    }).select('_id username email avatar ruolo').limit(10);
-    
-    res.json(utenti);
-  } catch (errore) {
-    console.error('Errore ricerca utenti:', errore);
-    res.status(500).json({ errore: 'Errore ricerca utenti' });
-  }
-});
+// ===== RICHIESTE DI AMICIZIA =====
 
-// ===== RICHIESTE (INVARIATE - FUNZIONANTI) =====
+// GET - Richieste ricevute
 router.get('/richieste/ricevute', auth, async (req, res) => {
   try {
     const richieste = await Amicizia.find({
       destinatario_id: req.user.id,
       stato: 'in_sospeso'
-    }).populate('mittente_id', '_id username email avatar ruolo').sort({ createdAt: -1 });
+    }).populate('mittente_id', '_id username email').sort({ createdAt: -1 });
     
     res.json(richieste);
   } catch (errore) {
@@ -149,12 +69,13 @@ router.get('/richieste/ricevute', auth, async (req, res) => {
   }
 });
 
+// GET - Richieste inviate
 router.get('/richieste/inviate', auth, async (req, res) => {
   try {
     const richieste = await Amicizia.find({
       mittente_id: req.user.id,
       stato: 'in_sospeso'
-    }).populate('destinatario_id', '_id username email avatar ruolo').sort({ createdAt: -1 });
+    }).populate('destinatario_id', '_id username email').sort({ createdAt: -1 });
     
     res.json(richieste);
   } catch (errore) {
@@ -163,20 +84,23 @@ router.get('/richieste/inviate', auth, async (req, res) => {
   }
 });
 
-// POST - Invia richiesta (INVARIATA)
+// POST - Invia richiesta di amicizia
 router.post('/richiesta', auth, async (req, res) => {
   try {
     const { destinatario_id } = req.body;
     
+    // Verifica che il destinatario esista
     const destinatario = await User.findById(destinatario_id);
     if (!destinatario) {
       return res.status(404).json({ errore: 'Utente non trovato' });
     }
     
+    // Verifica che non sia se stesso
     if (destinatario_id === req.user.id) {
       return res.status(400).json({ errore: 'Non puoi aggiungere te stesso' });
     }
     
+    // Verifica se esiste già una richiesta ACCETTATA o IN_SOSPESO
     const esiste = await Amicizia.findOne({
       $or: [
         { mittente_id: req.user.id, destinatario_id: destinatario_id, stato: { $in: ['in_sospeso', 'confermata'] } },
@@ -188,13 +112,15 @@ router.post('/richiesta', auth, async (req, res) => {
       return res.status(400).json({ errore: 'Relazione già esistente con questo utente' });
     }
     
-    await Amicizia.findOneAndDelete({
+    // Se esiste una richiesta RIFIUTATA, elimina e ricrea
+    const rifiutata = await Amicizia.findOneAndDelete({
       $or: [
         { mittente_id: req.user.id, destinatario_id: destinatario_id, stato: 'rifiutata' },
         { mittente_id: destinatario_id, destinatario_id: req.user.id, stato: 'rifiutata' }
       ]
     });
     
+    // Crea la nuova richiesta
     const amicizia = new Amicizia({
       mittente_id: req.user.id,
       destinatario_id: destinatario_id,
@@ -203,12 +129,16 @@ router.post('/richiesta', auth, async (req, res) => {
     
     await amicizia.save();
     
+    // SALVA IL LOG
     await Log.create({
       utente_id: req.user.id,
       azione: 'richiesta_inviata',
       tipo: 'amico',
       descrizione: `Hai inviato una richiesta di amicizia a ${destinatario.username}`,
-      dettagli: { amico_id: destinatario_id, amico_username: destinatario.username }
+      dettagli: {
+        amico_id: destinatario_id,
+        amico_username: destinatario.username
+      }
     });
     
     res.status(201).json({ messaggio: 'Richiesta inviata', amicizia });
@@ -218,12 +148,17 @@ router.post('/richiesta', auth, async (req, res) => {
   }
 });
 
-// PUT - Accetta/Rifiuta (INVARIATE)
+
+// PUT - Accetta richiesta
 router.put('/accetta/:id', auth, async (req, res) => {
   try {
     const amicizia = await Amicizia.findById(req.params.id);
     
-    if (!amicizia) return res.status(404).json({ errore: 'Richiesta non trovata' });
+    if (!amicizia) {
+      return res.status(404).json({ errore: 'Richiesta non trovata' });
+    }
+    
+    // Verifica che sia il destinatario
     if (amicizia.destinatario_id.toString() !== req.user.id) {
       return res.status(403).json({ errore: 'Non autorizzato' });
     }
@@ -232,14 +167,19 @@ router.put('/accetta/:id', auth, async (req, res) => {
     amicizia.rispostaAt = new Date();
     await amicizia.save();
     
+    // Popola i dati per il log
     await amicizia.populate('mittente_id', 'username');
     
+    // SALVA IL LOG
     await Log.create({
       utente_id: req.user.id,
       azione: 'richiesta_accettata',
       tipo: 'amico',
       descrizione: `Hai accettato la richiesta di amicizia da ${amicizia.mittente_id.username}`,
-      dettagli: { amico_id: amicizia.mittente_id._id, amico_username: amicizia.mittente_id.username }
+      dettagli: {
+        amico_id: amicizia.mittente_id._id,
+        amico_username: amicizia.mittente_id.username
+      }
     });
     
     res.json({ messaggio: 'Richiesta accettata', amicizia });
@@ -249,11 +189,16 @@ router.put('/accetta/:id', auth, async (req, res) => {
   }
 });
 
+// PUT - Rifiuta richiesta
 router.put('/rifiuta/:id', auth, async (req, res) => {
   try {
     const amicizia = await Amicizia.findById(req.params.id);
     
-    if (!amicizia) return res.status(404).json({ errore: 'Richiesta non trovata' });
+    if (!amicizia) {
+      return res.status(404).json({ errore: 'Richiesta non trovata' });
+    }
+    
+    // Verifica che sia il destinatario
     if (amicizia.destinatario_id.toString() !== req.user.id) {
       return res.status(403).json({ errore: 'Non autorizzato' });
     }
@@ -269,12 +214,18 @@ router.put('/rifiuta/:id', auth, async (req, res) => {
   }
 });
 
-// DELETE (INVARIATE)
+// ===== RIMOZIONE AMICI =====
+
+// DELETE - Annulla richiesta inviata (ID della richiesta)
 router.delete('/:id', auth, async (req, res) => {
   try {
     const amicizia = await Amicizia.findById(req.params.id);
     
-    if (!amicizia) return res.status(404).json({ errore: 'Richiesta non trovata' });
+    if (!amicizia) {
+      return res.status(404).json({ errore: 'Richiesta non trovata' });
+    }
+    
+    // Verifica che sia uno dei due coinvolti
     if (amicizia.mittente_id.toString() !== req.user.id && 
         amicizia.destinatario_id.toString() !== req.user.id) {
       return res.status(403).json({ errore: 'Non autorizzato' });
@@ -288,14 +239,18 @@ router.delete('/:id', auth, async (req, res) => {
   }
 });
 
+// DELETE - Rimuovi amico (usando ID amico)
 router.delete('/rimuovi/:amicoId', auth, async (req, res) => {
   try {
     const amicoId = req.params.amicoId;
     const userId = req.user.id;
     
+    console.log('🗑️ Richiesta rimozione amico:', { userId, amicoId });
+    
     const userObjectId = new mongoose.Types.ObjectId(userId);
     const amicoObjectId = new mongoose.Types.ObjectId(amicoId);
     
+    // Trova e elimina l'amicizia confermata tra i due utenti
     const risultato = await Amicizia.findOneAndDelete({
       $and: [
         { stato: 'confermata' },
@@ -307,6 +262,8 @@ router.delete('/rimuovi/:amicoId', auth, async (req, res) => {
         }
       ]
     });
+    
+    console.log('📊 Risultato eliminazione:', risultato);
     
     if (!risultato) {
       return res.status(404).json({ errore: 'Amicizia non trovata' });
