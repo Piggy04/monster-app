@@ -2762,29 +2762,29 @@ input:checked + .slider:before {
 
 /* === SCROLL TO TOP - FINALE === */
 #scrollToTop {
-  position: fixed !important;
-  bottom: 30px !important;
-  left: 50% !important;
-  transform: translateX(-50%) !important;
-  width: 50px !important;
-  height: 50px !important;
-  background: #00ff41 !important;
-  color: #000 !important;
-  border: none !important;
-  border-radius: 50% !important;
-  font-size: 24px !important;
-  font-weight: bold !important;
-  cursor: pointer !important;
-  z-index: 99999 !important;
-  opacity: 0 !important;
-  visibility: hidden !important;
-  transition: opacity 0.3s, visibility 0.3s, transform 0.3s !important;
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50px;
+  height: 50px;
+  background: #00ff41;
+  color: #000;
+  border: none;
+  border-radius: 50%;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 9999;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s, transform 0.3s;
 }
 
 #scrollToTop.show {
-  opacity: 1 !important;
-  visibility: visible !important;
-  transform: translateX(-50%) translateY(-5px) !important;
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(-5px);
 }
 
 
