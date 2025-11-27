@@ -311,19 +311,20 @@ document.getElementById('formVariante').addEventListener('submit', async (e) => 
 
   try {
     const response = await fetch(`${API_URL}/collezione/variante`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify({
-        categoriaId,
-        lattinaId,
-        nome,
-        ordine,
-        immagineUrl
-      })
-    });
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  },
+  body: JSON.stringify({
+    categoria_id: categoriaId,   // opzionale, ma se non serve puoi toglierlo
+    lattina_id:   lattinaId,     // ⬅ NOME ALLINEATO AL BACKEND
+    nome,
+    ordine,
+    immagine:     immagineUrl    // ⬅ NOME ALLINEATO AL BACKEND
+  })
+});
+
 
     const data = await response.json().catch(() => ({}));
 
