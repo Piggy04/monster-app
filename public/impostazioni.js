@@ -5,6 +5,10 @@ const username = localStorage.getItem('username');
 const ruolo = localStorage.getItem('ruolo');
 let avatarSelezionato = '';
 
+// Verifica se API_URL termina con /api per evitare duplicazioni
+const API_USERS = API_URL.endsWith('/api') ? `${API_URL}/users` : `${API_URL}/api/users`;
+const API_AUTH = API_URL.endsWith('/api') ? `${API_URL}/auth` : `${API_URL}/api/auth`;
+
 const AVATARS = [
   'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTI4IiBoZWlnaHQ9IjEyOCIgdmlld0JveD0iMCAwIDEyOCAxMjgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxjaXJjbGUgY3g9IjY0IiBjeT0iNjQiIHI9IjY0IiBmaWxsPSIjNEY5RjNGIi8+CjxjaXJjbGUgY3g9IjY0IiBjeT0iNDgiIHI9IjI0IiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4=',
   'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTI4IiBoZWlnaHQ9IjEyOCIgdmlld0JveD0iMCAwIDEyOCAxMjgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxjaXJjbGUgY3g9IjY0IiBjeT0iNjQiIHI9IjY0IiBmaWxsPSIjMDBGRjRCIi8+CjxjaXJjbGUgY3g9IjY0IiBjeT0iNDgiIHI9IjI0IiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4=',
@@ -29,7 +33,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 async function caricaAvatar() {
   try {
-    const res = await fetch(`${API_URL}/api/users/avatar`, {
+    const res = await fetch(`${API_USERS}/avatar`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     if (res.ok) {
@@ -46,7 +50,7 @@ async function caricaAvatar() {
 
 async function caricaInfoProfilo() {
   try {
-    const res = await fetch(`${API_URL}/api/users/me`, {
+    const res = await fetch(`${API_USERS}/me`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     if (res.ok) {
@@ -59,7 +63,6 @@ async function caricaInfoProfilo() {
       document.getElementById('infoData').textContent = 
         user.createdAt ? new Date(user.createdAt).toLocaleDateString('it-IT') : 'N/D';
     } else {
-      // Fallback localStorage
       document.getElementById('infoUsername').textContent = username;
       document.getElementById('infoRuolo').textContent = ruolo === 'admin' ? 'Admin' : 'User';
     }
@@ -118,7 +121,7 @@ function selezionaAvatar(url) {
 
 async function salvaAvatar() {
   try {
-    const res = await fetch(`${API_URL}/api/users/avatar`, {
+    const res = await fetch(`${API_USERS}/avatar`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
       body: JSON.stringify({ avatarUrl: avatarSelezionato })
@@ -140,7 +143,7 @@ function chiudiModalAvatar() { document.getElementById('modalAvatar').style.disp
 
 async function caricaTema() {
   try {
-    const res = await fetch(`${API_URL}/api/auth/me`, {
+    const res = await fetch(`${API_AUTH}/me`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     if (res.ok) {
@@ -156,7 +159,7 @@ async function caricaTema() {
 async function cambiaTema(tema) {
   document.documentElement.setAttribute('data-theme', tema);
   try {
-    await fetch(`${API_URL}/api/auth/me/tema`, {
+    await fetch(`${API_AUTH}/me/tema`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
       body: JSON.stringify({ tema })
@@ -183,7 +186,7 @@ async function cambiaUsername() {
   const nuovo = document.getElementById('nuovoUsername').value.trim();
   if (!nuovo) return alert('⚠️ Inserisci username');
   try {
-    const res = await fetch(`${API_URL}/api/auth/cambia-username`, {
+    const res = await fetch(`${API_AUTH}/cambia-username`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
       body: JSON.stringify({ username: nuovo })
@@ -204,7 +207,7 @@ async function cambiaEmail() {
   const nuova = document.getElementById('nuovaEmail').value.trim();
   if (!nuova) return alert('⚠️ Inserisci email');
   try {
-    const res = await fetch(`${API_URL}/api/auth/cambia-email`, {
+    const res = await fetch(`${API_AUTH}/cambia-email`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
       body: JSON.stringify({ email: nuova })
@@ -229,7 +232,7 @@ async function cambiaPassword() {
   if (nu.length < 6) return alert('⚠️ Minimo 6 caratteri');
   
   try {
-    const res = await fetch(`${API_URL}/api/auth/cambia-password`, {
+    const res = await fetch(`${API_AUTH}/cambia-password`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
       body: JSON.stringify({ passwordVecchia: vec, nuovaPassword: nu })
@@ -253,7 +256,7 @@ function confermaEliminazioneAccount() {
 
 async function eliminaAccount() {
   try {
-    await fetch(`${API_URL}/api/auth/elimina-account`, {
+    await fetch(`${API_AUTH}/elimina-account`, {
       method: 'DELETE',
       headers: { 'Authorization': `Bearer ${token}` }
     });
