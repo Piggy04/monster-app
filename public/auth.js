@@ -15,7 +15,7 @@ function mostraRegister() {
 const token = localStorage.getItem('token');
 
 if (token) {
-  window.location.href = 'collezione.html';
+  window.location.href = 'collezione';
 }
 
 // Form Login
