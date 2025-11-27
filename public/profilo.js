@@ -228,8 +228,8 @@ async function cambiaEmail() {
 // MODIFICA PASSWORD
 async function cambiaPassword() {
   const vecchia = document.getElementById('oldPassword').value;
-  const nuova = document.getElementById('newPassword').value;
-  const conf   = document.getElementById('confirmPassword').value;
+  const nuova   = document.getElementById('newPassword').value;
+  const conf    = document.getElementById('confirmPassword').value;
 
   if (!vecchia || !nuova || !conf) return alert('Compila tutti i campi');
   if (nuova !== conf) return alert('Le password non coincidono');
@@ -242,21 +242,29 @@ async function cambiaPassword() {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`
       },
-      body: JSON.stringify({ passwordVecchia: vecchia, nuovaPassword: nuova })
+      body: JSON.stringify({
+        passwordVecchia: vecchia,
+        nuovaPassword: nuova
+      })
     });
+
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
-      alert(err.errore || 'Errore aggiornamento password');
+      console.error('Errore cambia-password:', err);
+      alert(err.errore || 'Errore interno del server (500)');
       return;
     }
+
     alert('Password aggiornata');
     ['oldPassword','newPassword','confirmPassword'].forEach(id => {
       document.getElementById(id).value = '';
     });
-  } catch {
+  } catch (e) {
+    console.error('Errore di rete cambia-password:', e);
     alert('Errore di rete');
   }
 }
+
 
 // ELIMINA ACCOUNT
 function confermaEliminazioneAccount() {
