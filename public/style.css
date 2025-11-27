@@ -3155,7 +3155,7 @@ input:checked + .slider:before {
   }
 }
 
-/* 🔥 AMICI ENHANCED */
+/* 🔥 AMICI ENHANCED - AGGIUNGI ALLA FINE DI style.css */
 .amici-stats-hero {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -3186,6 +3186,14 @@ input:checked + .slider:before {
   border: 2px solid var(--border-color);
   border-radius: 12px;
   font-size: 15px;
+}
+
+.amici-main-view, .amici-tab-content {
+  display: block;
+}
+
+.amici-main-view.active, .amici-tab-content.active {
+  display: block;
 }
 
 .amici-grid {
@@ -3273,11 +3281,32 @@ input:checked + .slider:before {
   color: var(--text-secondary);
 }
 
+.amico-stats-mini small {
+  font-size: 10px;
+}
+
 .progress-mini {
   height: 4px;
   background: var(--accent-color);
   border-radius: 2px;
   margin-top: 4px;
+}
+
+.amico-info h3 {
+  margin: 0 0 8px 0;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.amico-info p {
+  margin: 0 0 8px 0;
+  color: var(--accent-color);
+  font-weight: 600;
+}
+
+.amico-info small {
+  color: var(--text-secondary);
+  font-size: 13px;
 }
 
 .amico-actions {
@@ -3292,5 +3321,11 @@ input:checked + .slider:before {
   text-align: center;
   padding: 80px 40px;
   color: var(--text-secondary);
+}
+
+.no-amici-placeholder h3 {
+  font-size: 24px;
+  margin: 20px 0;
+  color: var(--text-primary);
 }
 
