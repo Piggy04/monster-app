@@ -7,7 +7,7 @@ if (!token) {
 }
 
 let categorie = [];
-let datiGestioneOriginali = []; // ← Dati per filtri
+let datiGestioneOriginali = []; // Dati flat per filtri
 
 document.addEventListener('DOMContentLoaded', () => {
   const nomeElement = document.getElementById('nomeUtente');
@@ -43,14 +43,13 @@ function mostraTab(tab) {
   } else if (tab === 'gestisci') {
     document.querySelectorAll('.admin-tab')[1].classList.add('active');
     document.getElementById('tabGestisci').style.display = 'block';
-    caricaGestione(); // ← Chiama QUI
+    caricaGestione();
   }
 }
 
-// ✅ CARICA GESTIONE CON /collezione/completa (NO 404)
+// ===== GESTIONE (tab Gestisci) =====
 async function caricaGestione() {
   try {
-    console.log('🔄 Caricamento gestione da /collezione/completa...');
     const response = await fetch(`${API_URL}/collezione/completa`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
@@ -58,13 +57,11 @@ async function caricaGestione() {
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     
     const datiGerarchici = await response.json(); // [categorie] con [lattine] con [varianti]
-    console.log('✅ Dati gerarchici:', datiGerarchici.length, 'categorie');
     
-    // 🔄 TRASFORMA in flat per filtri
     const datiFlat = [];
     
     datiGerarchici.forEach(categoria => {
-      // Categorie
+      // Categoria
       datiFlat.push({
         _id: categoria._id,
         tipo: 'categoria',
@@ -102,17 +99,16 @@ async function caricaGestione() {
     });
     
     datiGestioneOriginali = datiFlat;
-    console.log('✅ Dati flat:', datiFlat.length, 'elementi');
     
     popolaFiltroCategorie(datiFlat);
     mostraGestione(datiFlat);
     
   } catch (errore) {
-    console.error('❌ Errore:', errore);
-    document.getElementById('gestioneContainer').innerHTML = '<p>❌ Errore: ' + errore.message + '</p>';
+    console.error('Errore caricaGestione:', errore);
+    document.getElementById('gestioneContainer').innerHTML =
+      '<p>❌ Errore: ' + errore.message + '</p>';
   }
 }
-
 
 function popolaFiltroCategorie(dati) {
   const select = document.getElementById('filtroCategoriaAdmin');
@@ -129,7 +125,6 @@ function popolaFiltroCategorie(dati) {
   });
 }
 
-// ✅ FILTRI FUNZIONANTI
 function filtraAdmin() {
   const ricerca = document.getElementById('ricercaAdmin')?.value.toLowerCase() || '';
   const tipo = document.getElementById('filtroTipo')?.value || 'tutti';
@@ -137,12 +132,10 @@ function filtraAdmin() {
   
   let risultato = [...datiGestioneOriginali];
   
-  // Filtro tipo
   if (tipo !== 'tutti') {
     risultato = risultato.filter(item => item.tipo === tipo);
   }
   
-  // Filtro categoria
   if (categoriaId) {
     risultato = risultato.filter(item => {
       if (item.tipo === 'categoria') return item._id === categoriaId;
@@ -150,9 +143,8 @@ function filtraAdmin() {
     });
   }
   
-  // Filtro testo
   if (ricerca) {
-    risultato = risultato.filter(item => 
+    risultato = risultato.filter(item =>
       item.nome?.toLowerCase().includes(ricerca)
     );
   }
@@ -160,11 +152,10 @@ function filtraAdmin() {
   mostraGestione(risultato);
 }
 
-// ✅ MOSTRA GESTIONE (adatta a struttura flat)
 function mostraGestione(dati) {
   const container = document.getElementById('gestioneContainer');
   
-  if (dati.length === 0) {
+  if (!dati || dati.length === 0) {
     container.innerHTML = '<p>Nessun risultato trovato</p>';
     return;
   }
@@ -177,7 +168,7 @@ function mostraGestione(dati) {
         <p><strong>Tipo:</strong> ${item.tipo}</p>
         ${item.categoria_id ? `<p><strong>Categoria:</strong> ${item.categoria?.nome || 'N/D'}</p>` : ''}
         <div class="gestione-actions">
-          <button class="btn-edit" onclick="modificaItem('${item._id}', '${item.nome}', ${item.ordine}, '${item.tipo}')">✏️</button>
+          <button class="btn-edit" onclick="modificaItem('${item._id}', '${item.nome.replace(/'/g, "\\'")}', ${item.ordine}, '${item.tipo}')">✏️</button>
           <button class="btn-delete" onclick="eliminaItem('${item._id}', '${item.tipo}')">🗑️</button>
         </div>
       </div>
@@ -187,7 +178,7 @@ function mostraGestione(dati) {
   container.innerHTML = html;
 }
 
-// ===== FUNZIONI FORM AGGIUNGI (invariate) =====
+// ===== FORM AGGIUNGI (tab Aggiungi) =====
 async function caricaCategorie() {
   try {
     const response = await fetch(`${API_URL}/collezione/completa`, {
@@ -210,7 +201,7 @@ async function caricaCategorie() {
     });
     
   } catch (errore) {
-    console.error('Errore caricamento categorie');
+    console.error('Errore caricamento categorie:', errore);
   }
 }
 
@@ -234,17 +225,22 @@ function caricaLattineVariante() {
   }
 }
 
-// Form handlers (invariati - abbrevio per spazio)
+// FORM CATEGORIA
 document.getElementById('formCategoria').addEventListener('submit', async (e) => {
   e.preventDefault();
-  const nome = document.getElementById('nomeCategoria').value;
-  const ordine = document.getElementById('ordineCategoria').value;
+  const nome = document.getElementById('nomeCategoria').value.trim();
+  const ordine = parseInt(document.getElementById('ordineCategoria').value) || 0;
   
+  if (!nome) return alert('Inserisci un nome categoria');
+
   try {
     const response = await fetch(`${API_URL}/collezione/categoria`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-      body: JSON.stringify({ nome, ordine: parseInt(ordine) })
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ nome, ordine })
     });
     
     if (response.ok) {
@@ -253,18 +249,101 @@ document.getElementById('formCategoria').addEventListener('submit', async (e) =>
       setTimeout(() => {
         document.getElementById('successoCategoria').textContent = '';
         caricaCategorie();
-      }, 2000);
+        caricaGestione();
+      }, 1500);
     } else {
-      alert('Errore');
+      alert('Errore nella creazione della categoria');
     }
   } catch (errore) {
-    alert('Errore');
+    alert('Errore di rete');
   }
 });
 
-// ... [altri form handlers invariati - stesso pattern per lattina e variante] ...
+// FORM LATTINA
+document.getElementById('formLattina').addEventListener('submit', async (e) => {
+  e.preventDefault();
 
-// MODAL + ELIMINA (invariati)
+  const categoriaId = document.getElementById('categoriaLattina').value;
+  const nome = document.getElementById('nomeLattina').value.trim();
+  const ordine = parseInt(document.getElementById('ordineLattina').value) || 0;
+
+  if (!categoriaId || !nome) return alert('Compila tutti i campi');
+
+  try {
+    const response = await fetch(`${API_URL}/collezione/lattina`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ categoriaId, nome, ordine })
+    });
+
+    if (response.ok) {
+      document.getElementById('successoLattina').textContent = '✓ Lattina aggiunta!';
+      document.getElementById('formLattina').reset();
+      setTimeout(() => {
+        document.getElementById('successoLattina').textContent = '';
+        caricaCategorie();
+        caricaGestione();
+      }, 1500);
+    } else {
+      alert('Errore nella creazione della lattina');
+    }
+  } catch (err) {
+    alert('Errore di rete');
+  }
+});
+
+// FORM VARIANTE
+document.getElementById('formVariante').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const categoriaId = document.getElementById('categoriaVariante').value;
+  const lattinaId   = document.getElementById('lattinaVariante').value;
+  const nome        = document.getElementById('nomeVariante').value.trim();
+  const ordine      = parseInt(document.getElementById('ordineVariante').value) || 0;
+  const immagineUrl = document.getElementById('immagineVariante').value.trim() || null;
+
+  if (!categoriaId || !lattinaId || !nome) {
+    return alert('Compila tutti i campi obbligatori');
+  }
+
+  try {
+    const response = await fetch(`${API_URL}/collezione/variante`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        categoriaId,
+        lattinaId,
+        nome,
+        ordine,
+        immagineUrl
+      })
+    });
+
+    if (response.ok) {
+      document.getElementById('successoVariante').textContent = '✓ Variante aggiunta!';
+      document.getElementById('formVariante').reset();
+      document.getElementById('lattinaVariante').innerHTML =
+        '<option value="">Prima seleziona categoria</option>';
+      setTimeout(() => {
+        document.getElementById('successoVariante').textContent = '';
+        caricaCategorie();
+        caricaGestione();
+      }, 1500);
+    } else {
+      alert('Errore nella creazione della variante');
+    }
+  } catch (err) {
+    alert('Errore di rete');
+  }
+});
+
+// ===== MODAL MODIFICA / ELIMINA =====
 function modificaItem(id, nome, ordine, tipo) {
   document.getElementById('modificaId').value = id;
   document.getElementById('modificaTipo').value = tipo;
