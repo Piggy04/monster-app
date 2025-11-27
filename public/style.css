@@ -3154,3 +3154,143 @@ input:checked + .slider:before {
     font-size: 1.5em;
   }
 }
+
+/* 🔥 AMICI ENHANCED */
+.amici-stats-hero {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  margin-bottom: 35px;
+  max-width: 800px;
+}
+
+.amici-action-bar {
+  background: var(--bg-secondary);
+  padding: 25px;
+  border-radius: 16px;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 15px var(--shadow);
+  border: 1px solid var(--border-color);
+}
+
+.ricerca-rapida {
+  display: flex;
+  gap: 15px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.ricerca-rapida input {
+  flex: 1;
+  padding: 16px 20px;
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  font-size: 15px;
+}
+
+.amici-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  gap: 25px;
+  max-width: 1200px;
+}
+
+.amico-card-enhanced {
+  background: var(--bg-secondary);
+  border-radius: 20px;
+  padding: 25px;
+  display: flex;
+  gap: 20px;
+  box-shadow: 0 8px 25px var(--shadow);
+  border: 1px solid var(--border-color);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.amico-card-enhanced::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--gradient-primary);
+}
+
+.amico-card-enhanced:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px var(--shadow-hover);
+  border-color: var(--accent-color);
+}
+
+.amico-avatar-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  min-width: 100px;
+}
+
+.avatar-container {
+  position: relative;
+}
+
+.amico-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid var(--border-color);
+  transition: all 0.3s;
+}
+
+.amico-avatar.online {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 20px rgba(46, 204, 113, 0.4);
+}
+
+.online-indicator {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  width: 20px;
+  height: 20px;
+  background: var(--accent-color);
+  border: 3px solid var(--bg-secondary);
+  border-radius: 50%;
+  animation: pulse-online 2s infinite;
+}
+
+@keyframes pulse-online {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(46, 204, 113, 0); }
+}
+
+.amico-stats-mini {
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.progress-mini {
+  height: 4px;
+  background: var(--accent-color);
+  border-radius: 2px;
+  margin-top: 4px;
+}
+
+.amico-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 140px;
+}
+
+.no-amici-placeholder {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 80px 40px;
+  color: var(--text-secondary);
+}
+
