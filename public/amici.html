@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Amici - SW Archive</title>
-  <link rel="icon" href="favicon.ico" type="image/x-icon">
-  <link rel="stylesheet" href="style.css">
-  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="manifest" href="/manifest.json" />
 </head>
 <body>
   <script>
@@ -43,12 +43,12 @@
 
     <!-- TAB NAVIGATION -->
     <div class="amici-tabs" style="margin-bottom: 30px;">
-      <button class="amici-tab active" onclick="mostraTab('amici')">👥 I Miei Amici</button>
-      <button class="amici-tab" onclick="mostraTab('ricerca')">🔍 Ricerca</button>
-      <button class="amici-tab" onclick="mostraTab('richieste')">📬 Richieste</button>
+      <button class="amici-tab active" data-tab="amici" onclick="mostraTab('amici')">👥 I Miei Amici</button>
+      <button class="amici-tab" data-tab="ricerca" onclick="mostraTab('ricerca')">🔍 Ricerca</button>
+      <button class="amici-tab" data-tab="richieste" onclick="mostraTab('richieste')">📬 Richieste</button>
     </div>
 
-    <!-- TAB AMICI (PRIMO PER DEFAULT) -->
+    <!-- TAB AMICI -->
     <div id="tabAmici" class="amici-tab-content active">
       <div id="amiciList" class="amici-list">
         <p>Caricamento amici...</p>
@@ -58,7 +58,7 @@
     <!-- TAB RICERCA -->
     <div id="tabRicerca" class="amici-tab-content" style="display:none;">
       <div class="ricerca-box" style="max-width: 500px; margin: 0 auto 30px;">
-        <input type="text" id="ricercaUsername" placeholder="🔍 Cerca per username..." onkeyup="cercaUtenti()">
+        <input type="text" id="ricercaUsername" placeholder="🔍 Cerca per username..." onkeyup="cercaUtenti()" />
       </div>
       <div id="risultatiRicerca" class="risultati-ricerca">
         <p style="text-align: center;">Inizia a digitare per cercare...</p>
@@ -82,7 +82,7 @@
     </div>
   </div>
 
-  <!-- Theme drawer + scroll -->
+  <!-- Theme drawer -->
   <div class="theme-drawer" id="themeDrawer">
     <button class="theme-drawer-toggle" onclick="toggleThemeDrawer()">🎨</button>
     <div class="theme-drawer-content">
