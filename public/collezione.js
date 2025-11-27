@@ -9,50 +9,82 @@ const username = localStorage.getItem('username');
 const ruolo = localStorage.getItem('ruolo');
 
 let deferredPrompt;
-const installButton = document.getElementById('installButton');
 
-window.addEventListener('beforeinstallprompt', (e) => {
-  console.log('✅ App installabile!');
-  
-  // Previeni il prompt automatico di Chrome
-  e.preventDefault();
-  
-  // Salva l'evento per usarlo dopo
-  deferredPrompt = e;
-  
-  if (installButton) installButton.style.display = 'block';
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('✅ DOMContentLoaded');
+
+  // UTENTE
+  const nomeElement = document.getElementById('nomeUtente');
+  if (nomeElement) {
+    let badgeHtml = '';
+    if (ruolo === 'admin') badgeHtml = '<span class="role-badge role-admin">ADMIN</span>';
+    else if (ruolo === 'beta') badgeHtml = '<span class="role-badge role-beta">BETA TESTER</span>';
+    nomeElement.innerHTML = `Ciao, ${username}! ${badgeHtml}`;
+  }
+
+  // ADMIN LINKS
+  if (ruolo === 'admin') {
+    ['linkAdmin', 'linkUsers', 'linkLogAdmin'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'block';
+    });
+  }
+
+  // SCROLL TO TOP
+  const scrollBtn = document.getElementById('scrollToTop');
+  if (scrollBtn) {
+    console.log('✅ Scroll button OK');
+    scrollBtn.style.display = 'none';
+    window.addEventListener('scroll', () => {
+      scrollBtn.style.display = window.scrollY > 300 ? 'block' : 'none';
+    });
+    scrollBtn.onclick = () => window.scrollTo({top: 0, behavior: 'smooth'});
+  }
+
+  // PWA INSTALL
+  const installButton = document.getElementById('installButton');
+  window.addEventListener('beforeinstallprompt', (e) => {
+    console.log('✅ App installabile!');
+    e.preventDefault();
+    deferredPrompt = e;
+    if (installButton) installButton.style.display = 'block';
+  });
+
+  if (installButton) {
+    installButton.addEventListener('click', async () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      console.log(`Utente ha scelto: ${outcome}`);
+      deferredPrompt = null;
+      installButton.style.display = 'none';
+    });
+  }
+
+  window.addEventListener('appinstalled', () => {
+    console.log('✅ App installata!');
+    if (installButton) installButton.style.display = 'none';
+    deferredPrompt = null;
+  });
+
+  caricaTema();
+  caricaCollezione();
+  caricaStatistiche();
 });
 
-if (installButton) {
-  installButton.addEventListener('click', async () => {
-    if (!deferredPrompt) {
-      console.log('❌ Prompt non disponibile');
-      return;
-    }
-    
-    deferredPrompt.prompt();
-    
-    const { outcome } = await deferredPrompt.userChoice;
-    console.log(`Utente ha scelto: ${outcome}`);
-    
-    deferredPrompt = null;
-    installButton.style.display = 'none';
-  });
+// LOGOUT
+function logout() {
+  localStorage.clear();
+  window.location.href = 'index.html';
 }
 
-window.addEventListener('appinstalled', () => {
-  console.log('✅ App installata!');
-  if (installButton) installButton.style.display = 'none';
-  deferredPrompt = null;
-});
-
+// CARICA COLLEZIONE CON CACHE
 async function caricaCollezione() {
   const cacheKey = 'collezione-cache';
   const cacheTimeKey = 'collezione-timestamp';
   const cacheExpiry = 5 * 60 * 1000; // 5 minuti
   
   try {
-    // 1. Controlla se c'è cache valida
     const cachedData = localStorage.getItem(cacheKey);
     const cachedTime = localStorage.getItem(cacheTimeKey);
     
@@ -64,39 +96,30 @@ async function caricaCollezione() {
         datiCollezione = JSON.parse(cachedData);
         inizializzaFiltri(datiCollezione);
         mostraCollezione(datiCollezione);
-        return; // Esce subito
+        return;
       } else {
         console.log('⏰ Cache scaduta, ricarico...');
       }
     }
     
-    // 2. Fetch dal server (prima volta o cache scaduta)
     console.log('🌐 Caricamento dal server...');
     const response = await fetch(`${API_URL}/collezione/completa`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     
-    if (!response.ok) {
-      throw new Error('Errore caricamento');
-    }
+    if (!response.ok) throw new Error('Errore caricamento');
     
     datiCollezione = await response.json();
-    
-    // 3. Salva in cache
     localStorage.setItem(cacheKey, JSON.stringify(datiCollezione));
     localStorage.setItem(cacheTimeKey, Date.now().toString());
     console.log('✅ Dati salvati in cache');
     
-    // 4. Mostra dati
     inizializzaFiltri(datiCollezione);
     mostraCollezione(datiCollezione);
-    
   } catch (errore) {
     console.error('Errore:', errore);
     const container = document.getElementById('collezioneContainer');
-    if (container) {
-      container.innerHTML = '<p>Errore nel caricamento della collezione</p>';
-    }
+    if (container) container.innerHTML = '<p>Errore nel caricamento della collezione</p>';
   }
 }
 
@@ -111,7 +134,6 @@ function inizializzaFiltri(categorie) {
   if (!container) return;
   
   container.innerHTML = '';
-  
   categorie.forEach(categoria => {
     const div = document.createElement('div');
     div.className = 'categoria-checkbox';
@@ -445,30 +467,4 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
     chiudiModalImmagine();
   }
-});
-
-// === SCROLL TO TOP ===
-document.addEventListener('DOMContentLoaded', () => {
-  const btn = document.getElementById('scrollToTop');
-  if (!btn) return;
-
-  // Mostra solo dopo un po' di scroll
-  window.addEventListener('scroll', () => {
-    if (window.scrollY > 300) {
-      btn.style.display = 'block';
-    } else {
-      btn.style.display = 'none';
-    }
-  });
-
-  // Click: torna su
-  btn.addEventListener('click', () => {
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    });
-  });
-
-  // All'inizio nascondi
-  btn.style.display = 'none';
 });
