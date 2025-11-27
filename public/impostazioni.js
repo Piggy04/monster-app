@@ -37,21 +37,20 @@ document.addEventListener('DOMContentLoaded', async () => {
   caricaTema();
   await caricaInfoProfilo();
   await caricaAvatar();
-  creaModalAvatar(); // Crea modal picker
+  creaModalAvatar(); // Crea modal picker avatar
 });
 
-// ✅ CARICA AVATAR
+// Carica avatar utente da API e mostra in pagina
 async function caricaAvatar() {
   try {
     const response = await fetch(`${API_URL}/api/users/avatar`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
-    
+
     if (response.ok) {
       const data = await response.json();
       avatarSelezionato = data.avatar;
-      
-      // Mostra avatar nel profilo
+
       const avatarPreview = document.getElementById('avatarPreview');
       if (avatarPreview) {
         avatarPreview.src = avatarSelezionato;
@@ -63,22 +62,22 @@ async function caricaAvatar() {
   }
 }
 
-// ✅ CARICA INFO PROFILO (con avatar)
+// Carica dati profilo utente da API e mostra in pagina
 async function caricaInfoProfilo() {
   try {
     const response = await fetch(`${API_URL}/api/users/me`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
-    
+
     if (response.ok) {
       const user = await response.json();
-      
+
       document.getElementById('infoUsername').textContent = user.username;
       document.getElementById('infoEmail').textContent = user.email;
-      document.getElementById('infoRuolo').textContent = 
-        user.ruolo === 'admin' ? 'Admin' : 
+      document.getElementById('infoRuolo').textContent =
+        user.ruolo === 'admin' ? 'Admin' :
         user.ruolo === 'beta' ? 'Beta Tester' : 'User';
-      
+
       const data = new Date(user.createdAt);
       document.getElementById('infoData').textContent = data.toLocaleDateString('it-IT');
     }
@@ -87,10 +86,10 @@ async function caricaInfoProfilo() {
   }
 }
 
-// ✅ CREA MODAL AVATAR PICKER
+// Crea dinamicamente modal per selezionare avatar
 function creaModalAvatar() {
   if (document.getElementById('modalAvatar')) return;
-  
+
   const modalHTML = `
     <div id="modalAvatar" class="modal" style="display:none;">
       <div class="modal-content">
@@ -108,32 +107,39 @@ function creaModalAvatar() {
   popolaAvatarPicker();
 }
 
-// ✅ POPOLA AVATAR PICKER
+// Popola griglia avatar disponibili nel modal
 function popolaAvatarPicker() {
   const grid = document.getElementById('avatarGrid');
   if (!grid) return;
-  
+
   grid.innerHTML = '';
   AVATARS.forEach(url => {
     const div = document.createElement('div');
     div.className = 'avatar-option' + (url === avatarSelezionato ? ' selected' : '');
-    div.innerHTML = `<img src="${url}" alt="Avatar" onerror="this.src='https://via.placeholder.com/64/4a4a4a/ffffff?text=👤'">`;
+    const img = document.createElement('img');
+    img.src = url;
+    img.alt = 'Avatar';
+    img.onerror = function() { 
+      this.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMzIiIGN5PSIzMiIgcj0iMzIiIGZpbGw9IiM0QURBQTRhIi8+CjxjaXJjbGUgY3g9IjMyIiBjeT0iMjQiIHI9IjgiIGZpbGw9IiNGRkYiLz4KPC9zdmc+'; 
+    };
+    div.appendChild(img);
     div.onclick = () => selezionaAvatar(url);
     grid.appendChild(div);
   });
 }
 
-// ✅ SELEZIONA AVATAR
+
+// Seleziona un avatar dalla griglia
 function selezionaAvatar(url) {
   avatarSelezionato = url;
   document.querySelectorAll('.avatar-option').forEach(el => el.classList.remove('selected'));
   event.currentTarget.classList.add('selected');
-  
+
   const preview = document.getElementById('avatarPreview');
   if (preview) preview.src = url;
 }
 
-// ✅ SALVA AVATAR
+// Salva avatar selezionato sul server via API
 async function salvaAvatar() {
   try {
     const response = await fetch(`${API_URL}/api/users/avatar`, {
@@ -144,7 +150,7 @@ async function salvaAvatar() {
       },
       body: JSON.stringify({ avatarUrl: avatarSelezionato })
     });
-    
+
     if (response.ok) {
       const data = await response.json();
       alert(data.messaggio || 'Avatar salvato!');
@@ -157,27 +163,26 @@ async function salvaAvatar() {
   }
 }
 
-// ✅ MODAL CONTROLLI
+// Mostra modal selezione avatar
 function apriAvatarPicker() {
   document.getElementById('modalAvatar').style.display = 'block';
 }
 
+// Nasconde modal selezione avatar
 function chiudiModalAvatar() {
   document.getElementById('modalAvatar').style.display = 'none';
 }
 
-// ===== FUNZIONI ESISTENTI (invariate + fix) =====
+// Funzioni tema (invariato)
 async function caricaTema() {
   try {
     const response = await fetch(`${API_URL}/api/auth/me`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
-    
     if (response.ok) {
       const user = await response.json();
       const tema = user.tema || 'light';
       document.documentElement.setAttribute('data-theme', tema);
-      
       document.querySelectorAll('.theme-btn').forEach(btn => btn.classList.remove('active'));
       const activeBtn = document.querySelector(`.theme-btn.${tema}`);
       if (activeBtn) activeBtn.classList.add('active');
@@ -190,7 +195,7 @@ async function caricaTema() {
 async function cambiaTema(nuovoTema) {
   try {
     document.documentElement.setAttribute('data-theme', nuovoTema);
-    
+
     const response = await fetch(`${API_URL}/api/auth/me/tema`, {
       method: 'PUT',
       headers: {
@@ -199,11 +204,11 @@ async function cambiaTema(nuovoTema) {
       },
       body: JSON.stringify({ tema: nuovoTema })
     });
-    
+
     if (response.ok) {
       document.querySelectorAll('.theme-btn').forEach(btn => btn.classList.remove('active'));
       document.querySelector(`.theme-btn.${nuovoTema}`).classList.add('active');
-      
+
       const drawer = document.getElementById('themeDrawer');
       if (drawer) drawer.classList.remove('active');
     }
@@ -224,12 +229,12 @@ function logout() {
 
 async function cambiaUsername() {
   const nuovoUsername = document.getElementById('nuovoUsername').value.trim();
-  
+
   if (!nuovoUsername) {
     alert('⚠️ Inserisci un nuovo username');
     return;
   }
-  
+
   try {
     const response = await fetch(`${API_URL}/api/auth/cambia-username`, {
       method: 'PUT',
@@ -239,7 +244,7 @@ async function cambiaUsername() {
       },
       body: JSON.stringify({ username: nuovoUsername })
     });
-    
+
     if (response.ok) {
       alert('✓ Username aggiornato!');
       localStorage.setItem('username', nuovoUsername);
@@ -258,12 +263,12 @@ async function cambiaUsername() {
 
 async function cambiaEmail() {
   const nuovaEmail = document.getElementById('nuovaEmail').value.trim();
-  
+
   if (!nuovaEmail) {
     alert('⚠️ Inserisci una nuova email');
     return;
   }
-  
+
   try {
     const response = await fetch(`${API_URL}/api/auth/cambia-email`, {
       method: 'PUT',
@@ -273,7 +278,7 @@ async function cambiaEmail() {
       },
       body: JSON.stringify({ email: nuovaEmail })
     });
-    
+
     if (response.ok) {
       alert('✓ Email aggiornata!');
       document.getElementById('nuovaEmail').value = '';
@@ -288,27 +293,27 @@ async function cambiaEmail() {
   }
 }
 
-// ✅ FIX CAMBIO PASSWORD (endpoint corretto)
+// Fix cambio password: ora minimo 6 caratteri
 async function cambiaPassword() {
   const passwordVecchia = document.getElementById('passwordVecchia').value;
   const nuovaPassword = document.getElementById('nuovaPassword').value;
   const confermaPassword = document.getElementById('confermaPassword').value;
-  
+
   if (!passwordVecchia || !nuovaPassword || !confermaPassword) {
     alert('⚠️ Compila tutti i campi');
     return;
   }
-  
+
   if (nuovaPassword !== confermaPassword) {
     alert('⚠️ Le password non coincidono');
     return;
   }
-  
+
   if (nuovaPassword.length < 6) {
     alert('⚠️ La password deve avere almeno 6 caratteri');
     return;
   }
-  
+
   try {
     const response = await fetch(`${API_URL}/api/auth/cambia-password`, {
       method: 'PUT',
@@ -316,12 +321,12 @@ async function cambiaPassword() {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
       },
-      body: JSON.stringify({ 
+      body: JSON.stringify({
         passwordVecchia,
         nuovaPassword
       })
     });
-    
+
     if (response.ok) {
       alert('✓ Password aggiornata con successo!');
       document.getElementById('passwordVecchia').value = '';
@@ -340,13 +345,13 @@ async function cambiaPassword() {
 function confermaEliminazioneAccount() {
   if (!confirm('⚠️ Sei SICURO? Questa azione è IRREVERSIBILE!')) return;
   if (!confirm('🔴 ULTIMA CONFERMA: Digita "ELIMINA"')) return;
-  
+
   const conferma = prompt('Digita ELIMINA per confermare:');
   if (conferma !== 'ELIMINA') {
     alert('Operazione annullata');
     return;
   }
-  
+
   eliminaAccount();
 }
 
@@ -356,7 +361,7 @@ async function eliminaAccount() {
       method: 'DELETE',
       headers: { 'Authorization': `Bearer ${token}` }
     });
-    
+
     if (response.ok) {
       alert('✓ Account eliminato');
       localStorage.clear();
