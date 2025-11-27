@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Amici - SW Archive</title>
-  <link rel="icon" href="favicon.ico" type="image/x-icon" />
-  <link rel="stylesheet" href="style.css" />
-  <link rel="manifest" href="/manifest.json" />
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="/manifest.json">
 </head>
 <body>
   <script>
@@ -38,47 +38,51 @@
   <div class="main-content">
     <div class="header">
       <h1>👥 Amici</h1>
-      <p>Gestisci i tuoi amici, richieste e statistiche sociali.</p>
+      <p>Gestisci i tuoi amici e le richieste di amicizia</p>
     </div>
 
     <!-- TAB NAVIGATION -->
-    <div class="amici-tabs">
-      <button class="amici-tab active" onclick="mostraTab('ricerca')">🔍 Ricerca</button>
+    <div class="amici-tabs" style="margin-bottom: 30px;">
+      <button class="amici-tab active" onclick="mostraTab('amici')">👥 I Miei Amici</button>
+      <button class="amici-tab" onclick="mostraTab('ricerca')">🔍 Ricerca</button>
       <button class="amici-tab" onclick="mostraTab('richieste')">📬 Richieste</button>
-      <button class="amici-tab" onclick="mostraTab('amici')">👥 I Miei Amici</button>
     </div>
 
-    <!-- TAB 1: RICERCA -->
-    <div id="tabRicerca" class="amici-tab-content active">
-      <div class="ricerca-box">
-        <input type="text" id="ricercaUsername" placeholder="🔍 Cerca per username..." onkeyup="cercaUtenti()" />
+    <!-- TAB AMICI (PRIMO PER DEFAULT) -->
+    <div id="tabAmici" class="amici-tab-content active">
+      <div id="amiciList" class="amici-list">
+        <p>Caricamento amici...</p>
+      </div>
+    </div>
+
+    <!-- TAB RICERCA -->
+    <div id="tabRicerca" class="amici-tab-content" style="display:none;">
+      <div class="ricerca-box" style="max-width: 500px; margin: 0 auto 30px;">
+        <input type="text" id="ricercaUsername" placeholder="🔍 Cerca per username..." onkeyup="cercaUtenti()">
       </div>
       <div id="risultatiRicerca" class="risultati-ricerca">
-        <p>Inizia a digitare per cercare...</p>
+        <p style="text-align: center;">Inizia a digitare per cercare...</p>
       </div>
     </div>
 
-    <!-- TAB 2: RICHIESTE -->
+    <!-- TAB RICHIESTE -->
     <div id="tabRichieste" class="amici-tab-content" style="display:none;">
-      <h3>Richieste Ricevute</h3>
-      <div id="richiesteRicevute" class="amici-list">
-        <p>Nessuna richiesta in sospeso</p>
+      <div style="margin-bottom: 30px;">
+        <h3>📥 Richieste Ricevute</h3>
+        <div id="richiesteRicevute" class="amici-list">
+          <p>Nessuna richiesta in sospeso</p>
+        </div>
       </div>
-      <h3 style="margin-top: 30px;">Richieste Inviate</h3>
-      <div id="richiesteInviate" class="amici-list">
-        <p>Nessuna richiesta inviata</p>
-      </div>
-    </div>
-
-    <!-- TAB 3: AMICI -->
-    <div id="tabAmici" class="amici-tab-content" style="display:none;">
-      <div id="amiciList" class="amici-list">
-        <p>Nessun amico ancora</p>
+      <div>
+        <h3>📤 Richieste Inviate</h3>
+        <div id="richiesteInviate" class="amici-list">
+          <p>Nessuna richiesta inviata</p>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Theme drawer -->
+  <!-- Theme drawer + scroll -->
   <div class="theme-drawer" id="themeDrawer">
     <button class="theme-drawer-toggle" onclick="toggleThemeDrawer()">🎨</button>
     <div class="theme-drawer-content">

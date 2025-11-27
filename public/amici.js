@@ -1,256 +1,247 @@
 let token = localStorage.getItem('token');
 if (!token) window.location.href = 'index.html';
 
-const username = localStorage.getItem('username');
-const ruolo = localStorage.getItem('ruolo');
+const usernameLS = localStorage.getItem('username');
+const ruoloLS = localStorage.getItem('ruolo');
 
-document.addEventListener('DOMContentLoaded', () => {
-  const nomeElement = document.getElementById('nomeUtente');
-  if (nomeElement) nomeElement.textContent = `Ciao, ${username}!`;
-
-  if (ruolo === 'admin') {
+document.addEventListener('DOMContentLoaded', async () => {
+  // Admin links
+  if (ruoloLS === 'admin') {
     ['linkAdmin','linkUsers','linkLogAdmin'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.style.display = 'block';
     });
   }
 
-  caricaRichieste();
-  caricaAmici();
+  // CARICA AMICI SUBITO (PRIMA TAB)
+  await caricaAmici();
 });
 
-// LOGOUT
-function logout() {
-  localStorage.clear();
-  window.location.href = 'index.html';
-}
-
-// MOSTRA TAB
+// === NAVIGAZIONE TAB ===
 function mostraTab(tab) {
+  // Nascondi tutti
   document.querySelectorAll('.amici-tab-content').forEach(t => t.style.display = 'none');
   document.querySelectorAll('.amici-tab').forEach(t => t.classList.remove('active'));
-
-  if (tab === 'ricerca') {
+  
+  // Mostra tab selezionato
+  if (tab === 'amici') {
+    document.getElementById('tabAmici').style.display = 'block';
+    document.querySelector('.amici-tab:nth-child(1)').classList.add('active');
+    caricaAmici();
+  } else if (tab === 'ricerca') {
     document.getElementById('tabRicerca').style.display = 'block';
-    document.querySelectorAll('.amici-tab')[0].classList.add('active');
+    document.querySelector('.amici-tab:nth-child(2)').classList.add('active');
   } else if (tab === 'richieste') {
     document.getElementById('tabRichieste').style.display = 'block';
-    document.querySelectorAll('.amici-tab')[1].classList.add('active');
+    document.querySelector('.amici-tab:nth-child(3)').classList.add('active');
     caricaRichieste();
-  } else if (tab === 'amici') {
-    document.getElementById('tabAmici').style.display = 'block';
-    document.querySelectorAll('.amici-tab')[2].classList.add('active');
-    caricaAmici();
   }
 }
 
-// RICERCA UTENTI
+// === CARICA I TUOI AMICI (PRIMO LOAD) ===
+async function caricaAmici() {
+  try {
+    const res = await fetch(`${API_URL}/amici`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    
+    if (!res.ok) return;
+    
+    const amici = await res.json();
+    const container = document.getElementById('amiciList');
+    
+    if (amici.length === 0) {
+      container.innerHTML = `
+        <div style="text-align: center; padding: 60px 20px; color: var(--text-secondary);">
+          <div style="font-size: 48px; margin-bottom: 20px;">👥</div>
+          <h3>Nessun amico ancora</h3>
+          <p>Cerca e aggiungi collezionisti per condividere i progressi!</p>
+          <button class="btn-primary" onclick="mostraTab('ricerca')" style="margin-top: 20px;">
+            🔍 Trova amici
+          </button>
+        </div>
+      `;
+      return;
+    }
+    
+    container.innerHTML = amici.map(amico => `
+      <div class="amico-card">
+        <div style="display: flex; align-items: center; gap: 15px;">
+          <div style="width: 50px; height: 50px; border-radius: 50%; background: var(--accent-color); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
+            ${amico.username.charAt(0).toUpperCase()}
+          </div>
+          <div>
+            <h4>${amico.username}</h4>
+            <small>Collezionista SW</small>
+          </div>
+        </div>
+        <div class="btn-group">
+          <button class="btn-view" onclick="visualizzaCollezione('${amico._id}', '${amico.username}')">
+            👁️ Collezione
+          </button>
+          <button class="btn-delete btn-mini" onclick="rimuoviAmico('${amico._id}', '${amico.username}')">
+            🗑️ Rimuovi
+          </button>
+        </div>
+      </div>
+    `).join('');
+    
+  } catch (err) {
+    console.error('Errore amici:', err);
+    document.getElementById('amiciList').innerHTML = '<p style="text-align: center; color: #e74c3c;">Errore caricamento amici</p>';
+  }
+}
+
+// === RICERCA UTENTI ===
 async function cercaUtenti() {
   const input = document.getElementById('ricercaUsername').value.trim();
   const container = document.getElementById('risultatiRicerca');
-
+  
   if (input.length < 2) {
-    container.innerHTML = '<p>Inizia a digitare per cercare...</p>';
+    container.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Inizia a digitare per cercare...</p>';
     return;
   }
-
+  
   try {
-    const response = await fetch(`${API_URL}/amici/ricerca/${input}`, {
-      headers: { 'Authorization': `Bearer ${token}` }
+    const res = await fetch(`${API_URL}/amici/ricerca/${encodeURIComponent(input)}`, {
+      headers: { Authorization: `Bearer ${token}` }
     });
-
-    if (!response.ok) throw new Error('Errore ricerca');
-
-    const utenti = await response.json();
-
+    
+    if (!res.ok) throw new Error();
+    
+    const utenti = await res.json();
+    
     if (utenti.length === 0) {
-      container.innerHTML = '<p>Nessun utente trovato</p>';
-      return;
-    }
-
-    container.innerHTML = utenti.map(u => `
-      <div class="amico-card">
-        <div>
-          <h4>${u.username}</h4>
-        </div>
-        <button class="btn-add-friend" onclick="inviarichiesta('${u._id}')">➕ Aggiungi</button>
-      </div>
-    `).join('');
-  } catch (err) {
-    container.innerHTML = '<p>Errore nella ricerca</p>';
-  }
-}
-
-// INVIA RICHIESTA
-async function inviarichiesta(destinatario_id) {
-  try {
-    const response = await fetch(`${API_URL}/amici/richiesta`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify({ destinatario_id })
-    });
-
-    if (response.ok) {
-      alert('Richiesta inviata!');
-      caricaRichieste();
+      container.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Nessun utente trovato</p>';
     } else {
-      const data = await response.json();
-      alert(data.errore || 'Errore invio richiesta');
+      container.innerHTML = utenti.map(utente => `
+        <div class="amico-card">
+          <div style="display: flex; align-items: center; gap: 15px;">
+            <div style="width: 50px; height: 50px; border-radius: 50%; background: var(--accent-color); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
+              ${utente.username.charAt(0).toUpperCase()}
+            </div>
+            <div>
+              <h4>${utente.username}</h4>
+              <small>${utente.email || 'Utente'}</small>
+            </div>
+          </div>
+          <button class="btn-add-friend" onclick="inviarichiesta('${utente._id}')">
+            ➕ Aggiungi
+          </button>
+        </div>
+      `).join('');
     }
   } catch {
-    alert('Errore invio richiesta');
+    container.innerHTML = '<p style="text-align: center; color: #e74c3c;">Errore nella ricerca</p>';
   }
 }
 
-// CARICA RICHIESTE
+// === RICHIESTE ===
 async function caricaRichieste() {
   try {
     const [ricevute, inviate] = await Promise.all([
-      fetch(`${API_URL}/amici/richieste/ricevute`, { headers: { 'Authorization': `Bearer ${token}` } }).then(res => res.json()),
-      fetch(`${API_URL}/amici/richieste/inviate`, { headers: { 'Authorization': `Bearer ${token}` } }).then(res => res.json())
+      fetch(`${API_URL}/amici/richieste/ricevute`, { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json()),
+      fetch(`${API_URL}/amici/richieste/inviate`, { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json())
     ]);
 
-    const containerRicevute = document.getElementById('richiesteRicevute');
-    containerRicevute.innerHTML = ricevute.length === 0 
-      ? '<p>Nessuna richiesta in sospeso</p>' 
-      : ricevute.map(richiesta => `
+    // Ricevute
+    document.getElementById('richiesteRicevute').innerHTML = ricevute.length === 0 
+      ? '<p style="text-align: center; color: var(--text-secondary);">Nessuna richiesta ricevuta</p>'
+      : ricevute.map(r => `
         <div class="amico-card">
           <div>
-            <h4>${richiesta.mittente_id.username}</h4>
-            <small>Richiesta ricevuta</small>
+            <h4>${r.mittente_id.username}</h4>
+            <small>Ti ha inviato una richiesta</small>
           </div>
           <div class="btn-group">
-            <button class="btn-mini btn-accept" onclick="accettarichiesta('${richiesta._id}')">✓ Accetta</button>
-            <button class="btn-mini btn-reject" onclick="rifiutarichiesta('${richiesta._id}')">✕ Rifiuta</button>
+            <button class="btn-mini btn-accept" onclick="accettarichiesta('${r._id}')">✓ Accetta</button>
+            <button class="btn-mini btn-reject" onclick="rifiutarichiesta('${r._id}')">✕ Rifiuta</button>
           </div>
         </div>
       `).join('');
 
-    const containerInviate = document.getElementById('richiesteInviate');
-    containerInviate.innerHTML = inviate.length === 0 
-      ? '<p>Nessuna richiesta inviata</p>' 
-      : inviate.map(richiesta => `
+    // Inviate
+    document.getElementById('richiesteInviate').innerHTML = inviate.length === 0 
+      ? '<p style="text-align: center; color: var(--text-secondary);">Nessuna richiesta inviata</p>'
+      : inviate.map(r => `
         <div class="amico-card">
           <div>
-            <h4>${richiesta.destinatario_id.username}</h4>
-            <small>In sospeso</small>
+            <h4>${r.destinatario_id.username}</h4>
+            <small>In attesa di risposta</small>
           </div>
-          <button class="btn-mini btn-cancel" onclick="annullarichiesta('${richiesta._id}')">✕ Annulla</button>
+          <button class="btn-mini btn-cancel" onclick="annullarichiesta('${r._id}')">✕ Annulla</button>
         </div>
       `).join('');
   } catch (err) {
-    console.error('Errore caricamento richieste:', err);
+    console.error('Errore richieste:', err);
   }
 }
 
-// ACCETTA RICHIESTA
+// === AZIONI ===
+async function inviarichiesta(id) {
+  try {
+    const res = await fetch(`${API_URL}/amici/richiesta`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ destinatario_id: id })
+    });
+    if (res.ok) {
+      alert('✓ Richiesta inviata!');
+      document.getElementById('ricercaUsername').value = '';
+      cercaUtenti();
+    } else {
+      const err = await res.json();
+      alert(err.errore || 'Errore');
+    }
+  } catch {
+    alert('Errore di rete');
+  }
+}
+
 async function accettarichiesta(id) {
   try {
-    const response = await fetch(`${API_URL}/amici/accetta/${id}`, {
-      method: 'PUT',
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-
-    if (response.ok) {
-      alert('Amico aggiunto!');
-      caricaRichieste();
-      caricaAmici();
+    const res = await fetch(`${API_URL}/amici/accetta/${id}`, { method: 'PUT', headers: { Authorization: `Bearer ${token}` } });
+    if (res.ok) {
+      alert('✓ Amico aggiunto!');
+      mostraTab('amici');
     }
   } catch {
-    alert('Errore accettazione richiesta');
+    alert('Errore');
   }
 }
 
-// RIFIUTA RICHIESTA
 async function rifiutarichiesta(id) {
   try {
-    const response = await fetch(`${API_URL}/amici/rifiuta/${id}`, {
-      method: 'PUT',
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-
-    if (response.ok) {
-      caricaRichieste();
-    }
+    await fetch(`${API_URL}/amici/rifiuta/${id}`, { method: 'PUT', headers: { Authorization: `Bearer ${token}` } });
+    caricaRichieste();
   } catch {
-    alert('Errore rifiuto richiesta');
+    alert('Errore');
   }
 }
 
-// ANNULLA RICHIESTA
 async function annullarichiesta(id) {
   try {
-    const response = await fetch(`${API_URL}/amici/${id}`, {
-      method: 'DELETE',
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-
-    if (response.ok) {
-      caricaRichieste();
-    }
+    await fetch(`${API_URL}/amici/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+    caricaRichieste();
   } catch {
-    alert('Errore annullamento richiesta');
+    alert('Errore');
   }
 }
 
-// CARICA AMICI
-async function caricaAmici() {
-  try {
-    const response = await fetch(`${API_URL}/amici`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-
-    if (!response.ok) return;
-    const amici = await response.json();
-    const container = document.getElementById('amiciList');
-
-    if (amici.length === 0) {
-      container.innerHTML = '<p>Nessun amico ancora</p>';
-      return;
+async function rimuoviAmico(id, nome) {
+  if (confirm(`Rimuovere ${nome}?`)) {
+    try {
+      const res = await fetch(`${API_URL}/amici/rimuovi/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+      if (res.ok) {
+        alert('Amico rimosso');
+        caricaAmici();
+      }
+    } catch {
+      alert('Errore');
     }
-
-    container.innerHTML = amici.map(amico => `
-      <div class="amico-card">
-        <div>
-          <h4>${amico.username}</h4>
-        </div>
-        <div class="btn-group">
-          <button class="btn-view" onclick="visualizzaCollezione('${amico._id}', '${amico.username}')">👁️ Visualizza</button>
-          <button class="btn-delete btn-mini" onclick="rimuoviAmico('${amico._id}', '${amico.username}')">🗑️ Rimuovi</button>
-        </div>
-      </div>
-    `).join('');
-  } catch (err) {
-    console.error('Errore caricamento amici:', err);
   }
 }
 
-// VISUALIZZA COLLEZIONE AMICO
-function visualizzaCollezione(amicoId, amicoUsername) {
-  window.location.href = `collezione-amico.html?amico=${amicoId}&username=${encodeURIComponent(amicoUsername)}`;
-}
-
-// RIMUOVI AMICO
-async function rimuoviAmico(amicoId, username) {
-  if (!confirm(`Vuoi davvero rimuovere ${username} dagli amici?`)) return;
-
-  try {
-    const response = await fetch(`${API_URL}/amici/rimuovi/${amicoId}`, {
-      method: 'DELETE',
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-
-    if (response.ok) {
-      alert('Amico rimosso');
-      caricaAmici();
-    } else {
-      const data = await response.json();
-      alert(data.errore || 'Errore nella rimozione');
-    }
-  } catch {
-    alert('Errore nella rimozione');
-  }
+function visualizzaCollezione(id, nome) {
+  window.location.href = `collezione-amico.html?amico=${id}&username=${encodeURIComponent(nome)}`;
 }
