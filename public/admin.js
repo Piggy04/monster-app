@@ -47,28 +47,72 @@ function mostraTab(tab) {
   }
 }
 
-// ✅ CARICA GESTIONE CORRETTA (UNICA)
+// ✅ CARICA GESTIONE CON /collezione/completa (NO 404)
 async function caricaGestione() {
   try {
-    console.log('🔄 Caricamento gestione...');
-    const response = await fetch(`${API_URL}/admin/gestione`, { // ← Endpoint ADMIN specifico
+    console.log('🔄 Caricamento gestione da /collezione/completa...');
+    const response = await fetch(`${API_URL}/collezione/completa`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     
-    const dati = await response.json();
-    datiGestioneOriginali = [...dati]; // ← Salva per filtri
-    console.log('✅ Dati caricati:', dati.length, 'elementi');
+    const datiGerarchici = await response.json(); // [categorie] con [lattine] con [varianti]
+    console.log('✅ Dati gerarchici:', datiGerarchici.length, 'categorie');
     
-    popolaFiltroCategorie(dati);
-    mostraGestione(dati);
+    // 🔄 TRASFORMA in flat per filtri
+    const datiFlat = [];
+    
+    datiGerarchici.forEach(categoria => {
+      // Categorie
+      datiFlat.push({
+        _id: categoria._id,
+        tipo: 'categoria',
+        nome: categoria.nome,
+        ordine: categoria.ordine || 0
+      });
+      
+      // Lattine
+      if (categoria.lattine) {
+        categoria.lattine.forEach(lattina => {
+          datiFlat.push({
+            _id: lattina._id,
+            tipo: 'lattina',
+            nome: lattina.nome,
+            ordine: lattina.ordine || 0,
+            categoria_id: categoria._id,
+            categoria: { nome: categoria.nome }
+          });
+          
+          // Varianti
+          if (lattina.varianti) {
+            lattina.varianti.forEach(variante => {
+              datiFlat.push({
+                _id: variante._id,
+                tipo: 'variante',
+                nome: variante.nome,
+                ordine: variante.ordine || 0,
+                categoria_id: categoria._id,
+                categoria: { nome: categoria.nome }
+              });
+            });
+          }
+        });
+      }
+    });
+    
+    datiGestioneOriginali = datiFlat;
+    console.log('✅ Dati flat:', datiFlat.length, 'elementi');
+    
+    popolaFiltroCategorie(datiFlat);
+    mostraGestione(datiFlat);
     
   } catch (errore) {
-    console.error('❌ Errore caricaGestione:', errore);
-    document.getElementById('gestioneContainer').innerHTML = '<p>❌ Errore caricamento: ' + errore.message + '</p>';
+    console.error('❌ Errore:', errore);
+    document.getElementById('gestioneContainer').innerHTML = '<p>❌ Errore: ' + errore.message + '</p>';
   }
 }
+
 
 function popolaFiltroCategorie(dati) {
   const select = document.getElementById('filtroCategoriaAdmin');
