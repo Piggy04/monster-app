@@ -159,9 +159,11 @@ router.put('/cambia-email', auth, async (req, res) => {
 });
 
 // PUT - Cambia password
-// PUT - Cambia password
 router.put('/cambia-password', auth, async (req, res) => {
   try {
+    console.log('🎯 /cambia-password body:', req.body);
+    console.log('🎯 /cambia-password user id:', req.user?.id);
+
     const { passwordVecchia, nuovaPassword } = req.body;
     
     if (!passwordVecchia || !nuovaPassword) {
@@ -174,16 +176,29 @@ router.put('/cambia-password', auth, async (req, res) => {
     
     const user = await User.findById(req.user.id);
     if (!user) {
+      console.log('❌ Utente non trovato per id', req.user.id);
       return res.status(404).json({ errore: 'Utente non trovato' });
     }
 
-    // Usa lo stesso metodo del login
-    const valida = await user.verificaPassword(passwordVecchia);
+    console.log('✅ Utente trovato:', user.username);
+
+    // ATTENZIONE: quale metodo esiste davvero sul modello?
+    if (typeof user.verificaPassword !== 'function' && typeof user.comparePassword !== 'function') {
+      console.error('❌ Nessun metodo verificaPassword/comparePassword definito su User');
+      return res.status(500).json({ errore: 'Metodo verifica password non definito' });
+    }
+
+    const valida = typeof user.verificaPassword === 'function'
+      ? await user.verificaPassword(passwordVecchia)
+      : await user.comparePassword(passwordVecchia);
+
+    console.log('🔐 Password vecchia valida?', valida);
+
     if (!valida) {
       return res.status(401).json({ errore: 'Password attuale non corretta' });
     }
     
-    user.password = nuovaPassword; // verrà hashata nel pre-save del modello
+    user.password = nuovaPassword; // hashata dal pre-save
     await user.save();
     
     await Log.create({
@@ -196,10 +211,11 @@ router.put('/cambia-password', auth, async (req, res) => {
     
     res.json({ messaggio: 'Password aggiornata con successo' });
   } catch (err) {
-    console.error('Errore cambio password:', err);
+    console.error('❌ Errore cambio password:', err);
     res.status(500).json({ errore: 'Errore nel cambio password' });
   }
 });
+
 
 
 // DELETE - Elimina account
