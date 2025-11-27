@@ -8,44 +8,9 @@ if (!token) {
 const username = localStorage.getItem('username');
 const ruolo = localStorage.getItem('ruolo');
 
-document.addEventListener('DOMContentLoaded', () => {
-  const nomeElement = document.getElementById('nomeUtente');
-  if (nomeElement) {
-    let badgeHtml = '';
-    if (ruolo === 'admin') {
-      badgeHtml = '<span class="role-badge role-admin">ADMIN</span>';
-    } else if (ruolo === 'beta') {
-      badgeHtml = '<span class="role-badge role-beta">BETA TESTER</span>';
-    }
-    nomeElement.innerHTML = `Ciao, ${username}! ${badgeHtml}`;
-  }
-
-  if (ruolo === 'admin') {
-  const linkAdmin = document.getElementById('linkAdmin');
-  const linkUsers = document.getElementById('linkUsers');
-  const linkLogAdmin = document.getElementById('linkLogAdmin');
-  if (linkAdmin) linkAdmin.style.display = 'block';
-  if (linkUsers) linkUsers.style.display = 'block';
-  if (linkLogAdmin) linkLogAdmin.style.display = 'block';
-}
-
-  caricaTema(); // ← Usa theme.js
-  caricaCollezione();
-  caricaStatistiche();
-});
-
-// LOGOUT
-function logout() {
-  localStorage.clear();
-  window.location.href = 'index.html';
-}
-
 let deferredPrompt;
 const installButton = document.getElementById('installButton');
 
-
-
-// Intercetta evento installazione
 window.addEventListener('beforeinstallprompt', (e) => {
   console.log('✅ App installabile!');
   
@@ -55,38 +20,32 @@ window.addEventListener('beforeinstallprompt', (e) => {
   // Salva l'evento per usarlo dopo
   deferredPrompt = e;
   
-  // Mostra il pulsante custom
-  installButton.style.display = 'block';
+  if (installButton) installButton.style.display = 'block';
 });
 
-// Click sul pulsante
-installButton.addEventListener('click', async () => {
-  if (!deferredPrompt) {
-    console.log('❌ Prompt non disponibile');
-    return;
-  }
-  
-  // Mostra il prompt nativo
-  deferredPrompt.prompt();
-  
-  // Aspetta la scelta utente
-  const { outcome } = await deferredPrompt.userChoice;
-  console.log(`Utente ha scelto: ${outcome}`);
-  
-  // Reset
-  deferredPrompt = null;
-  installButton.style.display = 'none';
-});
+if (installButton) {
+  installButton.addEventListener('click', async () => {
+    if (!deferredPrompt) {
+      console.log('❌ Prompt non disponibile');
+      return;
+    }
+    
+    deferredPrompt.prompt();
+    
+    const { outcome } = await deferredPrompt.userChoice;
+    console.log(`Utente ha scelto: ${outcome}`);
+    
+    deferredPrompt = null;
+    installButton.style.display = 'none';
+  });
+}
 
-// Nasconde pulsante se app già installata
 window.addEventListener('appinstalled', () => {
   console.log('✅ App installata!');
-  installButton.style.display = 'none';
+  if (installButton) installButton.style.display = 'none';
   deferredPrompt = null;
 });
 
-
-// CARICA COLLEZIONE CON CACHE
 async function caricaCollezione() {
   const cacheKey = 'collezione-cache';
   const cacheTimeKey = 'collezione-timestamp';
@@ -141,15 +100,12 @@ async function caricaCollezione() {
   }
 }
 
-// INVALIDA CACHE (da chiamare quando serve ricaricare)
 function invalidaCache() {
   localStorage.removeItem('collezione-cache');
   localStorage.removeItem('collezione-timestamp');
   console.log('🗑️ Cache invalidata');
 }
 
-
-// INIZIALIZZA FILTRI CATEGORIE
 function inizializzaFiltri(categorie) {
   const container = document.getElementById('categorieCheckboxes');
   if (!container) return;
@@ -173,7 +129,6 @@ function inizializzaFiltri(categorie) {
   });
 }
 
-// APPLICA FILTRI
 function applicaFiltri() {
   const ricerca = document.getElementById('ricercaInput').value.toLowerCase();
   const filtroStato = document.getElementById('filtroStato').value;
@@ -205,9 +160,9 @@ function applicaFiltri() {
       if (nomeLattinaMatch && ricerca) {
         if (filtroStato) {
           lattina.varianti = lattina.varianti.filter(variante => {
-            if (filtroStato === 'possedute') return variante.posseduta;
-            if (filtroStato === 'mancanti') return !variante.posseduta;
-            return true;
+             if (filtroStato === 'possedute') return variante.posseduta;
+             if (filtroStato === 'mancanti') return !variante.posseduta;
+             return true;
           });
         }
         return lattina.varianti.length > 0;
@@ -235,7 +190,6 @@ function applicaFiltri() {
   mostraCollezione(risultato);
 }
 
-// SELEZIONA/DESELEZIONA TUTTE
 function selezionatutte() {
   document.querySelectorAll('#categorieCheckboxes input').forEach(checkbox => {
     checkbox.checked = true;
@@ -250,7 +204,6 @@ function deselezionatutte() {
   applicaFiltri();
 }
 
-// MOSTRA COLLEZIONE
 function mostraCollezione(dati) {
   const container = document.getElementById('collezioneContainer');
   container.innerHTML = '';
@@ -338,7 +291,6 @@ function mostraCollezione(dati) {
   });
 }
 
-// TOGGLE CATEGORIA
 function toggleCategoria(categoriaId) {
   const categoria = document.getElementById(`categoria-${categoriaId}`);
   const icon = document.getElementById(`icon-${categoriaId}`);
@@ -352,7 +304,6 @@ function toggleCategoria(categoriaId) {
   }
 }
 
-// TOGGLE VARIANTE (OTTIMIZZATO - non ricarica tutto)
 async function toggleVariante(varianteId) {
   const checkbox = document.getElementById(`check-${varianteId}`);
   const posseduta = checkbox.checked;
@@ -368,7 +319,6 @@ async function toggleVariante(varianteId) {
     });
     
     if (response.ok) {
-      // ✅ Aggiorna SOLO i dati locali, senza ricaricare
       datiCollezione.forEach(categoria => {
         categoria.lattine.forEach(lattina => {
           lattina.varianti.forEach(variante => {
@@ -379,38 +329,26 @@ async function toggleVariante(varianteId) {
         });
       });
       
-      // ✅ Aggiorna SOLO la card della variante
       const varianteCard = checkbox.closest('.variante');
       const toggle = document.getElementById(`toggle-${varianteId}`);
       const toggleInput = toggle.querySelector('input[type="checkbox"]');
       
       if (posseduta) {
-        // Aggiungi classe verde
         varianteCard.classList.add('variante-posseduta');
-        
-        // Abilita toggle
         toggle.classList.remove('disabled');
         toggleInput.disabled = false;
       } else {
-        // Rimuovi classe verde
         varianteCard.classList.remove('variante-posseduta');
-        
-        // Disabilita toggle
         toggle.classList.add('disabled');
         toggleInput.disabled = true;
-        
-        // Reset a vuota
         toggleInput.checked = false;
         const slider = toggle.querySelector('.slider');
         if (slider) {
           slider.className = 'slider vuota';
         }
-        
-        // Aggiorna backend
         await cambiaStato(varianteId, false);
       }
       
-      // ✅ Aggiorna statistiche in background (senza bloccare)
       caricaStatistiche();
     } else {
       checkbox.checked = !posseduta;
@@ -423,19 +361,15 @@ async function toggleVariante(varianteId) {
   }
 }
 
-
-// CAMBIA STATO PIENA/VUOTA (OTTIMIZZATO)
 async function cambiaStato(varianteId, isPiena) {
   const stato = isPiena ? 'piena' : 'vuota';
   
   try {
-    // ✅ Aggiorna UI SUBITO (ottimistic update)
     const slider = document.querySelector(`#toggle-${varianteId} .slider`);
     if (slider) {
       slider.className = `slider ${stato}`;
     }
     
-    // ✅ Poi invia al server
     const response = await fetch(`${API_URL}/collezione/stato/${varianteId}`, {
       method: 'PUT',
       headers: {
@@ -446,7 +380,6 @@ async function cambiaStato(varianteId, isPiena) {
     });
     
     if (response.ok) {
-      // Aggiorna dati locali
       datiCollezione.forEach(categoria => {
         categoria.lattine.forEach(lattina => {
           lattina.varianti.forEach(variante => {
@@ -457,7 +390,6 @@ async function cambiaStato(varianteId, isPiena) {
         });
       });
     } else {
-      // ✅ Rollback se errore
       alert('Errore nel cambio stato');
       if (slider) {
         slider.className = `slider ${isPiena ? 'vuota' : 'piena'}`;
@@ -470,7 +402,6 @@ async function cambiaStato(varianteId, isPiena) {
   } catch (err) {
     console.error('Errore:', err);
     alert('Errore nel cambio stato');
-    // Rollback
     if (slider) {
       slider.className = `slider ${isPiena ? 'vuota' : 'piena'}`;
     }
@@ -481,8 +412,6 @@ async function cambiaStato(varianteId, isPiena) {
   }
 }
 
-
-// CARICA STATISTICHE
 async function caricaStatistiche() {
   try {
     const response = await fetch(`${API_URL}/statistiche`, {
@@ -500,7 +429,6 @@ async function caricaStatistiche() {
   }
 }
 
-// MODAL IMMAGINI
 function apriModalImmagine(src) {
   const modal = document.getElementById('modalImmagine');
   const img = document.getElementById('immagineModal');
@@ -544,6 +472,3 @@ document.addEventListener('DOMContentLoaded', () => {
   // All'inizio nascondi
   btn.style.display = 'none';
 });
-
-
-
