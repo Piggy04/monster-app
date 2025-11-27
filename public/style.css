@@ -2830,3 +2830,16 @@ input:checked + .slider:before {
 }
 .avatar-option.selected img { border-color: white; }
 
+.profile-header { text-align: center; margin-bottom: 20px; }
+.avatar-large { 
+  width: 120px; height: 120px; 
+  border-radius: 20px; 
+  border: 4px solid var(--accent-color);
+  object-fit: cover;
+  margin-bottom: 10px;
+}
+.avatar-option:hover { background: var(--accent-color)!important; transform: scale(1.05); }
+.avatar-option.selected { background: var(--accent-color)!important; }
+.avatar-option img { border-color: white!important; }
+
+

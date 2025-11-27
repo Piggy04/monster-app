@@ -7,11 +7,12 @@
   <link rel="stylesheet" href="style.css">
   <link rel="icon" href="favicon.ico" type="image/x-icon">
   <link rel="manifest" href="/manifest.json">
-<script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js');
-  }
-</script>
+  <!-- ✅ SW DISATTIVATO per fix loop errori -->
+  <!-- <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js');
+    }
+  </script> -->
 </head>
 <body>
   <script>
@@ -20,16 +21,16 @@
       document.documentElement.setAttribute('data-theme', tema);
     })();
   </script>
-  <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">
-  <span></span>
-  <span></span>
-  <span></span>
-</button>
-
-<div class="sidebar">
-    <h2>SW Archive</h2>
   
-  <nav>
+  <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+
+  <div class="sidebar">
+    <h2>SW Archive</h2>
+    <nav>
       <a href="collezione.html">La Mia Collezione</a>
       <a href="chi-siamo.html">ℹ️ Chi Siamo</a>
       <a href="statistiche.html">Statistiche</a>
@@ -39,32 +40,32 @@
       <a href="admin.html" id="linkAdmin" style="display:none;">Gestione Contenuti</a>
       <a href="users.html" id="linkUsers" style="display:none;">👥 Gestione Utenti</a>
       <a href="log-admin.html" id="linkLogAdmin" style="display:none;">📊 Log Utenti</a>
-      <a href="#" onclick="logout()">Logout</a>
     </nav>
   </div>
-<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+  
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
   <div class="main-content">
     <div class="header">
       <h1>⚙️ Impostazioni Account</h1>
-      <p id="nomeUtente"></p>
+      <p id="nomeUtente">Caricamento...</p>
     </div>
 
     <div class="impostazioni-container">
-      <!-- INFO PROFILO -->
+      <!-- ✅ INFO PROFILO CON AVATAR -->
       <div class="settings-section">
-  <h2>👤 Info Profilo</h2>
-  <div class="profile-header">
-    <img id="avatarPreview" class="avatar-large" src="https://via.placeholder.com/128/4a4a4a/ffffff?text=👤" alt="Avatar" style="display:none;">
-    <button class="btn-primary" onclick="apriAvatarPicker()" style="margin-top:10px;">Cambia Avatar</button>
-  </div>
-  <div class="info-box">
-    <p><strong>Username:</strong> <span id="infoUsername">Caricamento...</span></p>
-    <p><strong>Email:</strong> <span id="infoEmail">Caricamento...</span></p>
-    <p><strong>Ruolo:</strong> <span id="infoRuolo">Caricamento...</span></p>
-    <p><strong>Data Iscrizione:</strong> <span id="infoData">Caricamento...</span></p>
-  </div>
-</div>
+        <h2>👤 Info Profilo</h2>
+        <div class="profile-header">
+          <img id="avatarPreview" class="avatar-large" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTI4IiBoZWlnaHQ9IjEyOCIgdmlld0JveD0iMCAwIDEyOCAxMjgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxjaXJjbGUgY3g9IjY0IiBjeT0iNjQiIHI9IjY0IiBmaWxsPSIjNEY5RjNGIi8+CjxjaXJjbGUgY3g9IjY0IiBjeT0iNDgiIHI9IjI0IiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4=" alt="Avatar" style="display:none;">
+          <button class="btn-primary" onclick="apriAvatarPicker()" style="margin-top:15px;">Cambia Avatar</button>
+        </div>
+        <div class="info-box">
+          <p><strong>Username:</strong> <span id="infoUsername">Caricamento...</span></p>
+          <p><strong>Email:</strong> <span id="infoEmail">Caricamento...</span></p>
+          <p><strong>Ruolo:</strong> <span id="infoRuolo">Caricamento...</span></p>
+          <p><strong>Data Iscrizione:</strong> <span id="infoData">Caricamento...</span></p>
+        </div>
+      </div>
 
       <!-- CAMBIA USERNAME -->
       <div class="settings-section">
@@ -103,13 +104,19 @@
         </div>
       </div>
 
+      <!-- LOGOUT -->
+      <div class="settings-section">
+        <h2>🚪 Account</h2>
+        <button class="btn-logout" onclick="logout()">Logout</button>
+      </div>
+
       <!-- ZONA PERICOLOSA -->
       <div class="settings-section danger-zone">
         <h2>⚠️ Zona Pericolosa</h2>
         <div class="danger-box">
           <h3>Elimina Account</h3>
           <p>Questa azione è irreversibile. Tutti i tuoi dati verranno eliminati permanentemente.</p>
-          <button class="btn-danger" onclick="confermahiEliminazioneAccount()">🗑️ Elimina Account</button>
+          <button class="btn-danger" onclick="confermaEliminazioneAccount()">🗑️ Elimina Account</button>
         </div>
       </div>
     </div>
@@ -118,7 +125,6 @@
   <!-- THEME DRAWER -->
   <div class="theme-drawer" id="themeDrawer">
     <button class="theme-drawer-toggle" onclick="toggleThemeDrawer()">🎨</button>
-    
     <div class="theme-drawer-content">
       <h4>Tema</h4>
       <div class="theme-buttons">
@@ -129,11 +135,8 @@
       </div>
     </div>
   </div>
-  <!-- Pulsante torna su -->
-<button class="scroll-to-top" id="scrollToTop" onclick="scrollToTop()">
-  ↑
-</button>
 
+  <button class="scroll-to-top" id="scrollToTop" onclick="scrollToTop()">↑</button>
 
   <script src="config.js"></script>
   <script src="theme.js"></script>

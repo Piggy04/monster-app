@@ -6,9 +6,9 @@ const ruolo = localStorage.getItem('ruolo');
 let avatarSelezionato = '';
 
 const AVATARS = [
-  'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMzIiIGN5PSIzMiIgcj0iMzIiIGZpbGw9IiM0QURBQTRhIi8+CjxjaXJjbGUgY3g9IjMyIiBjeT0iMjQiIHI9IjgiIGZpbGw9IiNGRkYiLz4KPC9zdmc+', // Grigio
-  'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMzIiIGN5PSIzMiIgcj0iMzIiIGZpbGw9IiMwMEZGNEIiLz4KPGNpcmNsZSBjeD0iMzIiIGN5PSIyNCIgcj0iOCIgZmlsbD0iI0ZGRiIvPgo8L3N2Zz4=', // Verde Monster
-  'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMzIiIGN5PSIzMiIgcj0iMzIiIGZpbGw9IiMyRUNDNzEiLz4KPGNpcmNsZSBjeD0iMzIiIGN5PSIyNCIgcj0iOCIgZmlsbD0iI0ZGRiIvPgo8L3N2Zz4='  // Verde scuro
+  'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTI4IiBoZWlnaHQ9IjEyOCIgdmlld0JveD0iMCAwIDEyOCAxMjgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxjaXJjbGUgY3g9IjY0IiBjeT0iNjQiIHI9IjY0IiBmaWxsPSIjNEY5RjNGIi8+CjxjaXJjbGUgY3g9IjY0IiBjeT0iNDgiIHI9IjI0IiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4=',
+  'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTI4IiBoZWlnaHQ9IjEyOCIgdmlld0JveD0iMCAwIDEyOCAxMjgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxjaXJjbGUgY3g9IjY0IiBjeT0iNjQiIHI9IjY0IiBmaWxsPSIjMDBGRjRCIi8+CjxjaXJjbGUgY3g9IjY0IiBjeT0iNDgiIHI9IjI0IiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4=',
+  'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTI4IiBoZWlnaHQ9IjEyOCIgdmlld0JveD0iMCAwIDEyOCAxMjgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxjaXJjbGUgY3g9IjY0IiBjeT0iNjQiIHI9IjY0IiBmaWxsPSIjMkVDQzc1Ii8+CjxjaXJjbGUgY3g9IjY0IiBjeT0iNDgiIHI9IjI0IiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4='
 ];
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -21,16 +21,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // ✅ PRIORITÀ: prima UI, poi API
-  caricaTema().catch(console.error);
-  caricaInfoProfilo().catch(console.error);
-  caricaAvatar().catch(console.error);
+  caricaTema().catch(() => {});
+  caricaInfoProfilo().catch(() => {});
+  caricaAvatar().catch(() => {});
   creaModalAvatar();
 });
 
 async function caricaAvatar() {
   try {
-    const res = await fetch(`${API_URL}/users/avatar`, { // ✅ SINGOLO /users/
+    const res = await fetch(`${API_URL}/users/avatar`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     if (res.ok) {
@@ -47,19 +46,27 @@ async function caricaAvatar() {
 
 async function caricaInfoProfilo() {
   try {
-    const res = await fetch(`${API_URL}/users/me`, { // ✅ SINGOLO /users/
+    const res = await fetch(`${API_URL}/users/me`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     if (res.ok) {
       const user = await res.json();
-      document.getElementById('infoUsername').textContent = user.username;
-      document.getElementById('infoEmail').textContent = user.email;
+      document.getElementById('infoUsername').textContent = user.username || username;
+      document.getElementById('infoEmail').textContent = user.email || 'N/D';
       document.getElementById('infoRuolo').textContent = 
-        user.ruolo === 'admin' ? 'Admin' : user.ruolo === 'beta' ? 'Beta Tester' : 'User';
+        user.ruolo === 'admin' ? 'Admin' : 
+        user.ruolo === 'beta' ? 'Beta Tester' : 'User';
       document.getElementById('infoData').textContent = 
-        new Date(user.createdAt).toLocaleDateString('it-IT');
+        user.createdAt ? new Date(user.createdAt).toLocaleDateString('it-IT') : 'N/D';
+    } else {
+      // Fallback localStorage
+      document.getElementById('infoUsername').textContent = username;
+      document.getElementById('infoRuolo').textContent = ruolo === 'admin' ? 'Admin' : 'User';
     }
-  } catch {}
+  } catch {
+    document.getElementById('infoUsername').textContent = username;
+    document.getElementById('infoRuolo').textContent = ruolo === 'admin' ? 'Admin' : 'User';
+  }
 }
 
 function creaModalAvatar() {
@@ -67,12 +74,12 @@ function creaModalAvatar() {
   document.body.insertAdjacentHTML('beforeend', `
     <div id="modalAvatar" class="modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:9999;justify-content:center;align-items:center;">
       <div style="background:var(--bg-primary);padding:30px;border-radius:15px;max-width:500px;width:90%;max-height:80vh;overflow:auto;">
-        <span onclick="chiudiModalAvatar()" style="float:right;font-size:28px;cursor:pointer;">&times;</span>
-        <h3>👤 Scegli Avatar</h3>
+        <span onclick="chiudiModalAvatar()" style="float:right;font-size:28px;cursor:pointer;color:var(--text-primary);">&times;</span>
+        <h3 style="margin-top:0;">👤 Scegli Avatar</h3>
         <div id="avatarGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:15px;margin:20px 0;"></div>
         <div style="text-align:center;">
           <button class="btn-primary" onclick="salvaAvatar()">💾 Salva</button>
-          <button onclick="chiudiModalAvatar()" style="margin-left:10px;">Annulla</button>
+          <button onclick="chiudiModalAvatar()" style="margin-left:10px;background:#6c757d;color:white;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;">Annulla</button>
         </div>
       </div>
     </div>
@@ -87,10 +94,11 @@ function popolaAvatarPicker() {
   AVATARS.forEach(url => {
     const div = document.createElement('div');
     div.className = 'avatar-option' + (url === avatarSelezionato ? ' selected' : '');
+    div.style.cssText = 'cursor:pointer;padding:10px;border-radius:12px;transition:all 0.3s;text-align:center;';
     const img = document.createElement('img');
     img.src = url;
     img.alt = 'Avatar';
-    img.style.cssText = 'width:64px;height:64px;border-radius:12px;object-fit:cover;';
+    img.style.cssText = 'width:64px;height:64px;border-radius:12px;object-fit:cover;border:3px solid transparent;';
     div.appendChild(img);
     div.onclick = () => selezionaAvatar(url);
     grid.appendChild(div);
@@ -102,7 +110,10 @@ function selezionaAvatar(url) {
   document.querySelectorAll('.avatar-option').forEach(el => el.classList.remove('selected'));
   event.currentTarget.classList.add('selected');
   const preview = document.getElementById('avatarPreview');
-  if (preview) preview.src = url;
+  if (preview) {
+    preview.src = url;
+    preview.style.display = 'block';
+  }
 }
 
 async function salvaAvatar() {
@@ -113,10 +124,14 @@ async function salvaAvatar() {
       body: JSON.stringify({ avatarUrl: avatarSelezionato })
     });
     if (res.ok) {
-      alert('Avatar salvato!');
+      alert('✅ Avatar salvato!');
       chiudiModalAvatar();
+    } else {
+      alert('⚠️ Errore salvataggio');
     }
-  } catch {}
+  } catch {
+    alert('⚠️ Errore di rete');
+  }
 }
 
 function apriAvatarPicker() { document.getElementById('modalAvatar').style.display = 'flex'; }
@@ -124,7 +139,7 @@ function chiudiModalAvatar() { document.getElementById('modalAvatar').style.disp
 
 async function caricaTema() {
   try {
-    const res = await fetch(`${API_URL}/auth/me`, { // ✅ SINGOLO /auth/
+    const res = await fetch(`${API_URL}/auth/me`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     if (res.ok) {
@@ -149,9 +164,13 @@ function toggleThemeDrawer() {
   document.getElementById('themeDrawer')?.classList.toggle('active');
 }
 
-function logout() { localStorage.clear(); window.location.href = 'index.html'; }
+function logout() { 
+  if (confirm('Confermi logout?')) {
+    localStorage.clear();
+    window.location.href = 'index.html';
+  }
+}
 
-// Altre funzioni (username, email, password, elimina) RIMANGONO UGUALI
 async function cambiaUsername() {
   const nuovo = document.getElementById('nuovoUsername').value.trim();
   if (!nuovo) return alert('⚠️ Inserisci username');
@@ -162,12 +181,15 @@ async function cambiaUsername() {
       body: JSON.stringify({ username: nuovo })
     });
     if (res.ok) {
-      alert('✓ Username aggiornato!');
+      alert('✅ Username aggiornato!');
       localStorage.setItem('username', nuovo);
       document.getElementById('nuovoUsername').value = '';
       location.reload();
+    } else {
+      const err = await res.json();
+      alert('❌ ' + (err.errore || 'Errore'));
     }
-  } catch { alert('Errore'); }
+  } catch { alert('❌ Errore rete'); }
 }
 
 async function cambiaEmail() {
@@ -179,15 +201,25 @@ async function cambiaEmail() {
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
       body: JSON.stringify({ email: nuova })
     });
-    if (res.ok) alert('✓ Email aggiornata!');
-  } catch { alert('Errore'); }
+    if (res.ok) {
+      alert('✅ Email aggiornata!');
+      document.getElementById('nuovaEmail').value = '';
+    } else {
+      const err = await res.json();
+      alert('❌ ' + (err.errore || 'Errore'));
+    }
+  } catch { alert('❌ Errore rete'); }
 }
 
 async function cambiaPassword() {
   const vec = document.getElementById('passwordVecchia').value;
   const nu = document.getElementById('nuovaPassword').value;
   const conf = document.getElementById('confermaPassword').value;
-  if (!vec || !nu || !conf || nu !== conf || nu.length < 6) return alert('⚠️ Controlla campi');
+  
+  if (!vec || !nu || !conf) return alert('⚠️ Compila tutti i campi');
+  if (nu !== conf) return alert('⚠️ Password non coincidono');
+  if (nu.length < 6) return alert('⚠️ Minimo 6 caratteri');
+  
   try {
     const res = await fetch(`${API_URL}/auth/cambia-password`, {
       method: 'PUT',
@@ -195,16 +227,19 @@ async function cambiaPassword() {
       body: JSON.stringify({ passwordVecchia: vec, nuovaPassword: nu })
     });
     if (res.ok) {
-      alert('✓ Password aggiornata!');
+      alert('✅ Password aggiornata!');
       ['passwordVecchia','nuovaPassword','confermaPassword'].forEach(id => 
         document.getElementById(id).value = '');
+    } else {
+      const err = await res.json();
+      alert('❌ ' + (err.errore || 'Errore'));
     }
-  } catch { alert('Errore'); }
+  } catch { alert('❌ Errore rete'); }
 }
 
 function confermaEliminazioneAccount() {
-  if (!confirm('⚠️ IRREVERSIBILE!')) return;
-  if (prompt('Digita ELIMINA:') !== 'ELIMINA') return alert('Annullato');
+  if (!confirm('⚠️ Sei SICURO? IRREVERSIBILE!')) return;
+  if (prompt('Digita ELIMINA per confermare:') !== 'ELIMINA') return alert('Annullato');
   eliminaAccount();
 }
 
@@ -216,5 +251,5 @@ async function eliminaAccount() {
     });
     localStorage.clear();
     window.location.href = 'index.html';
-  } catch { alert('Errore'); }
+  } catch { alert('❌ Errore eliminazione'); }
 }
