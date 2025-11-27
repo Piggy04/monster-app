@@ -5,15 +5,19 @@ const username = localStorage.getItem('username');
 const ruolo = localStorage.getItem('ruolo');
 let avatarSelezionato = '';
 
+// ✅ AVATARS con URL HTTPS VALIDi (server li accetta)
+const AVATARS = [
+  'https://randomuser.me/api/portraits/men/32.jpg',
+  'https://randomuser.me/api/portraits/women/44.jpg', 
+  'https://randomuser.me/api/portraits/men/75.jpg',
+  'https://randomuser.me/api/portraits/women/91.jpg',
+  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=128&h=128&fit=crop&crop=face',
+  'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=128&h=128&fit=crop&crop=face'
+];
+
 // Verifica se API_URL termina con /api per evitare duplicazioni
 const API_USERS = API_URL.endsWith('/api') ? `${API_URL}/users` : `${API_URL}/api/users`;
 const API_AUTH = API_URL.endsWith('/api') ? `${API_URL}/auth` : `${API_URL}/api/auth`;
-
-const AVATARS = [
-  'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTI4IiBoZWlnaHQ9IjEyOCIgdmlld0JveD0iMCAwIDEyOCAxMjgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxjaXJjbGUgY3g9IjY0IiBjeT0iNjQiIHI9IjY0IiBmaWxsPSIjNEY5RjNGIi8+CjxjaXJjbGUgY3g9IjY0IiBjeT0iNDgiIHI9IjI0IiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4=',
-  'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTI4IiBoZWlnaHQ9IjEyOCIgdmlld0JveD0iMCAwIDEyOCAxMjgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxjaXJjbGUgY3g9IjY0IiBjeT0iNjQiIHI9IjY0IiBmaWxsPSIjMDBGRjRCIi8+CjxjaXJjbGUgY3g9IjY0IiBjeT0iNDgiIHI9IjI0IiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4=',
-  'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTI4IiBoZWlnaHQ9IjEyOCIgdmlld0JveD0iMCAwIDEyOCAxMjgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxjaXJjbGUgY3g9IjY0IiBjeT0iNjQiIHI9IjY0IiBmaWxsPSIjMkVDQzc1Ii8+CjxjaXJjbGUgY3g9IjY0IiBjeT0iNDgiIHI9IjI0IiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4='
-];
 
 document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('nomeUtente').textContent = `Ciao, ${username}!`;
@@ -102,6 +106,7 @@ function popolaAvatarPicker() {
     img.src = url;
     img.alt = 'Avatar';
     img.style.cssText = 'width:64px;height:64px;border-radius:12px;object-fit:cover;border:3px solid transparent;';
+    img.onerror = () => { img.src = AVATARS[0]; }; // Fallback primo avatar
     div.appendChild(img);
     div.onclick = () => selezionaAvatar(url);
     grid.appendChild(div);
@@ -123,18 +128,29 @@ async function salvaAvatar() {
   try {
     const res = await fetch(`${API_USERS}/avatar`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-      body: JSON.stringify({ avatarUrl: avatarSelezionato })
+      headers: { 
+        'Content-Type': 'application/json', 
+        'Authorization': `Bearer ${token}` 
+      },
+      body: JSON.stringify({ 
+        avatarUrl: avatarSelezionato  // ✅ Nome campo corretto per server
+      })
     });
+    
     if (res.ok) {
       const data = await res.json();
       alert(data.messaggio || '✅ Avatar salvato!');
       chiudiModalAvatar();
     } else {
-      alert('⚠️ Errore salvataggio');
+      const err = await res.json();
+      alert('❌ ' + (err.errore || 'Errore server'));
     }
-  } catch {
-    alert('⚠️ Errore di rete');
+  } catch (e) {
+    console.error('Errore rete:', e);
+    alert('⚠️ Errore di rete - Avatar selezionato localmente');
+    // Salva comunque localmente
+    localStorage.setItem('avatar', avatarSelezionato);
+    chiudiModalAvatar();
   }
 }
 
