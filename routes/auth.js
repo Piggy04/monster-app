@@ -159,6 +159,7 @@ router.put('/cambia-email', auth, async (req, res) => {
 });
 
 // PUT - Cambia password
+// PUT - Cambia password
 router.put('/cambia-password', auth, async (req, res) => {
   try {
     const { passwordVecchia, nuovaPassword } = req.body;
@@ -172,25 +173,25 @@ router.put('/cambia-password', auth, async (req, res) => {
     }
     
     const user = await User.findById(req.user.id);
-    
-    // Verifica password vecchia
-    const valida = await user.comparePassword(passwordVecchia);
+    if (!user) {
+      return res.status(404).json({ errore: 'Utente non trovato' });
+    }
+
+    // Usa lo stesso metodo del login
+    const valida = await user.verificaPassword(passwordVecchia);
     if (!valida) {
       return res.status(401).json({ errore: 'Password attuale non corretta' });
     }
     
-    user.password = nuovaPassword;
+    user.password = nuovaPassword; // verrà hashata nel pre-save del modello
     await user.save();
     
-    // ✅ SALVA LOG
     await Log.create({
       utente_id: req.user.id,
       azione: 'cambio_password',
       tipo: 'account',
-      descrizione: `Hai cambiato la password`,
-      dettagli: {
-        timestamp: new Date()
-      }
+      descrizione: 'Hai cambiato la password',
+      dettagli: { timestamp: new Date() }
     });
     
     res.json({ messaggio: 'Password aggiornata con successo' });
@@ -199,6 +200,7 @@ router.put('/cambia-password', auth, async (req, res) => {
     res.status(500).json({ errore: 'Errore nel cambio password' });
   }
 });
+
 
 // DELETE - Elimina account
 router.delete('/elimina-account', auth, async (req, res) => {
