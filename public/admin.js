@@ -325,20 +325,24 @@ document.getElementById('formVariante').addEventListener('submit', async (e) => 
       })
     });
 
-    if (response.ok) {
-      document.getElementById('successoVariante').textContent = '✓ Variante aggiunta!';
-      document.getElementById('formVariante').reset();
-      document.getElementById('lattinaVariante').innerHTML =
-        '<option value="">Prima seleziona categoria</option>';
-      setTimeout(() => {
-        document.getElementById('successoVariante').textContent = '';
-        caricaCategorie();
-        caricaGestione();
-      }, 1500);
-    } else {
-      alert('Errore nella creazione della variante');
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      console.error('Errore API variante:', data);
+      return alert(data.errore || 'Errore nella creazione della variante');
     }
+
+    document.getElementById('successoVariante').textContent = '✓ Variante aggiunta!';
+    document.getElementById('formVariante').reset();
+    document.getElementById('lattinaVariante').innerHTML =
+      '<option value="">Prima seleziona categoria</option>';
+    setTimeout(() => {
+      document.getElementById('successoVariante').textContent = '';
+      caricaCategorie();
+      caricaGestione();
+    }, 1500);
   } catch (err) {
+    console.error('Errore di rete variante:', err);
     alert('Errore di rete');
   }
 });
