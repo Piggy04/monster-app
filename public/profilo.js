@@ -1,135 +1,187 @@
 let token = localStorage.getItem('token');
 if (!token) window.location.href = 'index.html';
 
-const username = localStorage.getItem('username');
-const ruolo = localStorage.getItem('ruolo');
-let avatarSelezionato = '';
+const usernameLS = localStorage.getItem('username');
+const ruoloLS = localStorage.getItem('ruolo');
 
 const API_USERS = API_URL.endsWith('/api') ? `${API_URL}/users` : `${API_URL}/api/users`;
-const API_AUTH = API_URL.endsWith('/api') ? `${API_URL}/auth` : `${API_URL}/api/auth`;
+const API_AUTH  = API_URL.endsWith('/api') ? `${API_URL}/auth`  : `${API_URL}/api/auth`;
 
-// Avatar da URL https validi
+let avatarSelezionato = '';
+
 const AVATARS = [
   'https://randomuser.me/api/portraits/men/32.jpg',
   'https://randomuser.me/api/portraits/women/44.jpg',
   'https://randomuser.me/api/portraits/men/75.jpg',
-  'https://randomuser.me/api/portraits/women/91.jpg',
-  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=128&h=128&fit=crop&crop=face',
-  'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=128&h=128&fit=crop&crop=face'
+  'https://randomuser.me/api/portraits/women/91.jpg'
 ];
 
-document.addEventListener('DOMContentLoaded', async () => {
-  document.getElementById('displayUsername').textContent = username || 'Utente';
-
-  if (ruolo === 'admin') {
-    ['linkAdmin', 'linkUsers', 'linkLogAdmin'].forEach(id => {
+document.addEventListener('DOMContentLoaded', () => {
+  if (ruoloLS === 'admin') {
+    ['linkAdmin','linkUsers','linkLogAdmin'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.style.display = 'block';
     });
   }
 
-  await caricaAvatar();
-  await caricaInfoProfilo();
-  await caricaStatistiche();
+  caricaProfilo();
+  caricaAvatar();
+  creaAvatarGrid();
+  initScrollToTop();
 });
+
+async function caricaProfilo() {
+  try {
+    const res = await fetch(`${API_USERS}/me`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (!res.ok) throw new Error();
+
+    const user = await res.json();
+
+    const uname = user.username || usernameLS || 'Utente';
+    const email = user.email || 'N/D';
+    const ruolo = user.ruolo || ruoloLS || 'user';
+    const created = user.createdAt ? new Date(user.createdAt).toLocaleDateString('it-IT') : '--/--/----';
+    const lattine = user.stats?.totalePossedute ?? 0;
+
+    document.getElementById('displayUsername').textContent = uname;
+    document.getElementById('displayStats').textContent =
+      `Lattine collezionate: ${lattine} • Account creato il: ${created}`;
+    document.getElementById('infoUsername').textContent = uname;
+    document.getElementById('infoEmail').textContent = email;
+    document.getElementById('infoRuolo').textContent =
+      ruolo === 'admin' ? 'Admin' : ruolo === 'beta' ? 'Beta tester' : 'Utente';
+    document.getElementById('infoData').textContent = created;
+
+    document.getElementById('inputUsername').value = uname;
+    document.getElementById('inputEmail').value = email;
+
+  } catch {
+    document.getElementById('displayUsername').textContent = usernameLS || 'Utente';
+    document.getElementById('displayStats').textContent =
+      'Lattine collezionate: 0 • Account creato il: --/--/----';
+  }
+}
 
 async function caricaAvatar() {
   try {
     const res = await fetch(`${API_USERS}/avatar`, {
       headers: { Authorization: `Bearer ${token}` }
     });
-    if (res.ok) {
-      const data = await res.json();
-      avatarSelezionato = data.avatar;
+    if (!res.ok) throw new Error();
+    const data = await res.json();
+    avatarSelezionato = data.avatar;
+  } catch {
+    avatarSelezionato = AVATARS[0];
+  }
+  const img = document.getElementById('avatarPreview');
+  if (img) img.src = avatarSelezionato;
+  evidenziaAvatarSelezionato();
+}
+
+function creaAvatarGrid() {
+  const grid = document.getElementById('avatarGrid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  AVATARS.forEach(url => {
+    const div = document.createElement('div');
+    div.className = 'avatar-option' + (url === avatarSelezionato ? ' selected' : '');
+    const img = document.createElement('img');
+    img.src = url;
+    img.alt = 'Avatar';
+    div.appendChild(img);
+    div.addEventListener('click', () => {
+      avatarSelezionato = url;
       const preview = document.getElementById('avatarPreview');
-      if (preview) {
-        preview.src = avatarSelezionato;
-        preview.style.display = 'block';
-      }
-    } else {
-      // fallback avatar default
-      document.getElementById('avatarPreview').src = AVATARS[0];
-    }
-  } catch {
-    document.getElementById('avatarPreview').src = AVATARS[0];
-  }
+      if (preview) preview.src = url;
+      evidenziaAvatarSelezionato();
+    });
+    grid.appendChild(div);
+  });
 }
 
-async function caricaInfoProfilo() {
-  try {
-    const res = await fetch(`${API_USERS}/me`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    if (res.ok) {
-      const user = await res.json();
-      document.getElementById('displayUsername').textContent = user.username || username;
-      document.getElementById('displayEmail').textContent = user.email || 'Non disponibile';
-      document.getElementById('inputUsername').value = user.username || '';
-      document.getElementById('inputEmail').value = user.email || '';
-    } else {
-      document.getElementById('displayEmail').textContent = 'Non disponibile';
-    }
-  } catch {
-    document.getElementById('displayEmail').textContent = 'Non disponibile';
-  }
+function evidenziaAvatarSelezionato() {
+  document.querySelectorAll('.avatar-option').forEach(div => {
+    const img = div.querySelector('img');
+    div.classList.toggle('selected', img && img.src === avatarSelezionato);
+  });
 }
 
-async function caricaStatistiche() {
-  // Modifica questa funzione in base ai dati che vuoi mostrare
+function apriAvatarPicker() {
+  document.getElementById('modalAvatar').style.display = 'block';
+}
+
+function chiudiModalAvatar() {
+  document.getElementById('modalAvatar').style.display = 'none';
+}
+
+async function salvaAvatar() {
   try {
-    const res = await fetch(`${API_USERS}/stats`, {
-      headers: { Authorization: `Bearer ${token}` }
+    const res = await fetch(`${API_USERS}/avatar`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({ avatarUrl: avatarSelezionato })
     });
-    if (res.ok) {
-      const stats = await res.json();
-      document.getElementById('statLattine').textContent = stats.lattineCollezionate || 0;
-      const data = new Date(stats.createdAt);
-      document.getElementById('statData').textContent = data.toLocaleDateString('it-IT');
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      alert(err.errore || 'Errore nel salvataggio avatar');
+      return;
     }
+    alert('Avatar aggiornato!');
+    chiudiModalAvatar();
   } catch {
-    document.getElementById('statLattine').textContent = '0';
-    document.getElementById('statData').textContent = '--/--/----';
+    alert('Errore di rete nel salvataggio avatar');
   }
 }
 
 async function cambiaUsername() {
   const nuovo = document.getElementById('inputUsername').value.trim();
-  if (!nuovo) return alert('⚠️ Inserisci un nome utente valido');
+  if (!nuovo) return alert('Inserisci un username valido');
   try {
     const res = await fetch(`${API_AUTH}/cambia-username`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
       body: JSON.stringify({ username: nuovo })
     });
-    if (res.ok) {
-      alert('✓ Username aggiornato!');
-      localStorage.setItem('username', nuovo);
-      document.getElementById('displayUsername').textContent = nuovo;
-    } else {
-      const err = await res.json();
-      alert(err.errore || 'Errore durante l\'aggiornamento');
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      alert(err.errore || 'Errore aggiornamento username');
+      return;
     }
+    localStorage.setItem('username', nuovo);
+    alert('Username aggiornato');
+    caricaProfilo();
   } catch {
     alert('Errore di rete');
   }
 }
 
 async function cambiaEmail() {
-  const nuovaEmail = document.getElementById('inputEmail').value.trim();
-  if (!nuovaEmail) return alert('⚠️ Inserisci una email valida');
+  const nuova = document.getElementById('inputEmail').value.trim();
+  if (!nuova) return alert('Inserisci una email valida');
   try {
     const res = await fetch(`${API_AUTH}/cambia-email`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ email: nuovaEmail })
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({ email: nuova })
     });
-    if (res.ok) {
-      alert('✓ Email aggiornata!');
-      document.getElementById('displayEmail').textContent = nuovaEmail;
-    } else {
-      const err = await res.json();
-      alert(err.errore || 'Errore durante l\'aggiornamento');
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      alert(err.errore || 'Errore aggiornamento email');
+      return;
     }
+    alert('Email aggiornata');
+    caricaProfilo();
   } catch {
     alert('Errore di rete');
   }
@@ -138,35 +190,39 @@ async function cambiaEmail() {
 async function cambiaPassword() {
   const vecchia = document.getElementById('oldPassword').value;
   const nuova = document.getElementById('newPassword').value;
-  const conferma = document.getElementById('confirmPassword').value;
+  const conf   = document.getElementById('confirmPassword').value;
 
-  if (!vecchia || !nuova || !conferma) return alert('⚠️ Compila tutti i campi della password');
-  if (nuova !== conferma) return alert('⚠️ Le password non corrispondono');
-  if (nuova.length < 6) return alert('⚠️ La password deve contenere almeno 6 caratteri');
+  if (!vecchia || !nuova || !conf) return alert('Compila tutti i campi');
+  if (nuova !== conf) return alert('Le password non coincidono');
+  if (nuova.length < 6) return alert('Minimo 6 caratteri');
 
   try {
     const res = await fetch(`${API_AUTH}/cambia-password`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
       body: JSON.stringify({ passwordVecchia: vecchia, nuovaPassword: nuova })
     });
-    if (res.ok) {
-      alert('✓ Password aggiornata!');
-      document.getElementById('oldPassword').value = '';
-      document.getElementById('newPassword').value = '';
-      document.getElementById('confirmPassword').value = '';
-    } else {
-      const err = await res.json();
-      alert(err.errore || 'Errore durante l\'aggiornamento');
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      alert(err.errore || 'Errore aggiornamento password');
+      return;
     }
+    alert('Password aggiornata');
+    ['oldPassword','newPassword','confirmPassword'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
   } catch {
     alert('Errore di rete');
   }
 }
 
 function confermaEliminazioneAccount() {
-  if (!confirm('⚠️ Sei sicuro di voler eliminare il tuo account? Questa azione è irreversibile.')) return;
-  if (prompt('Digita ELIMINA per confermare:') !== 'ELIMINA') return alert('Eliminazione annullata');
+  if (!confirm('Sei sicuro di voler eliminare il tuo account?')) return;
+  const check = prompt('Digita ELIMINA per confermare:');
+  if (check !== 'ELIMINA') return alert('Operazione annullata');
   eliminaAccount();
 }
 
@@ -176,29 +232,34 @@ async function eliminaAccount() {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${token}` }
     });
-    if (res.ok) {
-      alert('Account eliminato con successo');
-      localStorage.clear();
-      window.location.href = 'index.html';
-    } else {
-      const err = await res.json();
-      alert(err.errore || 'Errore durante l\'eliminazione');
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      alert(err.errore || 'Errore eliminazione account');
+      return;
     }
+    localStorage.clear();
+    alert('Account eliminato');
+    window.location.href = 'index.html';
   } catch {
     alert('Errore di rete');
   }
 }
 
 function logout() {
-  if (confirm('Sei sicuro di voler uscire?')) {
+  if (confirm('Vuoi davvero uscire?')) {
     localStorage.clear();
     window.location.href = 'index.html';
   }
 }
 
-function toggleSidebar() {
-  const sidebar = document.querySelector('.sidebar');
-  const overlay = document.getElementById('sidebarOverlay');
-  sidebar.classList.toggle('active');
-  overlay.classList.toggle('active');
+/* utilità scroll to top già previste dal tuo CSS */
+function initScrollToTop() {
+  const btn = document.getElementById('scrollToTop');
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 300) {
+      btn.classList.add('show');
+    } else {
+      btn.classList.remove('show');
+    }
+  });
 }
