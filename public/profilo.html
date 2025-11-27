@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Profilo - Monster App</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <link rel="manifest" href="/manifest.json" />
+</head>
+<body>
+  <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">
+    <span></span><span></span><span></span>
+  </button>
+
+  <div class="sidebar">
+    <h2>SW Archive</h2>
+    <nav>
+      <a href="collezione.html">La Mia Collezione</a>
+      <a href="chi-siamo.html">ℹ️ Chi Siamo</a>
+      <a href="statistiche.html">Statistiche</a>
+      <a href="amici.html">👥 Amici</a>
+      <a href="attivita.html">📝 Attività</a>
+      <a href="profilo.html" class="active">👤 Profilo</a>
+      <a href="admin.html" id="linkAdmin" style="display:none;">Gestione Contenuti</a>
+      <a href="users.html" id="linkUsers" style="display:none;">👥 Gestione Utenti</a>
+      <a href="log-admin.html" id="linkLogAdmin" style="display:none;">📊 Log Utenti</a>
+    </nav>
+  </div>
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+  <div class="main-content">
+    <header class="profile-header">
+      <img id="avatarPreview" class="avatar-large" src="" alt="Foto profilo" />
+      <h2 id="displayUsername">Caricamento...</h2>
+      <div class="user-stats">
+        <p>Lattine collezionate: <span id="statLattine">0</span></p>
+        <p>Account creato il: <span id="statData">--/--/----</span></p>
+      </div>
+      <button class="btn-logout" onclick="logout()">Logout</button>
+    </header>
+
+    <section class="profile-email">
+      <h3>Email</h3>
+      <p id="displayEmail">Caricamento...</p>
+    </section>
+
+    <section class="profile-edit">
+      <h3>Modifica informazioni</h3>
+      <label for="inputUsername">Nome Utente</label>
+      <input id="inputUsername" type="text" />
+
+      <button class="btn-primary" onclick="cambiaUsername()">Salva Username</button>
+
+      <label for="inputEmail">Email</label>
+      <input id="inputEmail" type="email" />
+
+      <button class="btn-primary" onclick="cambiaEmail()">Salva Email</button>
+
+      <label for="oldPassword">Password attuale</label>
+      <input id="oldPassword" type="password" />
+
+      <label for="newPassword">Nuova Password</label>
+      <input id="newPassword" type="password" />
+
+      <label for="confirmPassword">Conferma Password</label>
+      <input id="confirmPassword" type="password" />
+
+      <button class="btn-primary" onclick="cambiaPassword()">Salva Password</button>
+
+      <button class="btn-danger" onclick="confermaEliminazioneAccount()">
+        Elimina Account
+      </button>
+    </section>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="profilo.js"></script>
+</body>
+</html>
