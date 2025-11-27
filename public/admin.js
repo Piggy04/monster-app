@@ -271,13 +271,18 @@ document.getElementById('formLattina').addEventListener('submit', async (e) => {
 
   try {
     const response = await fetch(`${API_URL}/collezione/lattina`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify({ categoriaId, nome, ordine })
-    });
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  },
+  body: JSON.stringify({
+    categoria_id: categoriaId,   // ⬅ nome corretto per il backend
+    nome,
+    ordine
+  })
+});
+
 
     if (response.ok) {
       document.getElementById('successoLattina').textContent = '✓ Lattina aggiunta!';
