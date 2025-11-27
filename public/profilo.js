@@ -45,7 +45,6 @@ async function caricaProfilo() {
     const email = user.email || 'N/D';
     const ruolo = user.ruolo || ruoloLS || 'user';
     const created = user.createdAt ? new Date(user.createdAt).toLocaleDateString('it-IT') : '--/--/----';
-    const lattine = user.stats?.totalePossedute ?? 0;
 
     // header
     document.getElementById('displayUsername').textContent = uname;
@@ -66,7 +65,7 @@ async function caricaProfilo() {
   } catch {
     document.getElementById('displayUsername').textContent = usernameLS || 'Utente';
     document.getElementById('displayStats').textContent =
-      'Lattine collezionate: 0 • Account creato il: --/--/----';
+      'Account creato il: --/--/----';
   }
 }
 
