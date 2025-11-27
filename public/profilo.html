@@ -1,16 +1,25 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Profilo - Monster App</title>
-  <link rel="stylesheet" href="style.css" />
-  <link rel="icon" href="favicon.ico" type="image/x-icon" />
-  <link rel="manifest" href="/manifest.json" />
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <link rel="manifest" href="/manifest.json">
 </head>
 <body>
+  <script>
+    (function() {
+      const tema = localStorage.getItem('tema') || 'light';
+      document.documentElement.setAttribute('data-theme', tema);
+    })();
+  </script>
+  
   <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">
-    <span></span><span></span><span></span>
+    <span></span>
+    <span></span>
+    <span></span>
   </button>
 
   <div class="sidebar">
@@ -27,54 +36,73 @@
       <a href="log-admin.html" id="linkLogAdmin" style="display:none;">📊 Log Utenti</a>
     </nav>
   </div>
+  
   <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
   <div class="main-content">
-    <header class="profile-header">
-      <img id="avatarPreview" class="avatar-large" src="" alt="Foto profilo" />
+    <!-- ✅ HEADER PROFILO -->
+    <div class="profile-header">
+      <img id="avatarPreview" class="avatar-large" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTI4IiBoZWlnaHQ9IjEyOCIgdmlld0JveD0iMCAwIDEyOCAxMjgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxjaXJjbGUgY3g9IjY0IiBjeT0iNjQiIHI9IjY0IiBmaWxsPSIjNEY5RjNGIi8+CjxjaXJjbGUgY3g9IjY0IiBjeT0iNDgiIHI9IjI0IiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4=" alt="Avatar" style="display:none;">
       <h2 id="displayUsername">Caricamento...</h2>
       <div class="user-stats">
         <p>Lattine collezionate: <span id="statLattine">0</span></p>
         <p>Account creato il: <span id="statData">--/--/----</span></p>
       </div>
-      <button class="btn-logout" onclick="logout()">Logout</button>
-    </header>
+      <button class="btn-logout" onclick="logout()">🚪 Logout</button>
+      <button class="btn-primary" onclick="apriAvatarPicker()" style="margin-top: 15px; max-width: 250px;">Cambia Avatar</button>
+    </div>
 
+    <!-- ✅ SEZIONE EMAIL -->
     <section class="profile-email">
       <h3>Email</h3>
       <p id="displayEmail">Caricamento...</p>
     </section>
 
+    <!-- ✅ SEZIONE MODIFICA -->
     <section class="profile-edit">
-      <h3>Modifica informazioni</h3>
-      <label for="inputUsername">Nome Utente</label>
-      <input id="inputUsername" type="text" />
+      <h3>✏️ Modifica Informazioni</h3>
+      
+      <!-- Username -->
+      <div>
+        <label for="inputUsername">Nome Utente</label>
+        <input id="inputUsername" type="text" placeholder="Inserisci nuovo username">
+        <button class="btn-primary" onclick="cambiaUsername()">Salva Username</button>
+      </div>
 
-      <button class="btn-primary" onclick="cambiaUsername()">Salva Username</button>
+      <!-- Email -->
+      <div>
+        <label for="inputEmail">Email</label>
+        <input id="inputEmail" type="email" placeholder="Inserisci nuova email">
+        <button class="btn-primary" onclick="cambiaEmail()">Salva Email</button>
+      </div>
 
-      <label for="inputEmail">Email</label>
-      <input id="inputEmail" type="email" />
+      <!-- Password -->
+      <div>
+        <label for="oldPassword">Password Attuale</label>
+        <input id="oldPassword" type="password" placeholder="Password attuale">
+        <label for="newPassword">Nuova Password</label>
+        <input id="newPassword" type="password" placeholder="Nuova password">
+        <label for="confirmPassword">Conferma Password</label>
+        <input id="confirmPassword" type="password" placeholder="Conferma password">
+        <button class="btn-primary" onclick="cambiaPassword()">Salva Password</button>
+      </div>
 
-      <button class="btn-primary" onclick="cambiaEmail()">Salva Email</button>
-
-      <label for="oldPassword">Password attuale</label>
-      <input id="oldPassword" type="password" />
-
-      <label for="newPassword">Nuova Password</label>
-      <input id="newPassword" type="password" />
-
-      <label for="confirmPassword">Conferma Password</label>
-      <input id="confirmPassword" type="password" />
-
-      <button class="btn-primary" onclick="cambiaPassword()">Salva Password</button>
-
-      <button class="btn-danger" onclick="confermaEliminazioneAccount()">
-        Elimina Account
-      </button>
+      <!-- Elimina Account -->
+      <div class="danger-zone">
+        <h4>⚠️ Elimina Account</h4>
+        <p>Questa azione è <strong>IRREVERSIBILE</strong>. Tutti i dati verranno eliminati permanentemente.</p>
+        <button class="btn-danger" onclick="confermaEliminazioneAccount()">🗑️ Elimina Account</button>
+      </div>
     </section>
   </div>
 
+  <!-- ✅ MODAL AVATAR -->
+  <div id="modalAvatar" class="modal" style="display:none;">
+    <!-- Contenuto modal verrà creato da JS -->
+  </div>
+
   <script src="config.js"></script>
+  <script src="theme.js"></script>
   <script src="profilo.js"></script>
 </body>
 </html>
