@@ -524,20 +524,25 @@ document.addEventListener('DOMContentLoaded', () => {
   const btn = document.getElementById('scrollToTop');
   if (!btn) return;
 
+  // Mostra solo dopo un po' di scroll
   window.addEventListener('scroll', () => {
     if (window.scrollY > 300) {
-      btn.classList.add('show');
+      btn.style.display = 'block';
     } else {
-      btn.classList.remove('show');
+      btn.style.display = 'none';
     }
   });
 
+  // Click: torna su
   btn.addEventListener('click', () => {
     window.scrollTo({
       top: 0,
       behavior: 'smooth'
     });
   });
+
+  // All'inizio nascondi
+  btn.style.display = 'none';
 });
 
 
