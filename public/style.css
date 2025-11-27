@@ -2843,17 +2843,19 @@ input:checked + .slider:before {
 .avatar-option img { border-color: white!important; }
 
 /* ==========================================================================
-   PROFILO PAGE - NUOVA STRUTTURA
+   PROFILO PAGE - DESIGN MODERNO (compatibile con i tuoi temi)
    ========================================================================== */
 
 /* Header Profilo */
 .profile-header {
   text-align: center;
   padding: 40px 20px;
-  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+  background: var(--gradient-primary), var(--bg-primary);
+  background-size: cover;
+  background-blend-mode: overlay;
   border-radius: 20px;
   margin-bottom: 30px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+  box-shadow: 0 8px 32px var(--shadow);
   position: relative;
   overflow: hidden;
 }
@@ -2865,7 +2867,7 @@ input:checked + .slider:before {
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(90deg, #00ff41, #2ecc71, #00ff41);
+  background: linear-gradient(90deg, var(--accent-color), var(--accent-hover), var(--accent-color));
 }
 
 .avatar-large {
@@ -2875,20 +2877,20 @@ input:checked + .slider:before {
   border: 5px solid var(--accent-color);
   object-fit: cover;
   margin-bottom: 20px;
-  box-shadow: 0 10px 30px rgba(0,255,65,0.3);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
   transition: all 0.3s ease;
 }
 
 .avatar-large:hover {
   transform: scale(1.05);
-  box-shadow: 0 15px 40px rgba(0,255,65,0.4);
+  box-shadow: 0 15px 40px var(--shadow-hover);
 }
 
 .profile-header h2 {
   font-size: 2.2em;
   font-weight: 700;
   margin: 15px 0 25px;
-  background: linear-gradient(135deg, var(--text-primary), var(--accent-color));
+  background: var(--gradient-primary);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -2919,6 +2921,24 @@ input:checked + .slider:before {
   font-size: 1.2em;
 }
 
+.profile-header .btn-logout {
+  background: linear-gradient(135deg, #dc3545, #c82333);
+  color: white;
+  max-width: 200px;
+  margin: 0 auto;
+  padding: 14px 28px;
+  border-radius: 25px;
+  font-size: 1em;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.profile-header .btn-logout:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(220,53,69,0.4);
+}
+
 /* Sezione Email */
 .profile-email {
   background: var(--bg-secondary);
@@ -2926,7 +2946,7 @@ input:checked + .slider:before {
   border-radius: 20px;
   margin-bottom: 30px;
   border-left: 5px solid var(--accent-color);
-  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 20px var(--shadow);
 }
 
 .profile-email h3 {
@@ -2957,7 +2977,7 @@ input:checked + .slider:before {
   background: var(--bg-primary);
   padding: 40px;
   border-radius: 20px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+  box-shadow: 0 8px 32px var(--shadow);
 }
 
 .profile-edit h3 {
@@ -3029,8 +3049,7 @@ input:checked + .slider:before {
 }
 
 /* Pulsanti */
-.profile-edit .btn-primary,
-.profile-header .btn-logout {
+.profile-edit .btn-primary {
   width: 100%;
   padding: 16px 30px;
   margin-top: 15px;
@@ -3040,35 +3059,17 @@ input:checked + .slider:before {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
+  background: var(--gradient-primary);
+  color: white;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
 }
 
-.profile-edit .btn-primary {
-  background: linear-gradient(135deg, var(--accent-color), #00cc33);
-  color: white;
-}
-
 .profile-edit .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(0,255,65,0.4);
-}
-
-.profile-header .btn-logout {
-  background: linear-gradient(135deg, #dc3545, #c82333);
-  color: white;
-  max-width: 200px;
-  margin: 0 auto;
-  padding: 14px 28px;
-  border-radius: 25px;
-  font-size: 1em;
-}
-
-.profile-header .btn-logout:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(220,53,69,0.4);
+  box-shadow: 0 10px 25px var(--shadow-hover);
 }
 
 .profile-edit .btn-danger {
@@ -3089,6 +3090,29 @@ input:checked + .slider:before {
   transform: translateY(-3px);
   box-shadow: 0 15px 35px rgba(220,53,69,0.4);
 }
+
+/* Animazioni */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.profile-header,
+.profile-email,
+.profile-edit {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.profile-edit > div:nth-child(1) { animation-delay: 0.1s; }
+.profile-edit > div:nth-child(2) { animation-delay: 0.2s; }
+.profile-edit > div:nth-child(3) { animation-delay: 0.3s; }
+.profile-edit > div:nth-child(4) { animation-delay: 0.4s; }
 
 /* Responsive */
 @media (max-width: 768px) {
@@ -3130,29 +3154,3 @@ input:checked + .slider:before {
     font-size: 1.5em;
   }
 }
-
-/* Animazioni */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.profile-header,
-.profile-email,
-.profile-edit {
-  animation: fadeInUp 0.6s ease-out;
-}
-
-.profile-edit > div:nth-child(1) { animation-delay: 0.1s; }
-.profile-edit > div:nth-child(2) { animation-delay: 0.2s; }
-.profile-edit > div:nth-child(3) { animation-delay: 0.3s; }
-.profile-edit > div:nth-child(4) { animation-delay: 0.4s; }
-
-
-
