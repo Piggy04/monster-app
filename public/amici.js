@@ -5,7 +5,6 @@ const usernameLS = localStorage.getItem('username');
 const ruoloLS = localStorage.getItem('ruolo');
 
 document.addEventListener('DOMContentLoaded', async () => {
-  // Admin links
   if (ruoloLS === 'admin') {
     ['linkAdmin','linkUsers','linkLogAdmin'].forEach(id => {
       const el = document.getElementById(id);
@@ -13,17 +12,47 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // CARICA AMICI SUBITO (PRIMA TAB)
-  await caricaAmici();
+  // CARICA TUTTO SUBITO
+  await Promise.all([
+    caricaAmici(),
+    aggiornaContatori()
+  ]);
+
+  // Aggiorna contatori ogni 30s
+  setInterval(aggiornaContatori, 30000);
 });
+
+// === CONTATORI LIVE ===
+async function aggiornaContatori() {
+  try {
+    const richiesteRes = await fetch(`${API_URL}/amici/richieste/ricevute`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    const richieste = await richiesteRes.json();
+    
+    // Badge sul tab Richieste
+    const tabRichieste = document.querySelector('.amici-tab:nth-child(3)');
+    let badge = tabRichieste.querySelector('.badge-notifica');
+    if (richieste.length > 0) {
+      if (!badge) {
+        badge = document.createElement('span');
+        badge.className = 'badge-notifica';
+        badge.style.cssText = 'position: absolute; top: -8px; right: -8px; background: #e74c3c; color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold;';
+        tabRichieste.style.position = 'relative';
+        tabRichieste.appendChild(badge);
+      }
+      badge.textContent = richieste.length;
+    } else if (badge) {
+      badge.remove();
+    }
+  } catch {}
+}
 
 // === NAVIGAZIONE TAB ===
 function mostraTab(tab) {
-  // Nascondi tutti
   document.querySelectorAll('.amici-tab-content').forEach(t => t.style.display = 'none');
   document.querySelectorAll('.amici-tab').forEach(t => t.classList.remove('active'));
   
-  // Mostra tab selezionato
   if (tab === 'amici') {
     document.getElementById('tabAmici').style.display = 'block';
     document.querySelector('.amici-tab:nth-child(1)').classList.add('active');
@@ -38,7 +67,7 @@ function mostraTab(tab) {
   }
 }
 
-// === CARICA I TUOI AMICI (PRIMO LOAD) ===
+// === CARICA AMICI CON AVATAR ===
 async function caricaAmici() {
   try {
     const res = await fetch(`${API_URL}/amici`, {
@@ -55,8 +84,8 @@ async function caricaAmici() {
         <div style="text-align: center; padding: 60px 20px; color: var(--text-secondary);">
           <div style="font-size: 48px; margin-bottom: 20px;">👥</div>
           <h3>Nessun amico ancora</h3>
-          <p>Cerca e aggiungi collezionisti per condividere i progressi!</p>
-          <button class="btn-primary" onclick="mostraTab('ricerca')" style="margin-top: 20px;">
+          <p>Cerca e aggiungi collezionisti!</p>
+          <button class="btn-primary" onclick="mostraTab('ricerca')" style="margin-top: 20px; padding: 12px 24px;">
             🔍 Trova amici
           </button>
         </div>
@@ -67,12 +96,13 @@ async function caricaAmici() {
     container.innerHTML = amici.map(amico => `
       <div class="amico-card">
         <div style="display: flex; align-items: center; gap: 15px;">
-          <div style="width: 50px; height: 50px; border-radius: 50%; background: var(--accent-color); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
-            ${amico.username.charAt(0).toUpperCase()}
-          </div>
+          <img src="${amico.avatar || `https://ui-avatars.com/api/?name=${amico.username}&size=50&background=2c3e50&color=fff`}" 
+               alt="${amico.username}" 
+               style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 3px solid var(--border-color);"
+               onerror="this.src='https://ui-avatars.com/api/?name=${amico.username}&size=50&background=2c3e50&color=fff'">
           <div>
-            <h4>${amico.username}</h4>
-            <small>Collezionista SW</small>
+            <h4 style="margin: 0;">${amico.username}</h4>
+            <small style="color: var(--text-secondary);">Collezionista SW</small>
           </div>
         </div>
         <div class="btn-group">
@@ -88,17 +118,17 @@ async function caricaAmici() {
     
   } catch (err) {
     console.error('Errore amici:', err);
-    document.getElementById('amiciList').innerHTML = '<p style="text-align: center; color: #e74c3c;">Errore caricamento amici</p>';
+    document.getElementById('amiciList').innerHTML = '<p style="text-align: center; color: #e74c3c;">Errore caricamento</p>';
   }
 }
 
-// === RICERCA UTENTI ===
+// === RICERCA CON AVATAR ===
 async function cercaUtenti() {
   const input = document.getElementById('ricercaUsername').value.trim();
   const container = document.getElementById('risultatiRicerca');
   
   if (input.length < 2) {
-    container.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Inizia a digitare per cercare...</p>';
+    container.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Inizia a digitare...</p>';
     return;
   }
   
@@ -117,12 +147,13 @@ async function cercaUtenti() {
       container.innerHTML = utenti.map(utente => `
         <div class="amico-card">
           <div style="display: flex; align-items: center; gap: 15px;">
-            <div style="width: 50px; height: 50px; border-radius: 50%; background: var(--accent-color); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
-              ${utente.username.charAt(0).toUpperCase()}
-            </div>
+            <img src="${utente.avatar || `https://ui-avatars.com/api/?name=${utente.username}&size=50&background=2c3e50&color=fff`}" 
+                 alt="${utente.username}" 
+                 style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 3px solid var(--border-color);"
+                 onerror="this.src='https://ui-avatars.com/api/?name=${utente.username}&size=50&background=2c3e50&color=fff'">
             <div>
-              <h4>${utente.username}</h4>
-              <small>${utente.email || 'Utente'}</small>
+              <h4 style="margin: 0;">${utente.username}</h4>
+              <small style="color: var(--text-secondary);">${utente.email?.substring(0,20) || 'Utente'}</small>
             </div>
           </div>
           <button class="btn-add-friend" onclick="inviarichiesta('${utente._id}')">
@@ -132,11 +163,11 @@ async function cercaUtenti() {
       `).join('');
     }
   } catch {
-    container.innerHTML = '<p style="text-align: center; color: #e74c3c;">Errore nella ricerca</p>';
+    container.innerHTML = '<p style="text-align: center; color: #e74c3c;">Errore ricerca</p>';
   }
 }
 
-// === RICHIESTE ===
+// === ALTRE FUNZIONI (invariate ma migliorate) ===
 async function caricaRichieste() {
   try {
     const [ricevute, inviate] = await Promise.all([
@@ -144,14 +175,13 @@ async function caricaRichieste() {
       fetch(`${API_URL}/amici/richieste/inviate`, { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json())
     ]);
 
-    // Ricevute
     document.getElementById('richiesteRicevute').innerHTML = ricevute.length === 0 
       ? '<p style="text-align: center; color: var(--text-secondary);">Nessuna richiesta ricevuta</p>'
       : ricevute.map(r => `
         <div class="amico-card">
-          <div>
-            <h4>${r.mittente_id.username}</h4>
-            <small>Ti ha inviato una richiesta</small>
+          <div style="flex: 1;">
+            <h4 style="margin: 0;">${r.mittente_id.username}</h4>
+            <small style="color: var(--text-secondary);">Ti ha inviato una richiesta</small>
           </div>
           <div class="btn-group">
             <button class="btn-mini btn-accept" onclick="accettarichiesta('${r._id}')">✓ Accetta</button>
@@ -160,14 +190,13 @@ async function caricaRichieste() {
         </div>
       `).join('');
 
-    // Inviate
     document.getElementById('richiesteInviate').innerHTML = inviate.length === 0 
       ? '<p style="text-align: center; color: var(--text-secondary);">Nessuna richiesta inviata</p>'
       : inviate.map(r => `
         <div class="amico-card">
-          <div>
-            <h4>${r.destinatario_id.username}</h4>
-            <small>In attesa di risposta</small>
+          <div style="flex: 1;">
+            <h4 style="margin: 0;">${r.destinatario_id.username}</h4>
+            <small style="color: var(--text-secondary);">In attesa di risposta</small>
           </div>
           <button class="btn-mini btn-cancel" onclick="annullarichiesta('${r._id}')">✕ Annulla</button>
         </div>
@@ -177,7 +206,7 @@ async function caricaRichieste() {
   }
 }
 
-// === AZIONI ===
+// [Tutte le altre funzioni rimangono identiche a prima...]
 async function inviarichiesta(id) {
   try {
     const res = await fetch(`${API_URL}/amici/richiesta`, {
@@ -189,6 +218,7 @@ async function inviarichiesta(id) {
       alert('✓ Richiesta inviata!');
       document.getElementById('ricercaUsername').value = '';
       cercaUtenti();
+      aggiornaContatori();
     } else {
       const err = await res.json();
       alert(err.errore || 'Errore');
@@ -200,10 +230,14 @@ async function inviarichiesta(id) {
 
 async function accettarichiesta(id) {
   try {
-    const res = await fetch(`${API_URL}/amici/accetta/${id}`, { method: 'PUT', headers: { Authorization: `Bearer ${token}` } });
+    const res = await fetch(`${API_URL}/amici/accetta/${id}`, { 
+      method: 'PUT', 
+      headers: { Authorization: `Bearer ${token}` } 
+    });
     if (res.ok) {
       alert('✓ Amico aggiunto!');
       mostraTab('amici');
+      aggiornaContatori();
     }
   } catch {
     alert('Errore');
@@ -212,8 +246,12 @@ async function accettarichiesta(id) {
 
 async function rifiutarichiesta(id) {
   try {
-    await fetch(`${API_URL}/amici/rifiuta/${id}`, { method: 'PUT', headers: { Authorization: `Bearer ${token}` } });
+    await fetch(`${API_URL}/amici/rifiuta/${id}`, { 
+      method: 'PUT', 
+      headers: { Authorization: `Bearer ${token}` } 
+    });
     caricaRichieste();
+    aggiornaContatori();
   } catch {
     alert('Errore');
   }
@@ -221,8 +259,12 @@ async function rifiutarichiesta(id) {
 
 async function annullarichiesta(id) {
   try {
-    await fetch(`${API_URL}/amici/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+    await fetch(`${API_URL}/amici/${id}`, { 
+      method: 'DELETE', 
+      headers: { Authorization: `Bearer ${token}` } 
+    });
     caricaRichieste();
+    aggiornaContatori();
   } catch {
     alert('Errore');
   }
@@ -231,10 +273,14 @@ async function annullarichiesta(id) {
 async function rimuoviAmico(id, nome) {
   if (confirm(`Rimuovere ${nome}?`)) {
     try {
-      const res = await fetch(`${API_URL}/amici/rimuovi/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+      const res = await fetch(`${API_URL}/amici/rimuovi/${id}`, { 
+        method: 'DELETE', 
+        headers: { Authorization: `Bearer ${token}` } 
+      });
       if (res.ok) {
         alert('Amico rimosso');
         caricaAmici();
+        aggiornaContatori();
       }
     } catch {
       alert('Errore');
@@ -243,5 +289,5 @@ async function rimuoviAmico(id, nome) {
 }
 
 function visualizzaCollezione(id, nome) {
-  window.location.href = `collezione-amico.html?amico=${id}&username=${encodeURIComponent(nome)}`;
+  window.location.href = `collezione-amico?amico=${id}&username=${encodeURIComponent(nome)}`;
 }
