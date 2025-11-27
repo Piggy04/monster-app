@@ -1,192 +1,146 @@
 let token = localStorage.getItem('token');
 if (!token) window.location.href = 'index.html';
 
-const usernameLS = localStorage.getItem('username');
-const ruoloLS = localStorage.getItem('ruolo');
-
 document.addEventListener('DOMContentLoaded', async () => {
-  // Mostra link admin se admin
-  if (ruoloLS === 'admin') {
+  if (localStorage.getItem('ruolo') === 'admin') {
     ['linkAdmin','linkUsers','linkLogAdmin'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.style.display = 'block';
     });
   }
-
-  // Carica amici subito (tab “amici”)
   await caricaAmici();
 });
 
-// ---------- NAVIGAZIONE TAB ----------
 function mostraTab(tab) {
   document.querySelectorAll('.amici-tab-content').forEach(t => t.style.display = 'none');
   document.querySelectorAll('.amici-tab').forEach(t => t.classList.remove('active'));
-
-  document.getElementById(`tab${capitalizeFirstLetter(tab)}`).style.display = 'block';
+  
+  document.getElementById(`tab${tab.charAt(0).toUpperCase() + tab.slice(1)}`).style.display = 'block';
   document.querySelector(`.amici-tab[data-tab="${tab}"]`).classList.add('active');
-
+  
   if (tab === 'amici') caricaAmici();
   if (tab === 'richieste') caricaRichieste();
 }
 
-function capitalizeFirstLetter(string) {
-  return string.charAt(0).toUpperCase() + string.slice(1);
-}
-
-// ---------- CARICA AMICI ----------
 async function caricaAmici() {
   try {
-    const res = await fetch(`${API_URL}/amici`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    if (!res.ok) throw new Error('Errore caricamento amici');
-
+    const res = await fetch(`${API_URL}/amici`, { headers: { Authorization: `Bearer ${token}` } });
+    if (!res.ok) return;
+    
     const amici = await res.json();
     const container = document.getElementById('amiciList');
-
+    
     if (amici.length === 0) {
-      container.innerHTML = `<p style="text-align:center; color: var(--text-secondary);">
-        Nessun amico ancora. Usa la ricerca per aggiungere amici.
-      </p>`;
+      container.innerHTML = `
+        <div style="text-align:center;padding:60px 20px;color:var(--text-secondary);">
+          <div style="font-size:48px;margin-bottom:20px;">👥</div>
+          <h3>Nessun amico ancora</h3>
+          <p>Cerca collezionisti per condividere progressi!</p>
+          <button class="btn-primary" onclick="mostraTab('ricerca')" style="margin-top:20px;padding:12px 24px;">🔍 Trova amici</button>
+        </div>`;
       return;
     }
-
-    container.innerHTML = amici.map(amico => {
-      const avatarUrl = amico.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(amico.username)}&size=50&background=2c3e50&color=fff`;
-      return `
-        <div class="amico-card">
-          <div style="display: flex; align-items: center; gap: 15px;">
-            <img src="${avatarUrl}" alt="${amico.username}" 
-                 style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 3px solid var(--border-color);" 
-                 onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(amico.username)}&size=50&background=2c3e50&color=fff'">
-            <div>
-              <h4 style="margin:0;">${amico.username}</h4>
-              <small style="color: var(--text-secondary);">Collezionista SW</small>
-            </div>
-          </div>
-          <div class="btn-group">
-            <button class="btn-view" onclick="visualizzaCollezione('${amico._id}', '${amico.username}')">👁️ Visualizza</button>
-            <button class="btn-delete btn-mini" onclick="rimuoviAmico('${amico._id}', '${amico.username}')">🗑️ Rimuovi</button>
+    
+    container.innerHTML = amici.map(amico => `
+      <div class="amico-card">
+        <div style="display:flex;align-items:center;gap:15px;">
+          <img src="${amico.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(amico.username)}&size=50&background=2c3e50&color=fff`}" 
+               alt="${amico.username}" 
+               style="width:50px;height:50px;border-radius:50%;object-fit:cover;border:3px solid var(--border-color);"
+               onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent('${amico.username}')}&size=50&background=2c3e50&color=fff'">
+          <div>
+            <h4 style="margin:0;font-size:18px;">${amico.username}</h4>
+            <small style="color:var(--text-secondary);">Collezionista</small>
           </div>
         </div>
-      `;
-    }).join('');
-  } catch (err) {
-    console.error(err);
-    document.getElementById('amiciList').innerHTML = '<p style="color: #e74c3c; text-align:center;">Errore nel caricamento amici</p>';
+        <div class="btn-group">
+          <button class="btn-view" onclick="visualizzaCollezione('${amico._id}','${amico.username}')">👁️ Visualizza</button>
+          <button class="btn-delete btn-mini" onclick="rimuoviAmico('${amico._id}','${amico.username}')">🗑️ Rimuovi</button>
+        </div>
+      </div>
+    `).join('');
+  } catch(e) {
+    document.getElementById('amiciList').innerHTML = '<p style="text-align:center;color:#e74c3c;">Errore caricamento</p>';
   }
 }
 
-// ---------- CARICA RICHIESTE ----------
+async function cercaUtenti() {
+  const input = document.getElementById('ricercaUsername').value;
+  if (input.length < 2) return;
+  
+  try {
+    const res = await fetch(`${API_URL}/amici/ricerca/${encodeURIComponent(input)}`, { headers: { Authorization: `Bearer ${token}` } });
+    const utenti = await res.json();
+    const container = document.getElementById('risultatiRicerca');
+    
+    container.innerHTML = utenti.map(u => `
+      <div class="amico-card">
+        <div style="display:flex;align-items:center;gap:15px;">
+          <img src="${u.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(u.username)}&size=50&background=2c3e50&color=fff`}" 
+               style="width:50px;height:50px;border-radius:50%;object-fit:cover;border:3px solid var(--border-color);">
+          <div><h4 style="margin:0;">${u.username}</h4></div>
+        </div>
+        <button class="btn-add-friend" onclick="inviarichiesta('${u._id}')">➕ Aggiungi</button>
+      </div>
+    `).join('') || '<p style="text-align:center;color:var(--text-secondary);">Nessun utente trovato</p>';
+  } catch(e) {}
+}
+
 async function caricaRichieste() {
   try {
     const [ricevute, inviate] = await Promise.all([
-      fetch(`${API_URL}/amici/richieste/ricevute`, { headers: { Authorization: `Bearer ${token}` } }).then(res => res.json()),
-      fetch(`${API_URL}/amici/richieste/inviate`, { headers: { Authorization: `Bearer ${token}` } }).then(res => res.json())
+      fetch(`${API_URL}/amici/richieste/ricevute`, { headers: { Authorization: `Bearer ${token}` } }).then(r=>r.json()),
+      fetch(`${API_URL}/amici/richieste/inviate`, { headers: { Authorization: `Bearer ${token}` } }).then(r=>r.json())
     ]);
-    const ricevuteHTML = ricevute.length === 0 
-      ? '<p style="text-align:center; color: var(--text-secondary);">Nessuna richiesta ricevuta</p>' 
-      : ricevute.map(r => `
-        <div class="amico-card">
-          <div style="flex:1;">
-            <h4>${r.mittente_id.username}</h4>
-            <small>Ti ha inviato una richiesta</small>
-          </div>
-          <div class="btn-group">
-            <button class="btn-mini btn-accept" onclick="accettarichiesta('${r._id}')">✓ Accetta</button>
-            <button class="btn-mini btn-reject" onclick="rifiutarichiesta('${r._id}')">✕ Rifiuta</button>
-          </div>
+    
+    document.getElementById('richiesteRicevute').innerHTML = ricevute.map(r=>`
+      <div class="amico-card">
+        <div>${r.mittente_id.username}</div>
+        <div class="btn-group">
+          <button class="btn-mini btn-accept" onclick="accettarichiesta('${r._id}')">✓</button>
+          <button class="btn-mini btn-reject" onclick="rifiutarichiesta('${r._id}')">✕</button>
         </div>
-      `).join('');
-
-    const inviateHTML = inviate.length === 0 
-      ? '<p style="text-align:center; color: var(--text-secondary);">Nessuna richiesta inviata</p>' 
-      : inviate.map(r => `
-        <div class="amico-card">
-          <div style="flex:1;">
-            <h4>${r.destinatario_id.username}</h4>
-            <small>In attesa di risposta</small>
-          </div>
-          <button class="btn-mini btn-cancel" onclick="annullarichiesta('${r._id}')">✕ Annulla</button>
-        </div>
-      `).join('');
-
-    document.getElementById('richiesteRicevute').innerHTML = ricevuteHTML;
-    document.getElementById('richiesteInviate').innerHTML = inviateHTML;
-  } catch (err) {
-    console.error(err);
-  }
+      </div>
+    `).join('') || '<p style="text-align:center;color:var(--text-secondary);">Nessuna</p>';
+    
+    document.getElementById('richiesteInviate').innerHTML = inviate.map(r=>`
+      <div class="amico-card">
+        <div>${r.destinatario_id.username}</div>
+        <button class="btn-mini btn-cancel" onclick="annullarichiesta('${r._id}')">✕</button>
+      </div>
+    `).join('') || '<p style="text-align:center;color:var(--text-secondary);">Nessuna</p>';
+  } catch(e) {}
 }
 
-// ---------- FUNZIONI AZIONI ----------
-async function inviarichiesta(destinatario_id) {
+async function inviarichiesta(id) { 
   try {
-    const res = await fetch(`${API_URL}/amici/richiesta`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-      body: JSON.stringify({ destinatario_id })
+    await fetch(`${API_URL}/amici/richiesta`, {
+      method: 'POST', headers: {'Content-Type':'application/json', Authorization: `Bearer ${token}`},
+      body: JSON.stringify({destinatario_id: id})
     });
-    if (res.ok) {
-      alert('Richiesta inviata!');
-      document.getElementById('ricercaUsername').value = '';
-      mostraTab('richieste');
-      caricaRichieste();
-    } else {
-      const err = await res.json();
-      alert(err.errore || 'Errore invio richiesta');
-    }
-  } catch {
-    alert('Errore di rete');
-  }
+    alert('Richiesta inviata!'); mostraTab('richieste');
+  } catch(e) { alert('Errore'); }
 }
 
-async function accettarichiesta(id) {
-  try {
-    const res = await fetch(`${API_URL}/amici/accetta/${id}`, { method: 'PUT', headers: { Authorization: `Bearer ${token}` } });
-    if (res.ok) {
-      alert('Amico aggiunto!');
-      mostraTab('amici');
-      caricaAmici();
-      caricaRichieste();
-    }
-  } catch {
-    alert('Errore');
-  }
+async function accettarichiesta(id) { 
+  await fetch(`${API_URL}/amici/accetta/${id}`, {method:'PUT', headers:{Authorization:`Bearer ${token}`}});
+  alert('Amico aggiunto!'); mostraTab('amici'); 
 }
 
-async function rifiutarichiesta(id) {
-  try {
-    const res = await fetch(`${API_URL}/amici/rifiuta/${id}`, { method: 'PUT', headers: { Authorization: `Bearer ${token}` } });
-    if (res.ok) {
-      caricaRichieste();
-    }
-  } catch {
-    alert('Errore');
-  }
+async function rifiutarichiesta(id) { 
+  await fetch(`${API_URL}/amici/rifiuta/${id}`, {method:'PUT', headers:{Authorization:`Bearer ${token}`}}); 
+  caricaRichieste(); 
 }
 
-async function annullarichiesta(id) {
-  try {
-    const res = await fetch(`${API_URL}/amici/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
-    if (res.ok) {
-      caricaRichieste();
-    }
-  } catch {
-    alert('Errore');
-  }
+async function annullarichiesta(id) { 
+  await fetch(`${API_URL}/amici/${id}`, {method:'DELETE', headers:{Authorization:`Bearer ${token}`}}); 
+  caricaRichieste(); 
 }
 
 async function rimuoviAmico(id, nome) {
-  if (confirm(`Rimuovere ${nome}?`)) {
-    try {
-      const res = await fetch(`${API_URL}/amici/rimuovi/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
-      if (res.ok) {
-        alert('Amico rimosso');
-        caricaAmici();
-      }
-    } catch {
-      alert('Errore');
-    }
+  if(confirm(`Rimuovere ${nome}?`)) {
+    await fetch(`${API_URL}/amici/rimuovi/${id}`, {method:'DELETE', headers:{Authorization:`Bearer ${token}`}});
+    alert('Rimosso'); caricaAmici();
   }
 }
 

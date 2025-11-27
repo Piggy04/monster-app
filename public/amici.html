@@ -1,12 +1,49 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Amici - SW Archive</title>
-  <link rel="icon" href="favicon.ico" type="image/x-icon" />
-  <link rel="stylesheet" href="style.css" />
-  <link rel="manifest" href="/manifest.json" />
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="/manifest.json">
+  <style>
+    /* AMICI - CSS COMPLETO */
+    .amici-tabs { display: flex; gap: 10px; margin-bottom: 30px; flex-wrap: wrap; }
+    .amici-tab { 
+      padding: 12px 24px; border: 2px solid var(--border-color); 
+      background: transparent; color: var(--text-primary); 
+      border-radius: 12px; cursor: pointer; transition: all 0.3s; 
+      font-weight: 600; position: relative; 
+    }
+    .amici-tab.active, .amici-tab:hover { 
+      background: var(--accent-color); color: white; 
+      border-color: var(--accent-color); transform: translateY(-2px); 
+    }
+    .amici-tab-content { animation: fadeIn 0.3s ease; }
+    .amico-card { 
+      background: var(--bg-secondary); border-radius: 16px; 
+      padding: 20px; margin-bottom: 15px; display: flex; 
+      justify-content: space-between; align-items: center; 
+      border: 1px solid var(--border-color); 
+      box-shadow: 0 4px 15px var(--shadow); transition: all 0.3s; 
+    }
+    .amico-card:hover { transform: translateY(-4px); box-shadow: 0 8px 25px var(--shadow-hover); }
+    .btn-group { display: flex; gap: 10px; }
+    .btn-mini { padding: 8px 16px; font-size: 14px; }
+    .btn-add-friend, .btn-view, .btn-accept, .btn-reject, .btn-cancel, .btn-delete { 
+      padding: 10px 20px; border: none; border-radius: 8px; 
+      cursor: pointer; font-weight: 600; transition: all 0.3s; 
+    }
+    .btn-add-friend { background: var(--accent-color); color: white; }
+    .btn-view { background: var(--primary-color); color: white; }
+    .btn-accept { background: #27ae60; color: white; }
+    .btn-reject, .btn-cancel, .btn-delete { background: #e74c3c; color: white; }
+    .btn-mini:hover { transform: scale(1.05); }
+    .ricerca-box input { width: 100%; padding: 16px; border: 2px solid var(--border-color); border-radius: 12px; font-size: 16px; }
+    .amici-list { max-width: 800px; margin: 0 auto; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  </style>
 </head>
 <body>
   <script>
@@ -41,48 +78,38 @@
       <p>Gestisci i tuoi amici e le richieste di amicizia</p>
     </div>
 
-    <!-- TAB NAVIGATION -->
-    <div class="amici-tabs" style="margin-bottom: 30px;">
+    <div class="amici-tabs">
       <button class="amici-tab active" data-tab="amici" onclick="mostraTab('amici')">👥 I Miei Amici</button>
       <button class="amici-tab" data-tab="ricerca" onclick="mostraTab('ricerca')">🔍 Ricerca</button>
       <button class="amici-tab" data-tab="richieste" onclick="mostraTab('richieste')">📬 Richieste</button>
     </div>
 
-    <!-- TAB AMICI -->
-    <div id="tabAmici" class="amici-tab-content active">
+    <div id="tabAmici" class="amici-tab-content">
       <div id="amiciList" class="amici-list">
-        <p>Caricamento amici...</p>
+        <div style="text-align:center;padding:60px 20px;color:var(--text-secondary);">
+          <div style="font-size:48px;margin-bottom:20px;">👥</div>
+          <h3>Caricamento amici...</h3>
+        </div>
       </div>
     </div>
 
-    <!-- TAB RICERCA -->
     <div id="tabRicerca" class="amici-tab-content" style="display:none;">
-      <div class="ricerca-box" style="max-width: 500px; margin: 0 auto 30px;">
-        <input type="text" id="ricercaUsername" placeholder="🔍 Cerca per username..." onkeyup="cercaUtenti()" />
+      <div class="ricerca-box" style="max-width:500px;margin:0 auto 30px;">
+        <input type="text" id="ricercaUsername" placeholder="🔍 Cerca per username..." onkeyup="cercaUtenti()">
       </div>
-      <div id="risultatiRicerca" class="risultati-ricerca">
-        <p style="text-align: center;">Inizia a digitare per cercare...</p>
+      <div id="risultatiRicerca" class="amici-list">
+        <p style="text-align:center;color:var(--text-secondary);">Inizia a digitare per cercare...</p>
       </div>
     </div>
 
-    <!-- TAB RICHIESTE -->
     <div id="tabRichieste" class="amici-tab-content" style="display:none;">
-      <div style="margin-bottom: 30px;">
-        <h3>📥 Richieste Ricevute</h3>
-        <div id="richiesteRicevute" class="amici-list">
-          <p>Nessuna richiesta in sospeso</p>
-        </div>
-      </div>
-      <div>
-        <h3>📤 Richieste Inviate</h3>
-        <div id="richiesteInviate" class="amici-list">
-          <p>Nessuna richiesta inviata</p>
-        </div>
-      </div>
+      <h3 style="margin-bottom:20px;">📥 Richieste Ricevute</h3>
+      <div id="richiesteRicevute" class="amici-list"></div>
+      <h3 style="margin:40px 0 20px 0;">📤 Richieste Inviate</h3>
+      <div id="richiesteInviate" class="amici-list"></div>
     </div>
   </div>
 
-  <!-- Theme drawer -->
   <div class="theme-drawer" id="themeDrawer">
     <button class="theme-drawer-toggle" onclick="toggleThemeDrawer()">🎨</button>
     <div class="theme-drawer-content">
