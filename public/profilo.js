@@ -41,15 +41,17 @@ async function caricaProfilo() {
 
     const user = await res.json();
 
-    const uname = user.username || usernameLS || 'Utente';
-    const email = user.email || 'N/D';
-    const ruolo = user.ruolo || ruoloLS || 'user';
-    const created = user.createdAt ? new Date(user.createdAt).toLocaleDateString('it-IT') : '--/--/----';
+    const uname   = user.username || usernameLS || 'Utente';
+    const email   = user.email || 'N/D';
+    const ruolo   = user.ruolo || ruoloLS || 'user';
+    const created = user.createdAt
+      ? new Date(user.createdAt).toLocaleDateString('it-IT')
+      : '--/--/----';
 
-    // header
+    // header SOLO con data
     document.getElementById('displayUsername').textContent = uname;
     document.getElementById('displayStats').textContent =
-      `Lattine collezionate: ${lattine} • Account creato il: ${created}`;
+      `Account creato il: ${created}`;
 
     // dettagli account
     document.getElementById('infoUsername').textContent = uname;
@@ -63,9 +65,11 @@ async function caricaProfilo() {
     document.getElementById('inputEmail').value = email;
 
   } catch {
+    const createdFallback = '--/--/----';
     document.getElementById('displayUsername').textContent = usernameLS || 'Utente';
     document.getElementById('displayStats').textContent =
-      'Account creato il: --/--/----';
+      `Account creato il: ${createdFallback}`;
+    document.getElementById('infoData').textContent = createdFallback;
   }
 }
 
