@@ -17,6 +17,42 @@ router.get('/me', auth, async (req, res) => {
   }
 });
 
+// ✅ NUOVO: GET avatar utente corrente
+router.get('/avatar', auth, async (req, res) => {
+  try {
+    const utente = await User.findById(req.user.id).select('avatar');
+    res.json({ avatar: utente.avatar });
+  } catch (errore) {
+    console.error('Errore recupero avatar:', errore);
+    res.status(500).json({ errore: 'Errore recupero avatar' });
+  }
+});
+
+// ✅ NUOVO: PUT aggiorna avatar utente
+router.put('/avatar', auth, async (req, res) => {
+  try {
+    const { avatarUrl } = req.body;
+    
+    if (!avatarUrl || !avatarUrl.startsWith('https://')) {
+      return res.status(400).json({ errore: 'URL avatar non valido' });
+    }
+    
+    const utente = await User.findByIdAndUpdate(
+      req.user.id,
+      { avatar: avatarUrl },
+      { new: true, runValidators: true }
+    ).select('-password');
+    
+    res.json({ 
+      avatar: utente.avatar, 
+      messaggio: 'Avatar aggiornato con successo!' 
+    });
+  } catch (errore) {
+    console.error('Errore aggiornamento avatar:', errore);
+    res.status(500).json({ errore: 'Errore aggiornamento avatar' });
+  }
+});
+
 // PUT aggiorna tema utente (tutti gli utenti per se stessi)
 router.put('/me/tema', auth, async (req, res) => {
   try {
@@ -41,14 +77,13 @@ router.put('/me/tema', auth, async (req, res) => {
 
 // ===== ROUTE ADMIN =====
 
-// GET lista tutti gli utenti (solo admin) - ⬇️ MODIFICATA
+// GET lista tutti gli utenti (solo admin)
 router.get('/', adminAuth, async (req, res) => {
   try {
     const utenti = await User.find()
       .select('-password')
-      .sort({ lastSeen: -1 }); // Ordina per ultimo accesso
+      .sort({ lastSeen: -1 });
     
-    // ⬇️ AGGIUNGI: Calcola stato online per ogni utente
     const utentiConStato = utenti.map(u => {
       const ora = Date.now();
       const lastSeenTime = u.lastSeen ? u.lastSeen.getTime() : 0;
@@ -77,6 +112,7 @@ router.get('/', adminAuth, async (req, res) => {
         email: u.email,
         ruolo: u.ruolo,
         tema: u.tema,
+        avatar: u.avatar, // ✅ AGGIUNTO
         lastSeen: u.lastSeen,
         isOnline: minutiFa < 5,
         testoStato: testoStato,

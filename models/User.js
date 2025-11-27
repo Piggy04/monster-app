@@ -22,6 +22,10 @@ const userSchema = new mongoose.Schema({
     enum: ['user', 'beta', 'admin'],
     default: 'user'
   },
+  avatar: {
+  type: String,
+  default: 'https://via.placeholder.com/128/4a4a4a/ffffff?text=👤'
+},
   tema: {
     type: String,
     enum: ['light', 'dark', 'green', 'purple'],
