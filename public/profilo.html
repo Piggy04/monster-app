@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Profilo - SW Archive</title>
-  <link rel="stylesheet" href="style.css">
   <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="style.css">
   <link rel="manifest" href="/manifest.json">
 </head>
 <body>
@@ -25,7 +25,7 @@
     <nav>
       <a href="collezione.html">La Mia Collezione</a>
       <a href="chi-siamo.html">ℹ️ Chi Siamo</a>
-      <a href="statistiche.html">Statistiche</a>
+      <!-- NIENTE più link statistiche -->
       <a href="amici.html">👥 Amici</a>
       <a href="attivita.html">📝 Attività</a>
       <a href="profilo.html" class="active">👤 Profilo</a>
@@ -39,7 +39,7 @@
   <div class="main-content">
     <div class="header">
       <h1>👤 Profilo</h1>
-      <p>Gestisci il tuo account e le tue informazioni personali.</p>
+      <p>Gestisci il tuo account, le statistiche e la sicurezza.</p>
     </div>
 
     <div class="chi-siamo-container">
@@ -54,6 +54,32 @@
           <div style="margin-top:15px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
             <button class="btn-primary" onclick="apriAvatarPicker()">Cambia Avatar</button>
             <button class="btn-danger" onclick="logout()">Logout</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- STATISTICHE COLLEZIONE (ex pagina statistiche) -->
+      <section class="settings-section">
+        <h2>Statistiche collezione</h2>
+
+        <div class="stat-card">
+          <h3>Collezione</h3>
+          <div class="stat-big">
+            <span class="numero" id="statMostriPosseduti">-</span>
+            <span class="etichetta">
+              su <span id="statMostriTotali">-</span> mostri
+            </span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" id="statProgressFill"></div>
+          </div>
+          <span class="percentuale" id="statPercentuale">-%</span>
+        </div>
+
+        <div class="stat-card" style="margin-top:20px;">
+          <h3>Varianti totali possedute</h3>
+          <div class="stat-big">
+            <span class="numero" id="statVariantiTotali">-</span>
           </div>
         </div>
       </section>
@@ -115,7 +141,7 @@
     </div>
   </div>
 
-  <!-- MODAL AVATAR (riusa stile già presente nel CSS) -->
+  <!-- MODAL AVATAR (riusa stile globale .modal) -->
   <div id="modalAvatar" class="modal" style="display:none;">
     <div class="modal-content">
       <span class="close" onclick="chiudiModalAvatar()">&times;</span>
@@ -125,10 +151,25 @@
     </div>
   </div>
 
+  <!-- Theme drawer + scroll to top già supportati dal tuo CSS/JS -->
+  <div class="theme-drawer" id="themeDrawer">
+    <button class="theme-drawer-toggle" onclick="toggleThemeDrawer()">🎨</button>
+    <div class="theme-drawer-content">
+      <h4>Tema</h4>
+      <div class="theme-buttons">
+        <button class="theme-btn light" onclick="cambiaTema('light')" title="Light"></button>
+        <button class="theme-btn dark" onclick="cambiaTema('dark')" title="Dark"></button>
+        <button class="theme-btn green" onclick="cambiaTema('green')" title="Green"></button>
+        <button class="theme-btn purple" onclick="cambiaTema('purple')" title="Purple"></button>
+      </div>
+    </div>
+  </div>
+
   <button class="scroll-to-top" id="scrollToTop" onclick="scrollToTop()">↑</button>
 
   <script src="config.js"></script>
   <script src="theme.js"></script>
+  <script src="sidebar.js"></script>
   <script src="profilo.js"></script>
 </body>
 </html>

@@ -27,9 +27,11 @@ document.addEventListener('DOMContentLoaded', () => {
   caricaProfilo();
   caricaAvatar();
   creaAvatarGrid();
+  caricaStatisticheCollezione();
   initScrollToTop();
 });
 
+// PROFILO BASE (username, email, ruolo, data, stats base)
 async function caricaProfilo() {
   try {
     const res = await fetch(`${API_USERS}/me`, {
@@ -45,15 +47,19 @@ async function caricaProfilo() {
     const created = user.createdAt ? new Date(user.createdAt).toLocaleDateString('it-IT') : '--/--/----';
     const lattine = user.stats?.totalePossedute ?? 0;
 
+    // header
     document.getElementById('displayUsername').textContent = uname;
     document.getElementById('displayStats').textContent =
       `Lattine collezionate: ${lattine} • Account creato il: ${created}`;
+
+    // dettagli account
     document.getElementById('infoUsername').textContent = uname;
     document.getElementById('infoEmail').textContent = email;
     document.getElementById('infoRuolo').textContent =
       ruolo === 'admin' ? 'Admin' : ruolo === 'beta' ? 'Beta tester' : 'Utente';
     document.getElementById('infoData').textContent = created;
 
+    // form modifica
     document.getElementById('inputUsername').value = uname;
     document.getElementById('inputEmail').value = email;
 
@@ -64,6 +70,33 @@ async function caricaProfilo() {
   }
 }
 
+// STATISTICHE COLLEZIONE (ex /statistiche)
+async function caricaStatisticheCollezione() {
+  try {
+    const res = await fetch(`${API_URL}/statistiche`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (!res.ok) return;
+
+    const data = await res.json();
+
+    const poss = document.getElementById('statMostriPosseduti');
+    const tot  = document.getElementById('statMostriTotali');
+    const varTot = document.getElementById('statVariantiTotali');
+    const perc = document.getElementById('statPercentuale');
+    const fill = document.getElementById('statProgressFill');
+
+    if (poss) poss.textContent = data.mostriPosseduti;
+    if (tot)  tot.textContent  = data.mostriTotali;
+    if (varTot) varTot.textContent = data.variantiPossedute;
+    if (perc) perc.textContent = data.percentuale + '%';
+    if (fill) fill.style.width = data.percentuale + '%';
+  } catch (err) {
+    console.error('Errore caricamento statistiche collezione:', err);
+  }
+}
+
+// AVATAR
 async function caricaAvatar() {
   try {
     const res = await fetch(`${API_USERS}/avatar`, {
@@ -138,6 +171,7 @@ async function salvaAvatar() {
   }
 }
 
+// MODIFICA USERNAME
 async function cambiaUsername() {
   const nuovo = document.getElementById('inputUsername').value.trim();
   if (!nuovo) return alert('Inserisci un username valido');
@@ -163,6 +197,7 @@ async function cambiaUsername() {
   }
 }
 
+// MODIFICA EMAIL
 async function cambiaEmail() {
   const nuova = document.getElementById('inputEmail').value.trim();
   if (!nuova) return alert('Inserisci una email valida');
@@ -187,6 +222,7 @@ async function cambiaEmail() {
   }
 }
 
+// MODIFICA PASSWORD
 async function cambiaPassword() {
   const vecchia = document.getElementById('oldPassword').value;
   const nuova = document.getElementById('newPassword').value;
@@ -194,7 +230,7 @@ async function cambiaPassword() {
 
   if (!vecchia || !nuova || !conf) return alert('Compila tutti i campi');
   if (nuova !== conf) return alert('Le password non coincidono');
-  if (nuova.length < 6) return alert('Minimo 6 caratteri');
+  if (nuova.length < 4) return alert('Minimo 4 caratteri');
 
   try {
     const res = await fetch(`${API_AUTH}/cambia-password`, {
@@ -219,6 +255,7 @@ async function cambiaPassword() {
   }
 }
 
+// ELIMINA ACCOUNT
 function confermaEliminazioneAccount() {
   if (!confirm('Sei sicuro di voler eliminare il tuo account?')) return;
   const check = prompt('Digita ELIMINA per confermare:');
@@ -245,6 +282,7 @@ async function eliminaAccount() {
   }
 }
 
+// LOGOUT
 function logout() {
   if (confirm('Vuoi davvero uscire?')) {
     localStorage.clear();
@@ -252,7 +290,7 @@ function logout() {
   }
 }
 
-/* utilità scroll to top già previste dal tuo CSS */
+// SCROLL TO TOP
 function initScrollToTop() {
   const btn = document.getElementById('scrollToTop');
   window.addEventListener('scroll', () => {
