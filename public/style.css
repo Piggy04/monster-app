@@ -3484,3 +3484,71 @@ input:checked + .slider:before {
   border-radius: 20px 0 0 20px;
 }
 
+
+/* SCAFFALE SEMPLICE - Nome | Immagine | Switch */
+.varianti-shelf {
+  display: flex;
+  gap: 16px;
+  scroll-snap-type: x mandatory;
+}
+
+.varianti-shelf .variante {
+  min-width: 240px;
+  scroll-snap-align: start;
+  border-radius: 20px;
+  border: 2px solid var(--border-color);
+  background: var(--bg-secondary);
+  padding: 20px;
+  box-shadow: 0 8px 25px var(--shadow);
+  transition: all 0.3s ease;
+}
+
+/* Nome in alto */
+.variante-nome {
+  text-align: center;
+  font-weight: 700;
+  font-size: 16px;
+  margin-bottom: 16px;
+  padding: 0 8px;
+  line-height: 1.3;
+  max-height: 3em;
+  overflow: hidden;
+}
+
+/* Immagine centrata */
+.variante-immagine {
+  width: 100%;
+  height: 140px;
+  margin-bottom: 20px;
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.variante-immagine img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Switch centrato */
+.variante-switch {
+  display: flex;
+  justify-content: center;
+  margin-top: 12px;
+}
+
+.stato-toggle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Variante posseduta */
+.variante.variante-posseduta {
+  border-color: var(--accent-color);
+  background: linear-gradient(135deg, rgba(46, 204, 113, 0.1) 0%, var(--bg-secondary) 100%);
+}
+

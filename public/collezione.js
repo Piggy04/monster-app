@@ -256,34 +256,31 @@ function mostraCollezione(dati) {
   '<div class="variante-img-placeholder">📷</div>';
 
 
-        htmlVarianti += `
+   htmlVarianti += `
   <div class="variante ${classPosseduta}" data-id="${variante._id}">
-    <!-- IMMAGINE GRANDE SOPRA -->
+    <!-- NOME IN ALTO -->
+    <div class="variante-nome">${variante.nome}</div>
+    
+    <!-- IMMAGINE CENTRATA -->
     <div class="variante-immagine">
       ${imgHtml}
     </div>
     
-    <!-- NOME + SPUNTA AL CENTRO -->
-    <div class="variante-info">
-      <div class="variante-checkbox">
-        <input type="checkbox" id="check-${variante._id}" ${checked} onchange="toggleVariante('${variante._id}')">
-        <label for="check-${variante._id}">${variante.nome}</label>
-      </div>
-    </div>
-    
-    <!-- SWITCH SOTTO CENTRATO -->
-    <div class="variante-switch-container">
+    <!-- SWITCH VUOTA/PIENA SOTTO -->
+    <div class="variante-switch">
       <div class="stato-toggle ${disabledToggle}" id="toggle-${variante._id}">
-        <span class="stato-label">Vuota</span>
         <label class="switch">
           <input type="checkbox" ${variante.stato === 'piena' ? 'checked' : ''} ${disabledToggle} onchange="cambiaStato('${variante._id}', this.checked)">
           <span class="slider ${statoToggle}"></span>
         </label>
-        <span class="stato-label">Piena</span>
       </div>
     </div>
+    
+    <!-- SPUNTA NASCOSTA IN FONDO (per logica) -->
+    <input type="checkbox" id="check-${variante._id}" ${checked} onchange="toggleVariante('${variante._id}')" style="display:none;">
   </div>
 `;
+
 
       });
 
