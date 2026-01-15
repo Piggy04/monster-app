@@ -14,6 +14,9 @@ const statisticheRoutes = require('./routes/statistiche');
 const amiciRoutes = require('./routes/amici');
 const logRoutes = require('./routes/log');
 
+
+const authMiddleware = require('./middleware/auth');
+
 // CREA APP
 const app = express();
 
@@ -37,7 +40,7 @@ mongoose.connect(process.env.MONGODB_URI)
 app.use('/api/auth', authRoutes);
 app.use('/api/collezione', collezioneRoutes);
 app.use('/api/users', usersRoutes);
-app.use('/api/bevute', authMiddleware, bevuteRoutes);
+app.use('/api/bevute', authMiddleware, bevuteRoutes); // ← ORA OK
 app.use('/api/upload', uploadRoutes);
 app.use('/api/statistiche', statisticheRoutes);
 app.use('/api/amici', amiciRoutes);

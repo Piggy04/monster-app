@@ -1,17 +1,28 @@
 let tutteVarianti = [];
 
-// Solo admin/beta
-if (typeof utente !== 'undefined' && !['admin', 'beta'].includes(utente?.ruolo)) {
-  window.location.href = 'accesso-negato.html';
-  return;
-}
+// Solo admin/beta (check lato client)
+document.addEventListener('DOMContentLoaded', async () => {
+  try {
+    const res = await fetch('/api/auth/utente');
+    const utente = await res.json();
+    if (!['admin', 'beta'].includes(utente.ruolo)) {
+      window.location.href = 'accesso-negato.html';
+    }
+  } catch {
+    window.location.href = 'login.html';
+  }
+});
+
+const token = localStorage.getItem('token'); // ← TOKEN
 
 async function caricaBevute() {
   try {
     const ricerca = document.getElementById('ricercaBevuta')?.value?.toLowerCase() || '';
     const data = document.getElementById('filtroData')?.value || '';
     
-    const res = await fetch('/api/bevute');
+    const res = await fetch('/api/bevute', {
+      headers: { 'Authorization': `Bearer ${token}` } // ← HEADER AUTH
+    });
     const bevute = await res.json();
     
     let html = '';
@@ -42,69 +53,57 @@ async function caricaBevute() {
     document.getElementById('bevuteContainer').innerHTML = html || '<p>Nessuna bevuta registrata 😢</p>';
   } catch(e) {
     console.error('Errore bevute:', e);
-    document.getElementById('bevuteContainer').innerHTML = '<p>Errore caricamento bevute</p>';
+    document.getElementById('bevuteContainer').innerHTML = '<p>Errore caricamento (login?)</p>';
   }
 }
 
 async function caricaVariantiPerModal() {
   try {
-    const res = await fetch('/api/collezione/completa');
+    const res = await fetch('/api/collezione/completa', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
     tutteVarianti = await res.json();
     
     const select = document.getElementById('selectVariante');
     if (!select) return;
     
-    select.innerHTML = '<option value="">Caricamento...</option>';
-    
-    setTimeout(() => {
-      select.innerHTML = '<option value="">Seleziona Monster...</option>';
-      tutteVarianti.forEach(cat => {
-        cat.lattine.forEach(lattina => {
-          lattina.varianti.forEach(variante => {
-            const opt = document.createElement('option');
-            opt.value = variante._id;
-            opt.textContent = `${lattina.nome} - ${variante.nome}`;
-            select.appendChild(opt);
-          });
+    select.innerHTML = '<option value="">Seleziona Monster...</option>';
+    tutteVarianti.forEach(cat => {
+      cat.lattine.forEach(lattina => {
+        lattina.varianti.forEach(variante => {
+          const opt = document.createElement('option');
+          opt.value = variante._id;
+          opt.textContent = `${lattina.nome} - ${variante.nome}`;
+          select.appendChild(opt);
         });
       });
-    }, 500);
+    });
   } catch(e) {
     console.error('Errore varianti:', e);
   }
 }
 
 function getIconStato(stato) {
-  const icons = {
-    'bevuta': '🍺',
-    'assaggiata': '👅', 
-    'fatta-finta': '😜'
-  };
+  const icons = { 'bevuta': '🍺', 'assaggiata': '👅', 'fatta-finta': '😜' };
   return icons[stato] || '🍻';
 }
 
 function formattaData(dataISO) {
-  try {
-    return new Date(dataISO).toLocaleDateString('it-IT');
-  } catch {
-    return 'Data non valida';
-  }
+  try { return new Date(dataISO).toLocaleDateString('it-IT'); } catch { return '?'; }
 }
 
 function oggi() {
-  const oggi = new Date().toISOString().split('T')[0];
-  document.getElementById('filtroData').value = oggi;
+  document.getElementById('filtroData').value = new Date().toISOString().split('T')[0];
   caricaBevute();
 }
 
 function settimanaScorsa() {
-  const data = new Date();
-  data.setDate(data.getDate() - 7);
+  const data = new Date(); data.setDate(data.getDate() - 7);
   document.getElementById('filtroData').value = data.toISOString().split('T')[0];
   caricaBevute();
 }
 
-// MODAL FUNZIONI
+// MODAL
 function apriModalNuovaBevuta() {
   document.getElementById('modalNuovaBevuta').style.display = 'block';
   caricaVariantiPerModal();
@@ -115,52 +114,40 @@ function chiudiModalNuovaBevuta() {
   document.getElementById('formNuovaBevuta').reset();
 }
 
-// Form submit
-function gestisciSubmitBevuta(e) {
+async function gestisciSubmitBevuta(e) {
   e.preventDefault();
-  
   const varianteId = document.getElementById('selectVariante').value;
   const stato = document.getElementById('selectStato').value;
   const note = document.getElementById('inputNote').value;
   
-  if (!varianteId) {
-    alert('Seleziona una Monster!');
-    return;
-  }
+  if (!varianteId) return alert('Seleziona Monster!');
   
-  fetch('/api/bevute', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ varianteId, stato, note })
-  })
-  .then(res => res.json())
-  .then(() => {
-    chiudiModalNuovaBevuta();
-    caricaBevute();
-    alert('Bevuta registrata! 🍺');
-  })
-  .catch(err => {
-    console.error(err);
-    alert('Errore salvataggio');
-  });
-}
-// Filtra solo varianti con contatoreBevute > 0
-const variantiBevute = await fetch('/api/collezione/completa').then(r => r.json());
-
-
-// EVENT LISTENER SICURI
-document.addEventListener('DOMContentLoaded', () => {
-  // Form
-  const form = document.getElementById('formNuovaBevuta');
-  if (form) {
-    form.addEventListener('submit', gestisciSubmitBevuta);
-  }
-  
-  // Modal close
-  window.onclick = (e) => {
-    if (e.target.id === 'modalNuovaBevuta') {
+  try {
+    const res = await fetch('/api/bevute', {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ varianteId, stato, note })
+    });
+    if (res.ok) {
       chiudiModalNuovaBevuta();
+      caricaBevute();
+      alert('🍺 Bevuta registrata!');
     }
+  } catch(err) {
+    alert('Errore salvataggio');
+  }
+}
+
+// INIT
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('formNuovaBevuta');
+  if (form) form.addEventListener('submit', gestisciSubmitBevuta);
+  
+  window.onclick = (e) => {
+    if (e.target.id === 'modalNuovaBevuta') chiudiModalNuovaBevuta();
   };
   
   caricaBevute();
