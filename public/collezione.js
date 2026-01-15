@@ -256,7 +256,7 @@ function mostraCollezione(dati) {
   '<div class="variante-img-placeholder">📷</div>';
 
 
-   htmlVarianti += `
+htmlVarianti += `
   <div class="variante ${classPosseduta}" data-id="${variante._id}">
     <!-- NOME IN ALTO -->
     <div class="variante-nome">${variante.nome}</div>
@@ -264,6 +264,12 @@ function mostraCollezione(dati) {
     <!-- IMMAGINE CENTRATA -->
     <div class="variante-immagine">
       ${imgHtml}
+    </div>
+    
+    <!-- SPUNTA SOPRA SWITCH -->
+    <div class="variante-checkbox">
+      <input type="checkbox" id="check-${variante._id}" ${checked} onchange="toggleVariante('${variante._id}')">
+      <label for="check-${variante._id}">Posseduta</label>
     </div>
     
     <!-- SWITCH VUOTA/PIENA SOTTO -->
@@ -275,11 +281,9 @@ function mostraCollezione(dati) {
         </label>
       </div>
     </div>
-    
-    <!-- SPUNTA NASCOSTA IN FONDO (per logica) -->
-    <input type="checkbox" id="check-${variante._id}" ${checked} onchange="toggleVariante('${variante._id}')" style="display:none;">
   </div>
 `;
+
 
 
       });
