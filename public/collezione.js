@@ -256,34 +256,34 @@ function mostraCollezione(dati) {
           '<div class="variante-img-placeholder">📷</div>';
 
         htmlVarianti += `
-          <div class="variante ${classPosseduta}">
-            <div class="variante-left">
-              <input 
-                type="checkbox" 
-                id="check-${variante._id}"
-                ${checked} 
-                onchange="toggleVariante('${variante._id}')"
-              >
-              <label for="check-${variante._id}">${variante.nome}</label>
-            </div>
-            <div class="variante-controls">
-              <div class="stato-toggle ${disabledToggle}" id="toggle-${variante._id}">
-                <span class="stato-label">Vuota</span>
-                <label class="switch">
-                  <input 
-                    type="checkbox" 
-                    ${variante.stato === 'piena' ? 'checked' : ''}
-                    ${disabledToggle}
-                    onchange="cambiaStato('${variante._id}', this.checked)"
-                  >
-                  <span class="slider ${statoToggle}"></span>
-                </label>
-                <span class="stato-label">Piena</span>
-              </div>
-              ${imgHtml}
-            </div>
-          </div>
-        `;
+  <div class="variante ${classPosseduta}" data-id="${variante._id}">
+    <!-- IMMAGINE GRANDE SOPRA -->
+    <div class="variante-immagine">
+      ${imgHtml}
+    </div>
+    
+    <!-- NOME + SPUNTA AL CENTRO -->
+    <div class="variante-info">
+      <div class="variante-checkbox">
+        <input type="checkbox" id="check-${variante._id}" ${checked} onchange="toggleVariante('${variante._id}')">
+        <label for="check-${variante._id}">${variante.nome}</label>
+      </div>
+    </div>
+    
+    <!-- SWITCH SOTTO CENTRATO -->
+    <div class="variante-switch-container">
+      <div class="stato-toggle ${disabledToggle}" id="toggle-${variante._id}">
+        <span class="stato-label">Vuota</span>
+        <label class="switch">
+          <input type="checkbox" ${variante.stato === 'piena' ? 'checked' : ''} ${disabledToggle} onchange="cambiaStato('${variante._id}', this.checked)">
+          <span class="slider ${statoToggle}"></span>
+        </label>
+        <span class="stato-label">Piena</span>
+      </div>
+    </div>
+  </div>
+`;
+
       });
 
             htmlLattine += `
