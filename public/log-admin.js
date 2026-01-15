@@ -129,3 +129,10 @@ function mostraLogAdmin(log) {
 
   container.innerHTML = logHtml;
 }
+
+
+if (['admin', 'beta'].includes(utente?.ruolo)) {
+  document.getElementById('linkBevute').style.display = 'block';
+  document.getElementById('linkAdmin').style.display = 'block';
+}
+

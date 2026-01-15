@@ -396,3 +396,9 @@ window.onclick = function(event) {
   const modal = document.getElementById('modalModifica');
   if (event.target === modal) chiudiModal();
 };
+
+if (['admin', 'beta'].includes(utente?.ruolo)) {
+  document.getElementById('linkBevute').style.display = 'block';
+  document.getElementById('linkAdmin').style.display = 'block';
+}
+

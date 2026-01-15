@@ -147,3 +147,9 @@ async function rimuoviAmico(id, nome) {
 function visualizzaCollezione(id, nome) {
   window.location.href = `collezione-amico?amico=${id}&username=${encodeURIComponent(nome)}`;
 }
+
+if (['admin', 'beta'].includes(utente?.ruolo)) {
+  document.getElementById('linkBevute').style.display = 'block';
+  document.getElementById('linkAdmin').style.display = 'block';
+}
+

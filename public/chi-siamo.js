@@ -40,3 +40,9 @@ function mostraData() {
     dataElement.textContent = data.toLocaleDateString('it-IT');
   }
 }
+
+if (['admin', 'beta'].includes(utente?.ruolo)) {
+  document.getElementById('linkBevute').style.display = 'block';
+  document.getElementById('linkAdmin').style.display = 'block';
+}
+

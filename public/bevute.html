@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Monster Bevute</title>
+  <link rel="icon" href="favicon.ico">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Sidebar identica a collezione.html -->
+  <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">
+    <span></span><span></span><span></span>
+  </button>
+  
+  <div class="sidebar">
+    <h2>SW Archive</h2>
+    <nav>
+      <a href="collezione.html">La Mia Collezione</a>
+      <a href="chi-siamo.html">ℹ️ Chi Siamo</a>
+      <a href="profilo.html">👤 Profilo</a>
+      <a href="bevute.html" class="active">🍺 Monster Bevute</a>
+      <a href="amici.html">👥 Amici</a>
+      <a href="attivita.html">📝 Attività</a>
+      <a href="admin.html" id="linkAdmin" style="display:none;">Gestione Contenuti</a>
+    </nav>
+  </div>
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+  <div class="main-content">
+    <div class="header">
+      <h1>🍺 Monster Bevute</h1>
+      <p id="nomeUtente"></p>
+    </div>
+
+    <!-- Controlli bevute -->
+    <div class="filtri-container">
+      <div class="ricerca-box">
+        <input type="text" id="ricercaBevuta" placeholder="🔍 Cerca bevuta..." onkeyup="caricaBevute()">
+      </div>
+      <div class="filtri-box">
+        <label>Data:</label>
+        <input type="date" id="filtroData" onchange="caricaBevute()">
+        <button class="btn-small" onclick="oggi()">Oggi</button>
+        <button class="btn-small" onclick="settimanaScorsa()">Settimana</button>
+      </div>
+    </div>
+
+    <div id="bevuteContainer" class="log-container">
+      <p>Caricamento...</p>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="theme.js"></script>
+  <script src="sidebar.js"></script>
+  <script src="bevute.js"></script>
+</body>
+</html>
