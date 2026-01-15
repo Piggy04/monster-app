@@ -252,8 +252,9 @@ function mostraCollezione(dati) {
         const classPosseduta = variante.posseduta ? 'variante-posseduta' : '';
         
         const imgHtml = variante.immagine ? 
-          `<img src="${variante.immagine}" alt="${variante.nome}" class="variante-img" onclick="apriModalImmagine('${variante.immagine}')">` : 
-          '<div class="variante-img-placeholder">📷</div>';
+  `<img src="${variante.immagine}" alt="${variante.nome}" class="variante-img" onclick="apriModalImmagine('${variante.immagine}')">` : 
+  '<div class="variante-img-placeholder">📷</div>';
+
 
         htmlVarianti += `
   <div class="variante ${classPosseduta}" data-id="${variante._id}">

@@ -397,15 +397,23 @@ body {
   margin-left: 12px;
 }
 
+
+/* Immagini scaffale - più grandi */
+.variante-immagine {
+  width: 100%;
+  height: 160px; /* Alto per scaffale */
+  margin-bottom: 12px;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px var(--shadow);
+}
+
 .variante-img {
-  width: 60px;
-  height: 150px; /* Proporzione 250:625 = 1:2.5 */
-  object-fit: contain; /* ← CAMBIATO da cover a contain */
-  border-radius: 8px;
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Riempi tutto, taglia se necessario */
   cursor: pointer;
-  transition: transform 0.3s;
-  background: var(--bg-primary);
-  border: 1px solid var(--border-color);
+  transition: transform 0.3s ease;
 }
 
 .variante-img:hover {
@@ -413,16 +421,29 @@ body {
 }
 
 .variante-img-placeholder {
-  width: 80px;
-  height: 80px;
+  width: 100%;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--border-color);
-  border-radius: 10px;
-  font-size: 32px;
-  opacity: 0.5;
+  background: linear-gradient(135deg, var(--border-color), #bdc3c7);
+  border-radius: 16px;
+  font-size: 36px;
+  color: var(--text-secondary);
+  opacity: 0.8;
 }
+
+/* Scaffale responsive */
+@media (max-width: 600px) {
+  .varianti-shelf .variante {
+    min-width: 220px;
+  }
+  
+  .variante-immagine {
+    height: 140px;
+  }
+}
+
 
 .no-results {
   text-align: center;
