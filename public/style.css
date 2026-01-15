@@ -3413,27 +3413,27 @@ input:checked + .slider:before {
 /* IMMAGINE CENTRATA */
 .variante-immagine {
   width: 100%;
-  height: 200px; /* ← Immagine più alta per lattine complete */
+  height: 220px; /* Altezza fissa per lattine complete */
   border-radius: 16px;
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow: 0 4px 12px var(--shadow);
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  position: relative;
 }
 
 .variante-immagine img {
   width: 100%;
   height: 100%;
-  object-fit: contain; /* ← Vede TUTTA la lattina */
-  object-position: center;
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); /* Sfondo neutro */
-  border-radius: 16px;
+  object-fit: cover; /* Copre tutto, taglia lati se lattina troppo alta */
+  object-position: center 20%; /* Sposta su per focus testa lattina */
 }
+
 .variante-img-placeholder {
   width: 100%;
   height: 100%;
-  object-fit: contain;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3443,24 +3443,30 @@ input:checked + .slider:before {
   color: #6c757d;
 }
 
-/* Sfondo immagini coerente per tutti i temi */
-[data-theme="dark"] .variante-immagine img,
+/* Sfondo per temi */
+[data-theme="dark"] .variante-immagine {
+  background: linear-gradient(135deg, #1a1f2e 0%, #2a3342 100%);
+}
+
 [data-theme="dark"] .variante-img-placeholder {
   background: linear-gradient(135deg, #1a1f2e 0%, #2a3342 100%);
   color: #8b98a5;
 }
 
-[data-theme="green"] .variante-immagine img,
-[data-theme="green"] .variante-img-placeholder {
+[data-theme="green"] .variante-immagine {
   background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
-  color: #388e3c;
 }
 
-[data-theme="purple"] .variante-immagine img,
-[data-theme="purple"] .variante-img-placeholder {
+[data-theme="purple"] .variante-immagine {
   background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
-  color: #7b1fa2;
 }
+
+.variante-immagine:hover img {
+  transform: scale(1.05);
+  filter: brightness(1.1);
+  transition: all 0.3s ease;
+}
+
 
 
 
