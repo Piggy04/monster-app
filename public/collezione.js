@@ -286,14 +286,17 @@ function mostraCollezione(dati) {
         `;
       });
 
-      htmlLattine += `
+            htmlLattine += `
         <div class="lattina">
           <h3>${lattina.nome}</h3>
-          <div class="varianti-grid">
-            ${htmlVarianti}
+          <div class="varianti-shelf-wrapper">
+            <div class="varianti-shelf">
+              ${htmlVarianti}
+            </div>
           </div>
         </div>
       `;
+
     });
 
     divCategoria.innerHTML = `

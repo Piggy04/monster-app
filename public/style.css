@@ -2679,45 +2679,44 @@ input:checked + .slider:before {
 }
 
 /* Sidebar mobile */
-@media (max-width: 768px) {
-  .sidebar-toggle {
-    display: flex;
-  }
-  
-  .sidebar {
-    transform: translateX(-100%);
-    transition: transform 0.3s;
-  }
-  
-  .sidebar.active {
-    transform: translateX(0);
-  }
-  
-  .main-content {
-    margin-left: 0;
-    width: 100%;
-  }
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 260px;
+  background: var(--bg-secondary);
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+  z-index: 1000;
 }
 
-/* Desktop - pulsante nascondi sidebar */
-@media (min-width: 769px) {
-  .sidebar-toggle {
-    display: flex;
-    left: 260px; /* Larghezza sidebar + margine */
-  }
-  
-  .sidebar.collapsed {
-    transform: translateX(-100%);
-  }
-  
-  .sidebar.collapsed ~ .main-content {
-    margin-left: 0;
-  }
-  
-  .sidebar.collapsed ~ .sidebar-toggle {
-    left: 20px;
-  }
+.sidebar.open {
+  transform: translateX(0);
 }
+
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  z-index: 900;
+}
+
+.sidebar-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.sidebar-toggle {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 1100;
+}
+
 
 
 
@@ -3228,5 +3227,32 @@ input:checked + .slider:before {
 .btn-reject, .btn-cancel, .btn-delete { background: #e74c3c; color: white; }
 
 .btn-mini:hover { transform: scale(1.05); }
+
+
+/* Varianti a scaffale orizzontale */
+.varianti-shelf-wrapper {
+  overflow-x: auto;
+  padding-bottom: 10px;
+}
+
+.varianti-shelf {
+  display: flex;
+  gap: 12px;
+  scroll-snap-type: x mandatory;
+  padding: 10px 2px;
+}
+
+.varianti-shelf .variante {
+  min-width: 260px;
+  scroll-snap-align: start;
+  border-radius: 14px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+}
+
+.varianti-shelf .variante-controls {
+  flex-direction: column;
+  align-items: flex-end;
+}
 
 
