@@ -125,37 +125,7 @@
 </button>
 
 
-<button id="scrollToTop" style="
-  position: fixed;
-  bottom: 30px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 60px;
-  height: 60px;
-  background: #ff4444;
-  color: white;
-  border: none;
-  border-radius: 50%;
-  font-size: 28px;
-  font-weight: bold;
-  z-index: 99999;
-  cursor: pointer;
-  opacity: 0;
-  transition: opacity 0.3s;
-" onclick="window.scrollTo({top:0,behavior:'smooth'})">
-↑
-</button>
 
-<script>
-window.addEventListener('scroll', () => {
-  const btn = document.getElementById('scrollToTop');
-  if (window.scrollY > 300) {
-    btn.style.opacity = '1';
-  } else {
-    btn.style.opacity = '0';
-  }
-});
-</script>
 
   <script src="config.js"></script>
   <script src="theme.js"></script>
