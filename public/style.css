@@ -3425,8 +3425,44 @@ input:checked + .slider:before {
 .variante-immagine img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain; /* ← Vede TUTTA la lattina */
+  object-position: center;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); /* Sfondo neutro */
+  border-radius: 16px;
 }
+.variante-img-placeholder {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 16px;
+  font-size: 48px;
+  color: #6c757d;
+}
+
+/* Sfondo immagini coerente per tutti i temi */
+[data-theme="dark"] .variante-immagine img,
+[data-theme="dark"] .variante-img-placeholder {
+  background: linear-gradient(135deg, #1a1f2e 0%, #2a3342 100%);
+  color: #8b98a5;
+}
+
+[data-theme="green"] .variante-immagine img,
+[data-theme="green"] .variante-img-placeholder {
+  background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+  color: #388e3c;
+}
+
+[data-theme="purple"] .variante-immagine img,
+[data-theme="purple"] .variante-img-placeholder {
+  background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+  color: #7b1fa2;
+}
+
+
 
 /* SWITCH CENTRATO SOTTO */
 .variante-switch {
