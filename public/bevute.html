@@ -35,16 +35,51 @@
 
     <!-- Controlli bevute -->
     <div class="filtri-container">
-      <div class="ricerca-box">
-        <input type="text" id="ricercaBevuta" placeholder="🔍 Cerca bevuta..." onkeyup="caricaBevute()">
-      </div>
-      <div class="filtri-box">
-        <label>Data:</label>
-        <input type="date" id="filtroData" onchange="caricaBevute()">
-        <button class="btn-small" onclick="oggi()">Oggi</button>
-        <button class="btn-small" onclick="settimanaScorsa()">Settimana</button>
-      </div>
+  <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+    <div class="ricerca-box" style="flex: 1; min-width: 200px;">
+      <input type="text" id="ricercaBevuta" placeholder="🔍 Cerca bevuta..." onkeyup="caricaBevute()">
     </div>
+    
+    <button class="btn-large" onclick="apriModalNuovaBevuta()" style="background: var(--gradient-primary);">
+      ➕ Aggiungi Monster
+    </button>
+  </div>
+  
+  <div class="filtri-box" style="margin-top: 16px;">
+    <label>Data:</label>
+    <input type="date" id="filtroData" onchange="caricaBevute()">
+    <button class="btn-small" onclick="oggi()">Oggi</button>
+    <button class="btn-small" onclick="settimanaScorsa()">Settimana</button>
+  </div>
+</div>
+
+<!-- MODAL AGGIUNGI BEVUTA -->
+<div id="modalNuovaBevuta" class="modal" style="display: none;">
+  <div class="modal-content">
+    <span class="close" onclick="chiudiModalNuovaBevuta()">&times;</span>
+    <h2 id="modalTitolo">➕ Nuova Bevuta</h2>
+    
+    <form id="formNuovaBevuta">
+      <select id="selectVariante" required style="width: 100%; margin-bottom: 16px;">
+        <option value="">Seleziona Monster...</option>
+      </select>
+      
+      <label>Stato:</label>
+      <select id="selectStato" style="width: 100%; margin-bottom: 16px;">
+        <option value="bevuta">🍺 Bevuta</option>
+        <option value="assaggiata">👅 Assaggiata</option>
+        <option value="fatta-finta">😜 Fatta finta</option>
+      </select>
+      
+      <label>Note (opzionale):</label>
+      <textarea id="inputNote" rows="3" placeholder="Es: 'Super buona!', 'Troppo dolce'..."></textarea>
+      
+      <button type="submit" class="btn-large">✅ Registra Bevuta</button>
+    </form>
+  </div>
+</div>
+
+
 
     <div id="bevuteContainer" class="log-container">
       <p>Caricamento...</p>
