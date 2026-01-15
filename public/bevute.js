@@ -1,18 +1,4 @@
 let tutteVarianti = [];
-
-// Solo admin/beta (check lato client)
-document.addEventListener('DOMContentLoaded', async () => {
-  try {
-    const res = await fetch('/api/auth/utente');
-    const utente = await res.json();
-    if (!['admin', 'beta'].includes(utente.ruolo)) {
-      window.location.href = 'accesso-negato.html';
-    }
-  } catch {
-    window.location.href = 'login.html';
-  }
-});
-
 const token = localStorage.getItem('token'); // ← TOKEN
 
 async function caricaBevute() {
