@@ -3492,21 +3492,6 @@ input:checked + .slider:before {
   box-shadow: 0 8px 30px rgba(46, 204, 113, 0.25);
 }
 
-/* Mobile */
-@media (max-width: 600px) {
-  .varianti-shelf .variante {
-    min-height: 360px;
-    min-width: 220px;
-    max-width: 220px;
-    padding: 20px 16px;
-  }
-  
-  .variante-immagine {
-    height: 180px;
-  }
-}
-
-
 /* Checkbox posseduta */
 .variante-checkbox {
   display: flex;
@@ -3533,5 +3518,37 @@ input:checked + .slider:before {
   font-size: 14px;
   margin: 0;
   color: var(--accent-color);
+}
+
+/* ===== FIX MOBILE SCAFFALE ===== */
+@media (max-width: 768px) {
+  .varianti-shelf .variante {
+    min-height: 420px !important; /* Altezza mobile fissa */
+    min-width: 200px !important;
+    max-width: 200px !important;
+    padding: 20px 16px !important;
+  }
+  
+  .variante-immagine {
+    height: 240px !important; /* Più alto su telefono */
+    width: 100% !important;
+    max-width: 180px !important;
+  }
+  
+  .variante-immagine img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    object-position: center top !important; /* Top focus mobile */
+  }
+  
+  .variante-nome {
+    font-size: 14px !important;
+    padding: 0 4px !important;
+  }
+  
+  .variante-checkbox label {
+    font-size: 13px !important;
+  }
 }
 
