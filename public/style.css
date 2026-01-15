@@ -3554,3 +3554,9 @@ input:checked + .slider:before {
     font-size: 13px !important;
   }
 
+  /* Link admin/beta nascosti di default */
+#linkAdmin, #linkUsers, #linkLogAdmin, #linkBevute {
+  display: none !important;
+}
+
+
