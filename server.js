@@ -8,6 +8,7 @@ require('dotenv').config();
 const authRoutes = require('./routes/auth');
 const collezioneRoutes = require('./routes/collezione');
 const usersRoutes = require('./routes/users');
+const bevuteRoutes = require('./routes/bevute');
 const uploadRoutes = require('./routes/upload');
 const statisticheRoutes = require('./routes/statistiche');
 const amiciRoutes = require('./routes/amici');
@@ -36,6 +37,7 @@ mongoose.connect(process.env.MONGODB_URI)
 app.use('/api/auth', authRoutes);
 app.use('/api/collezione', collezioneRoutes);
 app.use('/api/users', usersRoutes);
+app.use('/api/bevute', authMiddleware, bevuteRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/statistiche', statisticheRoutes);
 app.use('/api/amici', amiciRoutes);

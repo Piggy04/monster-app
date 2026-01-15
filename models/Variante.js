@@ -17,6 +17,11 @@ const varianteSchema = new mongoose.Schema({
   immagine: {
     type: String,
     default: null
+  },
+  // ← AGGIUNTO QUI
+  contatoreBevute: {
+    type: Number,
+    default: 0
   }
 }, { timestamps: true });
 

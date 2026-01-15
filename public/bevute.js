@@ -144,6 +144,9 @@ function gestisciSubmitBevuta(e) {
     alert('Errore salvataggio');
   });
 }
+// Filtra solo varianti con contatoreBevute > 0
+const variantiBevute = await fetch('/api/collezione/completa').then(r => r.json());
+
 
 // EVENT LISTENER SICURI
 document.addEventListener('DOMContentLoaded', () => {
