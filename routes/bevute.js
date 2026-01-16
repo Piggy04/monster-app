@@ -1,6 +1,18 @@
 const express = require('express');
-const Bevuta = require('../models/Bevuta');
+const mongoose = require('mongoose');
 const router = express.Router();
+
+// Bevuta Schema semplice
+const BevutaSchema = new mongoose.Schema({
+  varianteId: { type: mongoose.Schema.Types.ObjectId, ref: 'Variante' },
+  stato: { type: String, enum: ['bevuta', 'assaggiata', 'fatta-finta'], default: 'bevuta' },
+  note: String,
+  utenteId: { type: String, default: 'anonimo' },
+  data: { type: Date, default: Date.now },
+  ora: String
+});
+
+const Bevuta = mongoose.models.Bevuta || mongoose.model('Bevuta', BevutaSchema);
 
 router.get('/', async (req, res) => {
   try {
@@ -8,23 +20,29 @@ router.get('/', async (req, res) => {
       .populate('varianteId', 'nome')
       .sort({ data: -1 })
       .limit(100);
-    res.json(bevute);
+    
+    // Aggiungi nome variante
+    const conNome = bevute.map(b => ({
+      ...b._doc,
+      nome: b.varianteId?.nome || 'Sconosciuta'
+    }));
+    
+    res.json(conNome);
   } catch(err) {
-    res.status(500).json({ error: 'Errore' });
+    console.error('Errore GET bevute:', err);
+    res.status(500).json({ error: 'Errore bevute' });
   }
 });
 
 router.post('/', async (req, res) => {
   try {
-    const bevuta = new Bevuta({
-      ...req.body,
-      utenteId: req.user?._id || 'anonimo', // Funziona anche senza login
-      data: new Date()
-    });
+    const { varianteId, stato, note } = req.body;
+    const bevuta = new Bevuta({ varianteId, stato, note });
     await bevuta.save();
     res.json({ success: true });
   } catch(err) {
-    res.status(500).json({ error: 'Errore' });
+    console.error('Errore POST bevuta:', err);
+    res.status(500).json({ error: 'Errore salvataggio' });
   }
 });
 
