@@ -42,27 +42,24 @@ async function caricaBevute() {
 
 async function caricaVariantiPerModal() {
   try {
-    const res = await fetch('/api/collezione/completa');
+    const res = await fetch('/api/collezione/bevute-varianti'); // ← NUOVA
     tutteVarianti = await res.json();
     
     const select = document.getElementById('selectVariante');
     if (!select) return;
     
     select.innerHTML = '<option value="">Seleziona Monster...</option>';
-    tutteVarianti.forEach(cat => {
-      cat.lattine.forEach(lattina => {
-        lattina.varianti.forEach(variante => {
-          const opt = document.createElement('option');
-          opt.value = variante._id;
-          opt.textContent = `${lattina.nome} - ${variante.nome}`;
-          select.appendChild(opt);
-        });
-      });
+    tutteVarianti.forEach(v => {
+      const opt = document.createElement('option');
+      opt.value = v._id;
+      opt.textContent = `${v.lattina} - ${v.nome}`;
+      select.appendChild(opt);
     });
   } catch(e) {
-    console.error('Errore varianti:', e);
+    console.error('Errore varianti bevute:', e);
   }
 }
+
 
 function getIconStato(stato) {
   const icons = { 'bevuta': '🍺', 'assaggiata': '👅', 'fatta-finta': '😜' };

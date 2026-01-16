@@ -371,6 +371,37 @@ router.put('/stato/:varianteId', auth, async (req, res) => {
   }
 });
 
+// 🍺 SOLO per bevute - NO AUTH - Lista flat varianti
+router.get('/bevute-varianti', async (req, res) => {
+  try {
+    const categorie = await Categoria.find().sort({ ordine: 1 });
+    
+    const variantiFlat = [];
+    for (const categoria of categorie) {
+      const lattine = await Lattina.find({ categoria_id: categoria._id }).sort({ ordine: 1 });
+      
+      for (const lattina of lattine) {
+        const varianti = await Variante.find({ lattina_id: lattina._id }).sort({ ordine: 1 });
+        
+        varianti.forEach(variante => {
+          variantiFlat.push({
+            _id: variante._id,
+            nome: variante.nome,
+            categoria: categoria.nome,
+            lattina: lattina.nome
+          });
+        });
+      }
+    }
+    
+    res.json(variantiFlat);
+  } catch(err) {
+    console.error('Errore varianti bevute:', err);
+    res.status(500).json([]);
+  }
+});
+
+
 
 
 
