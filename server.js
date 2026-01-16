@@ -41,8 +41,7 @@ app.get('/api/monster-varianti', async (req, res) => {
     const varianti = await Variante.find()
       .populate('lattina_id', 'nome')
       .populate('lattina_id.categoria_id', 'nome')
-      .sort({ nome: 1 })
-      .limit(200);
+      .sort({ nome: 1 });
     
     const lista = varianti.map(v => ({
       _id: v._id,
