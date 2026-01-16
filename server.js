@@ -70,56 +70,77 @@ const Bevuta = mongoose.models.Bevuta || mongoose.model('Bevuta', BevutaSchema);
 
 app.use('/api/bevute', (req, res) => {
   console.log('🚀 BEVUTE API:', req.method);
-  
+
   if (req.method === 'GET') {
     Bevuta.aggregate([
-      { $lookup: { 
-        from: 'variantes', 
-        localField: 'varianteId', 
-        foreignField: '_id', 
-        as: 'variante',
-        pipeline: [
-          { $lookup: { from: 'lattinas', localField: 'lattina_id', foreignField: '_id', as: 'lattina' } },
-          { $unwind: { path: '$lattina', preserveNullAndEmptyArrays: true } }
-        ]
-      } },
+      {
+        $lookup: {
+          from: 'variantes',
+          localField: 'varianteId',
+          foreignField: '_id',
+          as: 'variante'
+        }
+      },
       { $unwind: { path: '$variante', preserveNullAndEmptyArrays: true } },
-      { $group: {
-        _id: '$varianteId',
-        nomeLattina: { $first: '$variante.lattina.nome' },
-        nomeVariante: { $first: '$variante.nome' },
-        immagine: { $first: '$variante.immagine' },
-        conteggio: { $sum: 1 },
-        ultime: { $push: { stato: '$stato', data: '$data', note: '$note' } },
-        stato: { $last: '$stato' }
-      }},
+      {
+        $lookup: {
+          from: 'lattinas',
+          localField: 'variante.lattina_id',
+          foreignField: '_id',
+          as: 'lattina'
+        }
+      },
+      { $unwind: { path: '$lattina', preserveNullAndEmptyArrays: true } },
+      {
+        $group: {
+          _id: '$varianteId',
+          nomeLattina: { $first: '$lattina.nome' },
+          nomeVariante: { $first: '$variante.nome' },
+          immagine: { $first: '$variante.immagine' },
+          conteggio: { $sum: 1 },
+          ultime: { $push: { _id: '$_id', stato: '$stato', data: '$data', note: '$note' } },
+          stato: { $last: '$stato' }
+        }
+      },
       { $sort: { conteggio: -1 } }
-    ]).then(risultati => res.json(risultati))
+    ])
+      .then(risultati => res.json(risultati))
       .catch(e => {
         console.error('Errore aggregate bevute:', e);
         res.json([]);
       });
+
   } else if (req.method === 'POST') {
     const { varianteId, stato, note } = req.body;
     const bevuta = new Bevuta({ varianteId, stato, note });
-    bevuta.save().then(() => res.json({ success: true })).catch(err => res.status(500).json({ error: 'Errore' }));
-    
+    bevuta.save()
+      .then(() => res.json({ success: true }))
+      .catch(err => {
+        console.error('Errore POST bevuta:', err);
+        res.status(500).json({ error: 'Errore salvataggio' });
+      });
+
   } else if (req.method === 'DELETE') {
-  const varianteId = req.url.split('/').pop(); // es: /api/bevute/<varianteId>
+    const varianteId = req.url.split('/').pop(); // /api/bevute/<varianteId>
 
-  Bevuta.findOneAndDelete({ varianteId })
-    .sort({ data: -1 }) // elimina la più recente
-    .then(deleted => {
-      if (deleted) return res.json({ success: true });
-      return res.status(404).json({ error: 'Nessuna bevuta da eliminare' });
-    })
-    .catch(err => {
-      console.error('❌ DELETE ultima bevuta errore:', err);
-      res.status(500).json({ error: 'Errore DELETE' });
-    });
-}
-
+    Bevuta.findOneAndDelete({ varianteId })
+      .sort({ data: -1 })                 // elimina la più recente di quella variante
+      .then(deleted => {
+        if (!deleted) {
+          return res.status(404).json({ error: 'Nessuna bevuta da eliminare' });
+        }
+        console.log('🗑️ Eliminata bevuta', deleted._id.toString());
+        res.json({ success: true });
+      })
+      .catch(err => {
+        console.error('❌ DELETE ultima bevuta errore:', err);
+        res.status(500).json({ error: 'Errore DELETE' });
+      });
+  } else {
+    res.status(405).json({ error: 'Metodo non supportato' });
+  }
 });
+
 
 
 

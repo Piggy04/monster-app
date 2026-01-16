@@ -17,12 +17,10 @@ async function caricaBevute() {
       (!data || b.ultime?.[0]?.data?.startsWith(data))
     );
     
-    let html = '';
     bevute.forEach(bevuta => {
-  const ultimaBevutaId = bevuta.ultime && bevuta.ultime.length > 0 ? bevuta.ultime[0]._id : null;
   html += `
-    <div class="variante bevuta-card" data-id="${bevuta._id}" data-ultima="${ultimaBevutaId}">
-      <div class="bevuta-nome">${bevuta.nomeLattina || bevuta.nome || 'Monster'}</div>
+    <div class="variante bevuta-card" data-id="${bevuta._id}" style="min-height: 360px;">
+      <div class="bevuta-nome">${bevuta.nomeLattina || 'Monster'} ${bevuta.nomeVariante || ''}</div>
       <div class="variante-immagine">
         <img src="${bevuta.immagine || '/placeholder-beer.jpg'}" class="variante-img bevuta-foto">
       </div>
@@ -32,7 +30,7 @@ async function caricaBevute() {
       <div class="variante-switch">
         <div class="bevuta-azioni">
           <button onclick="incrementaBevuta('${bevuta._id}', '${bevuta.stato}')">➕</button>
-          <button class="btn-minus" data-ultima="${ultimaBevutaId}">➖</button>
+          <button onclick="decrementaBevuta('${bevuta._id}')">➖</button>
         </div>
       </div>
     </div>
@@ -162,13 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.target.id === 'modalNuovaBevuta') chiudiModalNuovaBevuta();
   };
 
-  document.addEventListener('click', (e) => {
-  if (e.target.classList.contains('btn-minus')) {
-    const ultimaId = e.target.dataset.ultima;
-    if (ultimaId) {
-      fetch(`${RENDER_API}/bevute/${ultimaId}`, { method: 'DELETE' })
-        .then(()
-
+  
   
   document.getElementById('ricercaBevuta')?.addEventListener('input', caricaBevute);
   document.getElementById('filtroData')?.addEventListener('change', caricaBevute);
@@ -187,15 +179,14 @@ async function incrementaBevuta(varianteId, stato = 'bevuta') {
   } catch(e) { console.error(e); }
 }
 
-async function decrementaBevuta(varianteId, ultimaId) {
+async function decrementaBevuta(varianteId) {
   try {
-    if (ultimaId) {
-      await fetch(`${RENDER_API}/bevute/${ultimaId}`, { method: 'DELETE' });
-    }
+    await fetch(`${RENDER_API}/bevute/${varianteId}`, { method: 'DELETE' });
     caricaBevute();
-  } catch(e) { 
-    console.error('➖ Errore:', e); 
+  } catch (e) {
+    console.error('➖ Errore:', e);
   }
 }
+
 
 
