@@ -1,14 +1,11 @@
 let tutteVarianti = [];
-const token = localStorage.getItem('token'); // ← TOKEN
 
 async function caricaBevute() {
   try {
     const ricerca = document.getElementById('ricercaBevuta')?.value?.toLowerCase() || '';
     const data = document.getElementById('filtroData')?.value || '';
     
-    const res = await fetch('/api/bevute', {
-      headers: { 'Authorization': `Bearer ${token}` } // ← HEADER AUTH
-    });
+    const res = await fetch('/api/bevute');
     const bevute = await res.json();
     
     let html = '';
@@ -39,15 +36,13 @@ async function caricaBevute() {
     document.getElementById('bevuteContainer').innerHTML = html || '<p>Nessuna bevuta registrata 😢</p>';
   } catch(e) {
     console.error('Errore bevute:', e);
-    document.getElementById('bevuteContainer').innerHTML = '<p>Errore caricamento (login?)</p>';
+    document.getElementById('bevuteContainer').innerHTML = '<p>Errore caricamento bevute</p>';
   }
 }
 
 async function caricaVariantiPerModal() {
   try {
-    const res = await fetch('/api/collezione/completa', {
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
+    const res = await fetch('/api/collezione/completa');
     tutteVarianti = await res.json();
     
     const select = document.getElementById('selectVariante');
@@ -75,7 +70,11 @@ function getIconStato(stato) {
 }
 
 function formattaData(dataISO) {
-  try { return new Date(dataISO).toLocaleDateString('it-IT'); } catch { return '?'; }
+  try { 
+    return new Date(dataISO).toLocaleDateString('it-IT'); 
+  } catch { 
+    return '?'; 
+  }
 }
 
 function oggi() {
@@ -84,12 +83,12 @@ function oggi() {
 }
 
 function settimanaScorsa() {
-  const data = new Date(); data.setDate(data.getDate() - 7);
+  const data = new Date(); 
+  data.setDate(data.getDate() - 7);
   document.getElementById('filtroData').value = data.toISOString().split('T')[0];
   caricaBevute();
 }
 
-// MODAL
 function apriModalNuovaBevuta() {
   document.getElementById('modalNuovaBevuta').style.display = 'block';
   caricaVariantiPerModal();
@@ -111,23 +110,22 @@ async function gestisciSubmitBevuta(e) {
   try {
     const res = await fetch('/api/bevute', {
       method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ varianteId, stato, note })
     });
+    
     if (res.ok) {
       chiudiModalNuovaBevuta();
       caricaBevute();
       alert('🍺 Bevuta registrata!');
+    } else {
+      alert('Errore server');
     }
   } catch(err) {
-    alert('Errore salvataggio');
+    alert('Errore rete');
   }
 }
 
-// INIT
 document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('formNuovaBevuta');
   if (form) form.addEventListener('submit', gestisciSubmitBevuta);
@@ -135,6 +133,10 @@ document.addEventListener('DOMContentLoaded', () => {
   window.onclick = (e) => {
     if (e.target.id === 'modalNuovaBevuta') chiudiModalNuovaBevuta();
   };
+  
+  // Auto-ricerca
+  document.getElementById('ricercaBevuta')?.addEventListener('input', caricaBevute);
+  document.getElementById('filtroData')?.addEventListener('change', caricaBevute);
   
   caricaBevute();
 });
