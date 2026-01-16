@@ -3706,6 +3706,36 @@ input:checked + .slider:before {
   font-weight: 600 !important;
 }
 
+.bevuta-card .variante-checkbox,
+.bevuta-card .variante-switch {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 12px !important;
+  padding: 8px 0 !important;
+  width: 100% !important;
+  margin: 0 !important;
+}
+.bevuta-card .variante-checkbox {
+  border-bottom: 1px solid var(--border-color) !important;
+  padding-bottom: 8px !important;
+}
+.bevuta-azioni button {
+  background: linear-gradient(135deg, var(--accent-color), var(--accent-hover)) !important;
+  box-shadow: 0 2px 8px rgba(46, 204, 113, 0.3) !important;
+}
+.bevuta-azioni button:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(46, 204, 113, 0.4) !important;
+}
+#bevuteContainer {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)) !important;
+  gap: 24px !important;
+  padding: 40px !important;
+}
+
+
 
 
 
