@@ -3693,6 +3693,24 @@ input:checked + .slider:before {
 }
 
 
+.ricerca-modal { position: relative; width: 100%; }
+#ricercaVariante { 
+  width: 100%; padding: 14px 20px; border: 2px solid var(--border-color); 
+  border-radius: 12px; font-size: 16px; background: var(--bg-primary);
+}
+.risultati-lista { 
+  position: absolute; top: 100%; left: 0; right: 0; max-height: 200px; 
+  overflow-y: auto; background: var(--bg-secondary); border: 2px solid var(--border-color);
+  border-radius: 12px; z-index: 10; display: none; box-shadow: 0 8px 25px var(--shadow);
+}
+.risultato-item { 
+  padding: 14px 20px; cursor: pointer; border-bottom: 1px solid var(--border-color);
+  transition: background 0.2s; font-size: 15px; }
+.risultato-item:hover { background: var(--border-color) !important; }
+.risultato-item:last-child { border-bottom: none; }
+
+
+
 
 
 

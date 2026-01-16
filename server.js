@@ -74,29 +74,28 @@ app.use('/api/bevute', (req, res) => {
   
   if (req.method === 'GET') {
     Bevuta.aggregate([
-  { $lookup: { 
-    from: 'variantes', 
-    localField: 'varianteId', 
-    foreignField: '_id', 
-    as: 'variante',
-    pipeline: [
-      { $lookup: { from: 'lattinas', localField: 'lattina_id', foreignField: '_id', as: 'lattina' } },
-      { $unwind: { path: '$lattina', preserveNullAndEmptyArrays: true } }
-    ]
-  } },
-  { $unwind: { path: '$variante', preserveNullAndEmptyArrays: true } },
-  { $group: {
-    _id: '$varianteId',
-    nomeLattina: { $first: '$variante.lattina.nome' },     // ← LATTINA
-    nomeVariante: { $first: '$variante.nome' },            // ← VARIANTE
-    immagine: { $first: '$variante.immagine' },
-    conteggio: { $sum: 1 },
-    ultime: { $push: { stato: '$stato', data: '$data', note: '$note' } },
-    stato: { $last: '$stato' }
-  }},
-  { $sort: { conteggio: -1 } }
-])
-.then(risultati => res.json(risultati))
+      { $lookup: { 
+        from: 'variantes', 
+        localField: 'varianteId', 
+        foreignField: '_id', 
+        as: 'variante',
+        pipeline: [
+          { $lookup: { from: 'lattinas', localField: 'lattina_id', foreignField: '_id', as: 'lattina' } },
+          { $unwind: { path: '$lattina', preserveNullAndEmptyArrays: true } }
+        ]
+      } },
+      { $unwind: { path: '$variante', preserveNullAndEmptyArrays: true } },
+      { $group: {
+        _id: '$varianteId',
+        nomeLattina: { $first: '$variante.lattina.nome' },
+        nomeVariante: { $first: '$variante.nome' },
+        immagine: { $first: '$variante.immagine' },
+        conteggio: { $sum: 1 },
+        ultime: { $push: { stato: '$stato', data: '$data', note: '$note' } },
+        stato: { $last: '$stato' }
+      }},
+      { $sort: { conteggio: -1 } }
+    ]).then(risultati => res.json(risultati))
       .catch(e => {
         console.error('Errore aggregate bevute:', e);
         res.json([]);
@@ -104,14 +103,27 @@ app.use('/api/bevute', (req, res) => {
   } else if (req.method === 'POST') {
     const { varianteId, stato, note } = req.body;
     const bevuta = new Bevuta({ varianteId, stato, note });
-    bevuta.save()
-      .then(() => res.json({ success: true }))
-      .catch(err => {
-        console.error('Errore POST bevuta:', err);
-        res.status(500).json({ error: 'Errore salvataggio' });
+    bevuta.save().then(() => res.json({ success: true })).catch(err => res.status(500).json({ error: 'Errore' }));
+    
+  } else if (req.method === 'DELETE') {
+    const id = req.url.split('/').pop();
+    Bevuta.findByIdAndDelete(id)  // ← NO await, usa .then()
+      .then(deleted => {
+        if (deleted) {
+          console.log('🗑️ Bevuta eliminata:', id);
+          res.json({ success: true });
+        } else {
+          res.status(404).json({ error: 'Non trovata' });
+        }
+      })
+      .catch(e => {
+        console.error('❌ DELETE:', e);
+        res.status(500).json({ error: 'Errore DELETE' });
       });
   }
 });
+
+
 
 
 // REGISTRA ALTRE ROUTES

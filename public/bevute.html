@@ -73,9 +73,12 @@ function apriModalImmagine(src) {
     <h2 id="modalTitolo">➕ Nuova Bevuta</h2>
     
     <form id="formNuovaBevuta">
-      <select id="selectVariante" required style="width: 100%; margin-bottom: 16px;">
-        <option value="">Seleziona Monster...</option>
-      </select>
+      <div class="ricerca-modal">
+  <input type="text" id="ricercaVariante" placeholder="🔍 Cerca Monster..." oninput="filtraVarianti()">
+  <div id="risultatiRicerca" class="risultati-lista"></div>
+</div>
+<input type="hidden" id="selectVariante" name="varianteId">
+
       
       <label>Stato:</label>
       <select id="selectStato" style="width: 100%; margin-bottom: 16px;">

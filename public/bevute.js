@@ -38,6 +38,9 @@ async function caricaBevute() {
   `;
 });
 
+let tutteVarianti = [];
+
+
 
     
     document.getElementById('bevuteContainer').innerHTML = html || '<p>Nessuna bevuta registrata 😢</p>';
@@ -49,39 +52,40 @@ async function caricaBevute() {
 
 
 async function caricaVariantiPerModal() {
-  console.log('🔄 Caricando varianti...');
   try {
     const res = await fetch(`${RENDER_API}/monster-varianti`);
-    console.log('Status:', res.status);
-    
-    const varianti = await res.json();
-    console.log('Varianti:', varianti.length);
-    
-    const select = document.getElementById('selectVariante');
-    if (!select) {
-      console.error('❌ #selectVariante non trovato!');
-      return;
-    }
-    
-    select.innerHTML = '<option value="">Seleziona Monster...</option>';
-    
-    if (!varianti || varianti.length === 0) {
-      select.innerHTML += '<option disabled>Nessuna variante</option>';
-      return;
-    }
-    
-    varianti.forEach(v => {
-      const opt = document.createElement('option');
-      opt.value = v._id;
-      opt.textContent = v.nome || 'Nome mancante';
-      select.appendChild(opt);
-    });
-    console.log('✅ Modal pronto!');
+    tutteVarianti = await res.json();
+    console.log('✅', tutteVarianti.length, 'varianti caricate');
   } catch(e) {
-    console.error('💥 Modal errore:', e);
-    document.getElementById('selectVariante').innerHTML = '<option>Errore caricamento</option>';
+    console.error('Varianti errore:', e);
   }
 }
+
+function filtraVarianti() {
+  const query = document.getElementById('ricercaVariante').value.toLowerCase();
+  const risultati = document.getElementById('risultatiRicerca');
+  const hiddenInput = document.getElementById('selectVariante');
+  
+  const match = tutteVarianti.filter(v => 
+    v.nome.toLowerCase().includes(query)
+  );
+  
+  risultati.innerHTML = match.map(v => `
+    <div class="risultato-item" onclick="selezionaVariante('${v._id}', '${v.nome}')">
+      ${v.nome}
+    </div>
+  `).join('');
+  
+  if (query) risultati.style.display = 'block';
+  else risultati.style.display = 'none';
+}
+
+function selezionaVariante(id, nome) {
+  document.getElementById('selectVariante').value = id;
+  document.getElementById('ricercaVariante').value = nome;
+  document.getElementById('risultatiRicerca').style.display = 'none';
+}
+
 
 function getIconStato(stato) {
   const icons = { 'bevuta': '🍺', 'assaggiata': '👅', 'fatta-finta': '😜' };
