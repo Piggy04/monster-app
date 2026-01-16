@@ -40,7 +40,7 @@ mongoose.connect(process.env.MONGODB_URI)
 app.use('/api/auth', authRoutes);
 app.use('/api/collezione', collezioneRoutes);
 app.use('/api/users', usersRoutes);
-app.use('/api/bevute', require('./routes/bevute'));
+app.use('/api/bevute', bevuteRoutes);  // ← PULITO
 app.use('/api/upload', uploadRoutes);
 app.use('/api/statistiche', statisticheRoutes);
 app.use('/api/amici', amiciRoutes);

@@ -2,47 +2,43 @@ const express = require('express');
 const mongoose = require('mongoose');
 const router = express.Router();
 
-// Bevuta Schema semplice
-const BevutaSchema = new mongoose.Schema({
-  varianteId: { type: mongoose.Schema.Types.ObjectId, ref: 'Variante' },
-  stato: { type: String, enum: ['bevuta', 'assaggiata', 'fatta-finta'], default: 'bevuta' },
-  note: String,
-  utenteId: { type: String, default: 'anonimo' },
-  data: { type: Date, default: Date.now },
-  ora: String
+// Collezione Schema (semplice)
+const CollezioneSchema = new mongoose.Schema({
+  nome: String,
+  lattine: [{
+    nome: String,
+    varianti: [{
+      _id: mongoose.Schema.Types.ObjectId,
+      nome: String
+    }]
+  }]
 });
 
-const Bevuta = mongoose.models.Bevuta || mongoose.model('Bevuta', BevutaSchema);
+const Collezione = mongoose.models.Collezione || mongoose.model('Collezione', CollezioneSchema);
 
-router.get('/', async (req, res) => {
+router.get('/completa', async (req, res) => {
   try {
-    const bevute = await Bevuta.find()
-      .populate('varianteId', 'nome')
-      .sort({ data: -1 })
-      .limit(100);
+    const collezioni = await Collezione.find();
     
-    // Aggiungi nome variante
-    const conNome = bevute.map(b => ({
-      ...b._doc,
-      nome: b.varianteId?.nome || 'Sconosciuta'
-    }));
+    // Flatten per select
+    const flat = [];
+    collezioni.forEach(cat => {
+      cat.lattine.forEach(lattina => {
+        lattina.varianti.forEach(variante => {
+          flat.push({
+            categoria: cat.nome,
+            lattina: lattina.nome,
+            nome: variante.nome,
+            _id: variante._id
+          });
+        });
+      });
+    });
     
-    res.json(conNome);
+    res.json(flat);
   } catch(err) {
-    console.error('Errore GET bevute:', err);
-    res.status(500).json({ error: 'Errore bevute' });
-  }
-});
-
-router.post('/', async (req, res) => {
-  try {
-    const { varianteId, stato, note } = req.body;
-    const bevuta = new Bevuta({ varianteId, stato, note });
-    await bevuta.save();
-    res.json({ success: true });
-  } catch(err) {
-    console.error('Errore POST bevuta:', err);
-    res.status(500).json({ error: 'Errore salvataggio' });
+    console.error('Errore collezione:', err);
+    res.status(500).json([]);
   }
 });
 
