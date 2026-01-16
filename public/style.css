@@ -3571,19 +3571,74 @@ input:checked + .slider:before {
 .badge-stato.assaggiata { background: #f39c12; color: white; }
 .badge-stato.fatta-finta { background: #e74c3c; color: white; }
 
-.bevuta-foto { 
-  width: 40px !important; 
-  height: 60px !important; 
-  object-fit: contain; 
-  border-radius: 4px; 
+.bevuta-card {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 12px !important;
+  min-width: 220px;
+  padding: 20px 16px !important;
+  background: var(--bg-secondary) !important;
+  border-radius: 16px !important;
+  border: 2px solid var(--border-color) !important;
+  box-shadow: 0 4px 15px var(--shadow) !important;
+  transition: all 0.3s ease !important;
 }
-.bevuta-card { 
-  gap: 8px !important; 
-  padding: 12px 8px !important; 
+.bevuta-card:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 25px var(--shadow-hover) !important;
+}
+.bevuta-nome {
+  text-align: center !important;
+  font-weight: 700 !important;
+  font-size: 14px !important;
+  margin: 0 !important;
+  padding: 4px 8px !important;
+  line-height: 1.3 !important;
+  max-height: 3em !important;
+  overflow: hidden !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 3 !important;
+  -webkit-box-orient: vertical !important;
+}
+.bevuta-immagine {
+  width: 100% !important;
+  height: 140px !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 0 4px 12px var(--shadow) !important;
+}
+.bevuta-foto {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  cursor: pointer !important;
+  transition: transform 0.3s ease !important;
+}
+.bevuta-foto:hover {
+  transform: scale(1.05) !important;
+}
+.bevuta-controlli {
+  width: 100% !important;
+  display: flex !important;
+  justify-content: center !important;
+  padding-top: 8px !important;
+  border-top: 1px solid var(--border-color) !important;
+  gap: 12px !important;
+}
+.conteggio-badge {
+  background: #10b981 !important;
+  color: white !important;
+  padding: 4px 10px !important;
+  border-radius: 20px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
 }
 
 .bevuta-info { flex: 1; }
-.conteggio-badge { background: #10b981; color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.85em; margin-left: 8px; }
 .bevuta-azioni button { background: #3b82f6; color: white; border: none; padding: 6px 12px; margin: 0 4px; border-radius: 6px; cursor: pointer; }
 .bevuta-azioni button:hover { background: #2563eb; }
 

@@ -19,22 +19,31 @@ async function caricaBevute() {
     
     let html = '';
     bevute.forEach(bevuta => {
-      html += `
-        <div class="bevuta-card" data-id="${bevuta._id}">
-          <img src="${bevuta.immagine || '/placeholder-beer.jpg'}" alt="${bevuta.nome}" class="bevuta-foto">
-          <div class="bevuta-info">
-            <div class="bevuta-titolo">
-              <strong>${bevuta.nome}</strong>
-              <span class="conteggio-badge">🍺 x${bevuta.conteggio}</span>
-            </div>
-            <div class="bevuta-azioni">
-              <button onclick="incrementaBevuta('${bevuta._id}', '${bevuta.stato}')">➕</button>
-              <button onclick="decrementaBevuta('${bevuta._id}')">➖</button>
-            </div>
-          </div>
+  html += `
+    <div class="bevuta-card" data-id="${bevuta._id}">
+      <!-- NOME SOPRA -->
+      <div class="bevuta-nome">${bevuta.nome}</div>
+      
+      <!-- FOTO CENTRATA -->
+      <div class="bevuta-immagine">
+        <img src="${bevuta.immagine || '/placeholder-beer.jpg'}" 
+             alt="${bevuta.nome}" 
+             class="bevuta-foto" 
+             onclick="apriModalImmagine('${bevuta.immagine || '/placeholder-beer.jpg'}')">
+      </div>
+      
+      <!-- CONTROLLI SOTTO -->
+      <div class="bevuta-controlli">
+        <span class="conteggio-badge">🍺 x${bevuta.conteggio}</span>
+        <div class="bevuta-azioni">
+          <button onclick="incrementaBevuta('${bevuta._id}', '${bevuta.stato}')">➕</button>
+          <button onclick="decrementaBevuta('${bevuta._id}')">➖</button>
         </div>
-      `;
-    });
+      </div>
+    </div>
+  `;
+});
+
     
     document.getElementById('bevuteContainer').innerHTML = html || '<p>Nessuna bevuta registrata 😢</p>';
   } catch(e) {
