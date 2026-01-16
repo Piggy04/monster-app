@@ -6,3 +6,5 @@
 /admin  /admin.html  200
 /users  /users.html  200
 /chi-siamo  /chi-siamo.html  200
+
+/api/*  https://monster-app-ocdj.onrender.com/:splat  200
