@@ -3571,4 +3571,14 @@ input:checked + .slider:before {
 .badge-stato.assaggiata { background: #f39c12; color: white; }
 .badge-stato.fatta-finta { background: #e74c3c; color: white; }
 
+.bevuta-card { display: flex; gap: 12px; padding: 16px; border-bottom: 1px solid #eee; align-items: center; }
+.bevuta-foto { width: 60px; height: 90px; object-fit: contain; border-radius: 8px; }
+.bevuta-info { flex: 1; }
+.conteggio-badge { background: #10b981; color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.85em; margin-left: 8px; }
+.bevuta-azioni button { background: #3b82f6; color: white; border: none; padding: 6px 12px; margin: 0 4px; border-radius: 6px; cursor: pointer; }
+.bevuta-azioni button:hover { background: #2563eb; }
+
+
+
+
 

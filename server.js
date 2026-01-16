@@ -73,23 +73,30 @@ app.use('/api/bevute', (req, res) => {
   console.log('🚀 BEVUTE API:', req.method);
   
   if (req.method === 'GET') {
-    Bevuta.find()
-      .populate('varianteId', 'nome')
-      .sort({ data: -1 })
-      .limit(100)
-      .then(bevute => {
-        const conNome = bevute.map(b => ({
-          _id: b._id,
-          nome: b.varianteId?.nome || 'Sconosciuta',
-          stato: b.stato,
-          note: b.note,
-          data: b.data.toISOString().split('T')[0],
-          ora: b.ora || b.data.toLocaleTimeString('it-IT')
-        }));
-        res.json(conNome);
-      })
-      .catch(err => {
-        console.error('Errore GET bevute:', err);
+    Bevuta.aggregate([
+      { $lookup: { 
+        from: 'variantes', 
+        localField: 'varianteId', 
+        foreignField: '_id', 
+        as: 'variante' 
+      } },
+      { $unwind: { 
+        path: '$variante', 
+        preserveNullAndEmptyArrays: true 
+      } },
+      { $group: {
+        _id: '$varianteId',
+        nome: { $first: '$variante.nome' },
+        immagine: { $first: '$variante.immagine' },
+        lattina: { $first: '$variante.lattina_id' },
+        conteggio: { $sum: 1 },
+        ultime: { $push: { stato: '$stato', data: '$data', note: '$note' } },
+        stato: { $last: '$stato' }
+      }},
+      { $sort: { conteggio: -1 } }
+    ]).then(risultati => res.json(risultati))
+      .catch(e => {
+        console.error('Errore aggregate bevute:', e);
         res.json([]);
       });
   } else if (req.method === 'POST') {
@@ -103,6 +110,7 @@ app.use('/api/bevute', (req, res) => {
       });
   }
 });
+
 
 // REGISTRA ALTRE ROUTES
 app.use('/api/auth', authRoutes);

@@ -9,32 +9,32 @@ async function caricaBevute() {
     const data = document.getElementById('filtroData')?.value || '';
     
     const res = await fetch(`${RENDER_API}/bevute`);
-    const bevute = await res.json();
+    let bevute = await res.json();
+    
+    // ✅ Filtra per ricerca/data
+    bevute = bevute.filter(b => 
+      (b.nome?.toLowerCase().includes(ricerca) || !ricerca) &&
+      (!data || b.ultime?.[0]?.data?.startsWith(data))
+    );
     
     let html = '';
-    bevute
-      .filter(b => !ricerca || b.nome.toLowerCase().includes(ricerca))
-      .filter(b => !data || b.data.startsWith(data))
-      .sort((a,b) => new Date(b.data) - new Date(a.data))
-      .slice(0, 50)
-      .forEach(bevuta => {
-        html += `
-          <div class="log-item">
-            <div class="log-icon">${getIconStato(bevuta.stato)}</div>
-            <div class="log-content">
-              <div class="log-descrizione">
-                <strong>${bevuta.nome}</strong> 
-                <span class="badge-stato ${bevuta.stato}">${bevuta.stato}</span>
-              </div>
-              <div class="log-meta">
-                <span class="log-data">${formattaData(bevuta.data)}</span>
-                <span class="log-ora">${bevuta.ora}</span>
-                ${bevuta.note ? `<span>💭 ${bevuta.note}</span>` : ''}
-              </div>
+    bevute.forEach(bevuta => {
+      html += `
+        <div class="bevuta-card" data-id="${bevuta._id}">
+          <img src="${bevuta.immagine || '/placeholder-beer.jpg'}" alt="${bevuta.nome}" class="bevuta-foto">
+          <div class="bevuta-info">
+            <div class="bevuta-titolo">
+              <strong>${bevuta.nome}</strong>
+              <span class="conteggio-badge">🍺 x${bevuta.conteggio}</span>
+            </div>
+            <div class="bevuta-azioni">
+              <button onclick="incrementaBevuta('${bevuta._id}', '${bevuta.stato}')">➕</button>
+              <button onclick="decrementaBevuta('${bevuta._id}')">➖</button>
             </div>
           </div>
-        `;
-      });
+        </div>
+      `;
+    });
     
     document.getElementById('bevuteContainer').innerHTML = html || '<p>Nessuna bevuta registrata 😢</p>';
   } catch(e) {
@@ -42,6 +42,7 @@ async function caricaBevute() {
     document.getElementById('bevuteContainer').innerHTML = '<p>Errore caricamento bevute</p>';
   }
 }
+
 
 async function caricaVariantiPerModal() {
   console.log('🔄 Caricando varianti...');
@@ -154,3 +155,23 @@ document.addEventListener('DOMContentLoaded', () => {
   
   caricaBevute();
 });
+
+async function incrementaBevuta(varianteId, stato = 'bevuta') {
+  try {
+    await fetch(`${RENDER_API}/bevute`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ varianteId, stato })
+    });
+    caricaBevute(); // Refresh
+  } catch(e) { console.error(e); }
+}
+
+async function decrementaBevuta(varianteId) {
+  try {
+    // Logica elimina ultima bevuta (opzionale)
+    await fetch(`${RENDER_API}/bevute/${varianteId}`, { method: 'DELETE' });
+    caricaBevute();
+  } catch(e) { console.error(e); }
+}
+
