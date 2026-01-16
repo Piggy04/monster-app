@@ -74,27 +74,29 @@ app.use('/api/bevute', (req, res) => {
   
   if (req.method === 'GET') {
     Bevuta.aggregate([
-      { $lookup: { 
-        from: 'variantes', 
-        localField: 'varianteId', 
-        foreignField: '_id', 
-        as: 'variante' 
-      } },
-      { $unwind: { 
-        path: '$variante', 
-        preserveNullAndEmptyArrays: true 
-      } },
-      { $group: {
-        _id: '$varianteId',
-        nome: { $first: '$variante.nome' },
-        immagine: { $first: '$variante.immagine' },
-        nomeLattina: { $first: '$variante.lattina_id.nome' },  
-        conteggio: { $sum: 1 },
-        ultime: { $push: { stato: '$stato', data: '$data', note: '$note' } },
-        stato: { $last: '$stato' }
-      }},
-      { $sort: { conteggio: -1 } }
-    ]).then(risultati => res.json(risultati))
+  { $lookup: { 
+    from: 'variantes', 
+    localField: 'varianteId', 
+    foreignField: '_id', 
+    as: 'variante',
+    pipeline: [
+      { $lookup: { from: 'lattinas', localField: 'lattina_id', foreignField: '_id', as: 'lattina' } },
+      { $unwind: { path: '$lattina', preserveNullAndEmptyArrays: true } }
+    ]
+  } },
+  { $unwind: { path: '$variante', preserveNullAndEmptyArrays: true } },
+  { $group: {
+    _id: '$varianteId',
+    nomeLattina: { $first: '$variante.lattina.nome' },     // ← LATTINA
+    nomeVariante: { $first: '$variante.nome' },            // ← VARIANTE
+    immagine: { $first: '$variante.immagine' },
+    conteggio: { $sum: 1 },
+    ultime: { $push: { stato: '$stato', data: '$data', note: '$note' } },
+    stato: { $last: '$stato' }
+  }},
+  { $sort: { conteggio: -1 } }
+])
+.then(risultati => res.json(risultati))
       .catch(e => {
         console.error('Errore aggregate bevute:', e);
         res.json([]);
