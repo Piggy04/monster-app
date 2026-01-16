@@ -1,11 +1,14 @@
 let tutteVarianti = [];
 
+// 🔧 Render API diretta (bypass Netlify 404)
+const RENDER_API = 'https://monster-app-ocdj.onrender.com/api';
+
 async function caricaBevute() {
   try {
     const ricerca = document.getElementById('ricercaBevuta')?.value?.toLowerCase() || '';
     const data = document.getElementById('filtroData')?.value || '';
     
-    const res = await fetch('/api/bevute');
+    const res = await fetch(`${RENDER_API}/bevute`);
     const bevute = await res.json();
     
     let html = '';
@@ -41,25 +44,39 @@ async function caricaBevute() {
 }
 
 async function caricaVariantiPerModal() {
+  console.log('🔄 Caricando varianti...');
   try {
-    const res = await fetch('/api/monster-varianti');  // ← NUOVA semplice
+    const res = await fetch(`${RENDER_API}/monster-varianti`);
+    console.log('Status:', res.status);
+    
     const varianti = await res.json();
+    console.log('Varianti:', varianti.length);
     
     const select = document.getElementById('selectVariante');
+    if (!select) {
+      console.error('❌ #selectVariante non trovato!');
+      return;
+    }
+    
     select.innerHTML = '<option value="">Seleziona Monster...</option>';
+    
+    if (!varianti || varianti.length === 0) {
+      select.innerHTML += '<option disabled>Nessuna variante</option>';
+      return;
+    }
     
     varianti.forEach(v => {
       const opt = document.createElement('option');
       opt.value = v._id;
-      opt.textContent = v.nome;
+      opt.textContent = v.nome || 'Nome mancante';
       select.appendChild(opt);
     });
+    console.log('✅ Modal pronto!');
   } catch(e) {
-    console.error('Modal errore:', e);
+    console.error('💥 Modal errore:', e);
+    document.getElementById('selectVariante').innerHTML = '<option>Errore caricamento</option>';
   }
 }
-
-
 
 function getIconStato(stato) {
   const icons = { 'bevuta': '🍺', 'assaggiata': '👅', 'fatta-finta': '😜' };
@@ -102,10 +119,10 @@ async function gestisciSubmitBevuta(e) {
   const stato = document.getElementById('selectStato').value;
   const note = document.getElementById('inputNote').value;
   
-  if (!varianteId) return alert('Seleziona Monster!');
+  if (!varianteId) return alert('⚠️ Seleziona Monster!');
   
   try {
-    const res = await fetch('/api/bevute', {
+    const res = await fetch(`${RENDER_API}/bevute`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ varianteId, stato, note })
@@ -116,10 +133,11 @@ async function gestisciSubmitBevuta(e) {
       caricaBevute();
       alert('🍺 Bevuta registrata!');
     } else {
-      alert('Errore server');
+      alert('❌ Errore server');
     }
   } catch(err) {
-    alert('Errore rete');
+    console.error('Submit errore:', err);
+    alert('❌ Errore rete');
   }
 }
 
@@ -131,7 +149,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.target.id === 'modalNuovaBevuta') chiudiModalNuovaBevuta();
   };
   
-  // Auto-ricerca
   document.getElementById('ricercaBevuta')?.addEventListener('input', caricaBevute);
   document.getElementById('filtroData')?.addEventListener('change', caricaBevute);
   
