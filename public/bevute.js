@@ -42,23 +42,23 @@ async function caricaBevute() {
 
 async function caricaVariantiPerModal() {
   try {
-    const res = await fetch('/api/collezione/bevute-varianti'); // ← NUOVA
-    tutteVarianti = await res.json();
+    const res = await fetch('/api/monster-varianti');  // ← NUOVA semplice
+    const varianti = await res.json();
     
     const select = document.getElementById('selectVariante');
-    if (!select) return;
-    
     select.innerHTML = '<option value="">Seleziona Monster...</option>';
-    tutteVarianti.forEach(v => {
+    
+    varianti.forEach(v => {
       const opt = document.createElement('option');
       opt.value = v._id;
-      opt.textContent = `${v.lattina} - ${v.nome}`;
+      opt.textContent = v.nome;
       select.appendChild(opt);
     });
   } catch(e) {
-    console.error('Errore varianti bevute:', e);
+    console.error('Modal errore:', e);
   }
 }
+
 
 
 function getIconStato(stato) {

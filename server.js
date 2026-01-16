@@ -34,6 +34,29 @@ mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('✓ MongoDB connesso'))
   .catch(err => console.error('✗ Errore MongoDB:', err));
 
+// 🍺 VARIANTI per bevute modal - NO AUTH
+app.get('/api/monster-varianti', async (req, res) => {
+  try {
+    const Variante = mongoose.model('Variante');
+    const varianti = await Variante.find()
+      .populate('lattina_id', 'nome')
+      .populate('lattina_id.categoria_id', 'nome')
+      .sort({ nome: 1 })
+      .limit(200);
+    
+    const lista = varianti.map(v => ({
+      _id: v._id,
+      nome: `${v.lattina_id?.nome || 'Unknown'} - ${v.nome}`
+    }));
+    
+    res.json(lista);
+  } catch(err) {
+    console.error('Varianti errore:', err);
+    res.json([]);
+  }
+});
+
+
 // 🟢 BEVUTE INLINE - NO FILE DEPENDENCY
 console.log('🟢 Setup bevute API inline');
 const BevutaSchema = new mongoose.Schema({
