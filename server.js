@@ -88,7 +88,7 @@ app.use('/api/bevute', (req, res) => {
         _id: '$varianteId',
         nome: { $first: '$variante.nome' },
         immagine: { $first: '$variante.immagine' },
-        lattina: { $first: '$variante.lattina_id' },
+        nomeLattina: { $first: '$variante.lattina_id.nome' },  
         conteggio: { $sum: 1 },
         ultime: { $push: { stato: '$stato', data: '$data', note: '$note' } },
         stato: { $last: '$stato' }

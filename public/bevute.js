@@ -21,7 +21,7 @@ async function caricaBevute() {
     bevute.forEach(bevuta => {
   html += `
     <div class="variante bevuta-card" data-id="${bevuta._id}" style="min-height: 360px;">
-      <div class="variante-nome">${bevuta.nome}</div>
+      <div class="bevuta-nome">${bevuta.nomeLattina || bevuta.nome}</div>
       <div class="variante-immagine">
         <img src="${bevuta.immagine || '/placeholder-beer.jpg'}" class="variante-img bevuta-foto">
       </div>
