@@ -105,21 +105,20 @@ app.use('/api/bevute', (req, res) => {
     bevuta.save().then(() => res.json({ success: true })).catch(err => res.status(500).json({ error: 'Errore' }));
     
   } else if (req.method === 'DELETE') {
-    const id = req.url.split('/').pop();
-    Bevuta.findByIdAndDelete(id)  // ← NO await, usa .then()
-      .then(deleted => {
-        if (deleted) {
-          console.log('🗑️ Bevuta eliminata:', id);
-          res.json({ success: true });
-        } else {
-          res.status(404).json({ error: 'Non trovata' });
-        }
-      })
-      .catch(e => {
-        console.error('❌ DELETE:', e);
-        res.status(500).json({ error: 'Errore DELETE' });
-      });
-  }
+  const varianteId = req.url.split('/').pop(); // es: /api/bevute/<varianteId>
+
+  Bevuta.findOneAndDelete({ varianteId })
+    .sort({ data: -1 }) // elimina la più recente
+    .then(deleted => {
+      if (deleted) return res.json({ success: true });
+      return res.status(404).json({ error: 'Nessuna bevuta da eliminare' });
+    })
+    .catch(err => {
+      console.error('❌ DELETE ultima bevuta errore:', err);
+      res.status(500).json({ error: 'Errore DELETE' });
+    });
+}
+
 });
 
 

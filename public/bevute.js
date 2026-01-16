@@ -19,9 +19,9 @@ async function caricaBevute() {
     
     let html = '';
     bevute.forEach(bevuta => {
-  const ultimaId = bevuta.ultime?.[0]?._id || '';  // ID ultima per ➖
+  const ultimaBevutaId = bevuta.ultime && bevuta.ultime.length > 0 ? bevuta.ultime[0]._id : null;
   html += `
-    <div class="variante bevuta-card" data-id="${bevuta._id}" data-ultima="${ultimaId}">
+    <div class="variante bevuta-card" data-id="${bevuta._id}" data-ultima="${ultimaBevutaId}">
       <div class="bevuta-nome">${bevuta.nomeLattina || bevuta.nome || 'Monster'}</div>
       <div class="variante-immagine">
         <img src="${bevuta.immagine || '/placeholder-beer.jpg'}" class="variante-img bevuta-foto">
@@ -32,12 +32,13 @@ async function caricaBevute() {
       <div class="variante-switch">
         <div class="bevuta-azioni">
           <button onclick="incrementaBevuta('${bevuta._id}', '${bevuta.stato}')">➕</button>
-          <button onclick="decrementaBevuta('${bevuta._id}', '${ultimaId}')">➖</button>
+          <button class="btn-minus" data-ultima="${ultimaBevutaId}">➖</button>
         </div>
       </div>
     </div>
   `;
 });
+
 
 
 
@@ -160,6 +161,14 @@ document.addEventListener('DOMContentLoaded', () => {
   window.onclick = (e) => {
     if (e.target.id === 'modalNuovaBevuta') chiudiModalNuovaBevuta();
   };
+
+  document.addEventListener('click', (e) => {
+  if (e.target.classList.contains('btn-minus')) {
+    const ultimaId = e.target.dataset.ultima;
+    if (ultimaId) {
+      fetch(`${RENDER_API}/bevute/${ultimaId}`, { method: 'DELETE' })
+        .then(()
+
   
   document.getElementById('ricercaBevuta')?.addEventListener('input', caricaBevute);
   document.getElementById('filtroData')?.addEventListener('change', caricaBevute);
