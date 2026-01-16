@@ -20,21 +20,15 @@ async function caricaBevute() {
     let html = '';
     bevute.forEach(bevuta => {
   html += `
-    <div class="bevuta-card" data-id="${bevuta._id}">
-      <!-- NOME SOPRA -->
-      <div class="bevuta-nome">${bevuta.nome}</div>
-      
-      <!-- FOTO CENTRATA -->
-      <div class="bevuta-immagine">
-        <img src="${bevuta.immagine || '/placeholder-beer.jpg'}" 
-             alt="${bevuta.nome}" 
-             class="bevuta-foto" 
-             onclick="apriModalImmagine('${bevuta.immagine || '/placeholder-beer.jpg'}')">
+    <div class="variante bevuta-card" data-id="${bevuta._id}" style="min-height: 360px;">
+      <div class="variante-nome">${bevuta.nome}</div>
+      <div class="variante-immagine">
+        <img src="${bevuta.immagine || '/placeholder-beer.jpg'}" class="variante-img bevuta-foto">
       </div>
-      
-      <!-- CONTROLLI SOTTO -->
-      <div class="bevuta-controlli">
+      <div class="variante-checkbox">
         <span class="conteggio-badge">🍺 x${bevuta.conteggio}</span>
+      </div>
+      <div class="variante-switch">
         <div class="bevuta-azioni">
           <button onclick="incrementaBevuta('${bevuta._id}', '${bevuta.stato}')">➕</button>
           <button onclick="decrementaBevuta('${bevuta._id}')">➖</button>
@@ -43,6 +37,7 @@ async function caricaBevute() {
     </div>
   `;
 });
+
 
     
     document.getElementById('bevuteContainer').innerHTML = html || '<p>Nessuna bevuta registrata 😢</p>';

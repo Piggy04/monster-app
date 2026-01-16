@@ -3685,6 +3685,28 @@ input:checked + .slider:before {
   font-size: 16px !important;
 }
 
+#bevuteContainer {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
+  gap: 20px !important;
+  padding: 30px !important;
+}
+.bevuta-azioni {
+  display: flex !important;
+  gap: 12px !important;
+  justify-content: center !important;
+}
+.bevuta-azioni button {
+  background: var(--accent-color) !important;
+  color: white !important;
+  border: none !important;
+  padding: 8px 16px !important;
+  border-radius: 8px !important;
+  cursor: pointer !important;
+  font-weight: 600 !important;
+}
+
+
 
 
 
