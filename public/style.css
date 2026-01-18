@@ -3554,11 +3554,6 @@ input:checked + .slider:before {
     font-size: 13px !important;
   }
 
-  /* Link admin/beta nascosti di default */
-#linkAdmin, #linkUsers, #linkLogAdmin, #linkBevute {
-  display: none !important;
-}
-
 .badge-stato {
   padding: 4px 10px;
   border-radius: 20px;
