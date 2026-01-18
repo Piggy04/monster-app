@@ -3705,6 +3705,42 @@ input:checked + .slider:before {
 .risultato-item:last-child { border-bottom: none; }
 
 
+/* ✅ BURGER SEMPRE VISIBILE SU MOBILE - ANCHE ADMIN */
+@media (max-width: 768px) {
+  .sidebar-toggle,
+  .sidebar-toggle * {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+  
+  .sidebar {
+    transform: translateX(-100%) !important;
+  }
+  
+  .sidebar.open {
+    transform: translateX(0) !important;
+  }
+  
+  /* Overlay sempre disponibile */
+  .sidebar-overlay {
+    display: block !important;
+  }
+  
+  /* Fornisci altezza se manca */
+  .sidebar {
+    height: 100vh !important;
+    overflow-y: auto !important;
+  }
+}
+
+/* Hamburger lines sempre visibili */
+.sidebar-toggle span {
+  background: #000 !important;
+  opacity: 1 !important;
+}
+
+
 
 
 
