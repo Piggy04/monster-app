@@ -7,48 +7,51 @@ async function caricaBevute() {
   try {
     const ricerca = document.getElementById('ricercaBevuta')?.value?.toLowerCase() || '';
     const data = document.getElementById('filtroData')?.value || '';
-    
+
     const res = await fetch(`${RENDER_API}/bevute`);
     let bevute = await res.json();
-    
-    // ✅ Filtra per ricerca/data
-    bevute = bevute.filter(b => 
-      (b.nome?.toLowerCase().includes(ricerca) || !ricerca) &&
-      (!data || b.ultime?.[0]?.data?.startsWith(data))
+
+    // Filtri ricerca + data (usa nomeLattina/nomeVariante se presenti)
+    bevute = bevute.filter(b =>
+      (
+        (b.nomeLattina && b.nomeLattina.toLowerCase().includes(ricerca)) ||
+        (b.nomeVariante && b.nomeVariante.toLowerCase().includes(ricerca)) ||
+        !ricerca
+      ) &&
+      (!data || (b.ultime && b.ultime[0] && String(b.ultime[0].data).startsWith(data)))
     );
-    
+
+    let html = ''; // ← QUESTA MANCAVA
+
     bevute.forEach(bevuta => {
-  html += `
-    <div class="variante bevuta-card" data-id="${bevuta._id}" style="min-height: 360px;">
-      <div class="bevuta-nome">${bevuta.nomeLattina || 'Monster'} ${bevuta.nomeVariante || ''}</div>
-      <div class="variante-immagine">
-        <img src="${bevuta.immagine || '/placeholder-beer.jpg'}" class="variante-img bevuta-foto">
-      </div>
-      <div class="variante-checkbox">
-        <span class="conteggio-badge">🍺 x${bevuta.conteggio}</span>
-      </div>
-      <div class="variante-switch">
-        <div class="bevuta-azioni">
-          <button onclick="incrementaBevuta('${bevuta._id}', '${bevuta.stato}')">➕</button>
-          <button onclick="decrementaBevuta('${bevuta._id}')">➖</button>
+      html += `
+        <div class="variante bevuta-card" data-id="${bevuta._id}" style="min-height: 360px;">
+          <div class="bevuta-nome">${bevuta.nomeLattina || 'Monster'} ${bevuta.nomeVariante || bevuta.nome || ''}</div>
+          <div class="variante-immagine">
+            <img src="${bevuta.immagine || '/placeholder-beer.jpg'}" class="variante-img bevuta-foto">
+          </div>
+          <div class="variante-checkbox">
+            <span class="conteggio-badge">🍺 x${bevuta.conteggio}</span>
+          </div>
+          <div class="variante-switch">
+            <div class="bevuta-azioni">
+              <button onclick="incrementaBevuta('${bevuta._id}', '${bevuta.stato}')">➕</button>
+              <button onclick="decrementaBevuta('${bevuta._id}')">➖</button>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-  `;
-});
+      `;
+    });
 
-
-
-
-
-
-    
-    document.getElementById('bevuteContainer').innerHTML = html || '<p>Nessuna bevuta registrata 😢</p>';
-  } catch(e) {
+    document.getElementById('bevuteContainer').innerHTML =
+      html || '<p>Nessuna bevuta registrata 😢</p>';
+  } catch (e) {
     console.error('Errore bevute:', e);
-    document.getElementById('bevuteContainer').innerHTML = '<p>Errore caricamento bevute</p>';
+    document.getElementById('bevuteContainer').innerHTML =
+      '<p>Errore caricamento bevute</p>';
   }
 }
+
 
 
 async function caricaVariantiPerModal() {
