@@ -301,6 +301,7 @@ document.getElementById('formLattina').addEventListener('submit', async (e) => {
 });
 
 // FORM VARIANTE
+// FORM VARIANTE
 document.getElementById('formVariante').addEventListener('submit', async (e) => {
   e.preventDefault();
 
@@ -308,28 +309,33 @@ document.getElementById('formVariante').addEventListener('submit', async (e) => 
   const lattinaId   = document.getElementById('lattinaVariante').value;
   const nome        = document.getElementById('nomeVariante').value.trim();
   const ordine      = parseInt(document.getElementById('ordineVariante').value) || 0;
-  const immagineUrl = document.getElementById('immagineVariante').value.trim() || null;
+  const immagineUrl = document.getElementById('immagineVariante').value.trim();
 
   if (!categoriaId || !lattinaId || !nome) {
     return alert('Compila tutti i campi obbligatori');
   }
 
   try {
-    const response = await fetch(`${API_URL}/collezione/variante`, {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${token}`
-  },
-  body: JSON.stringify({
-    categoria_id: categoriaId,   // opzionale, ma se non serve puoi toglierlo
-    lattina_id:   lattinaId,     // ⬅ NOME ALLINEATO AL BACKEND
-    nome,
-    ordine,
-    immagine:     immagineUrl    // ⬅ NOME ALLINEATO AL BACKEND
-  })
-});
+    const body = {
+      categoria_id: categoriaId,
+      lattina_id: lattinaId,
+      nome,
+      ordine
+    };
 
+    // ✅ Se hai URL immagine, lo salva come 'immagine'
+    if (immagineUrl) {
+      body.immagine = immagineUrl; // ← Nome esatto per il backend
+    }
+
+    const response = await fetch(`${API_URL}/collezione/variante`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(body)
+    });
 
     const data = await response.json().catch(() => ({}));
 
@@ -340,14 +346,15 @@ document.getElementById('formVariante').addEventListener('submit', async (e) => 
 
     document.getElementById('successoVariante').textContent = '✓ Variante aggiunta!';
     document.getElementById('formVariante').reset();
-    document.getElementById('lattinaVariante').innerHTML =
-      '<option value="">Prima seleziona categoria</option>';
+    document.getElementById('lattinaVariante').innerHTML = '<option value="">Prima seleziona categoria</option>';
     setTimeout(() => {
       document.getElementById('successoVariante').textContent = '';
+      document.getElementById('immagineVariante').value = '';
       caricaCategorie();
       caricaGestione();
     }, 1500);
-  } catch (err) {
+  } catch
+ (err) {
     console.error('Errore di rete variante:', err);
     alert('Errore di rete');
   }
