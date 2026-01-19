@@ -8,12 +8,28 @@ const logSchema = new mongoose.Schema({
   },
   azione: {
     type: String,
-    enum: ['aggiunto', 'rimosso', 'aggiornato', 'acceso', 'richiesta_inviata', 'richiesta_accettata'],
+    enum: [
+      'aggiunto', 
+      'rimosso', 
+      'aggiornato', 
+      'acceso', 
+      'richiesta_inviata', 
+      'richiesta_accettata',
+      'cambio_email',        // ← AGGIUNTO
+      'cambio_password',     // ← AGGIUNTO
+      'cambio_username',     // ← AGGIUNTO
+      'eliminazione_account' // ← AGGIUNTO
+    ],
     required: true
   },
   tipo: {
     type: String,
-    enum: ['variante', 'amico', 'collezione'],
+    enum: [
+      'variante', 
+      'amico', 
+      'collezione',
+      'account'  // ← AGGIUNTO
+    ],
     required: true
   },
   descrizione: {
@@ -36,4 +52,3 @@ const logSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 module.exports = mongoose.model('Log', logSchema);
-
