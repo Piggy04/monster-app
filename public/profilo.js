@@ -231,6 +231,7 @@ async function salvaAvatar() {
 async function cambiaUsername() {
   const nuovo = document.getElementById('inputUsername').value.trim();
   if (!nuovo) return alert('Inserisci un username valido');
+  
   try {
     const res = await fetch(`${API_AUTH}/cambia-username`, {
       method: 'PUT',
@@ -240,18 +241,22 @@ async function cambiaUsername() {
       },
       body: JSON.stringify({ username: nuovo })
     });
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      alert(err.errore || 'Errore aggiornamento username');
+    
+    if (res.ok) {
+      localStorage.setItem('username', nuovo);
+      alert('✅ Username aggiornato con successo!');
+      caricaProfilo();
       return;
     }
-    localStorage.setItem('username', nuovo);
-    alert('Username aggiornato');
-    caricaProfilo();
+    
+    const err = await res.json().catch(() => ({ errore: 'Errore sconosciuto' }));
+    alert('❌ ' + (err.errore || err.message || 'Username già in uso'));
+    
   } catch {
-    alert('Errore di rete');
+    alert('❌ Errore di connessione al server');
   }
 }
+
 
 // MODIFICA EMAIL
 async function cambiaEmail() {
@@ -268,22 +273,23 @@ async function cambiaEmail() {
       body: JSON.stringify({ email: nuova })
     });
     
-    // ✅ Anche se 200/204 senza JSON, è successo
+    // ✅ Se status 200-299, è successo
     if (res.ok) {
       alert('✅ Email aggiornata con successo!');
       caricaProfilo();
       return;
     }
     
-    // Solo se errore vero (4xx/5xx)
-    const err = await res.json().catch(() => ({}));
-    alert(err.errore || 'Errore aggiornamento email');
+    // Solo se errore 4xx/5xx
+    const err = await res.json().catch(() => ({ errore: 'Errore sconosciuto' }));
+    alert('❌ ' + (err.errore || err.message || 'Errore aggiornamento email'));
     
   } catch (err) {
     console.error('Errore di rete cambiaEmail:', err);
-    alert('Errore di rete');
+    alert('❌ Errore di connessione al server');
   }
 }
+
 
 
 // MODIFICA PASSWORD
@@ -309,7 +315,7 @@ async function cambiaPassword() {
       })
     });
 
-    // ✅ Se 200/204, è andata
+    // ✅ Se status 200-299, è successo
     if (res.ok) {
       alert('✅ Password aggiornata con successo!');
       ['oldPassword','newPassword','confirmPassword'].forEach(id => {
@@ -318,15 +324,16 @@ async function cambiaPassword() {
       return;
     }
 
-    // Solo se errore vero
-    const data = await res.json().catch(() => ({}));
-    alert(data.errore || 'Errore nel cambio password');
+    // Solo se errore 4xx/5xx
+    const data = await res.json().catch(() => ({ errore: 'Errore sconosciuto' }));
+    alert('❌ ' + (data.errore || data.message || 'Password vecchia errata o errore server'));
 
   } catch (e) {
     console.error('Errore di rete cambia-password:', e);
-    alert('Errore di rete');
+    alert('❌ Errore di connessione al server');
   }
 }
+
 
 
 
