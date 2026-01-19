@@ -10,48 +10,61 @@ const API_AUTH  = API_URL.endsWith('/api') ? `${API_URL}/auth`  : `${API_URL}/ap
 let avatarSelezionato = '';
 
 const AVATARS = [
-  // 🦁 Animali
-  'https://api.dicebear.com/7.x/bottts/svg?seed=lion&backgroundColor=b6e3f4',
-  'https://api.dicebear.com/7.x/bottts/svg?seed=tiger&backgroundColor=c0aede',
-  'https://api.dicebear.com/7.x/bottts/svg?seed=bear&backgroundColor=d1d4f9',
-  'https://api.dicebear.com/7.x/bottts/svg?seed=wolf&backgroundColor=ffd5dc',
-  'https://api.dicebear.com/7.x/bottts/svg?seed=eagle&backgroundColor=ffdfbf',
-  'https://api.dicebear.com/7.x/bottts/svg?seed=shark&backgroundColor=b6e3f4',
-  'https://api.dicebear.com/7.x/bottts/svg?seed=dragon&backgroundColor=ffadad',
-  'https://api.dicebear.com/7.x/bottts/svg?seed=phoenix&backgroundColor=fdffb6',
+  // 🦁 ANIMALI REALISTICI - Fun Emoji style
+  'https://api.dicebear.com/9.x/fun-emoji/svg?seed=lion&backgroundColor=ffd700',
+  'https://api.dicebear.com/9.x/fun-emoji/svg?seed=tiger&backgroundColor=ff6347',
+  'https://api.dicebear.com/9.x/fun-emoji/svg?seed=bear&backgroundColor=8b4513',
+  'https://api.dicebear.com/9.x/fun-emoji/svg?seed=wolf&backgroundColor=708090',
+  'https://api.dicebear.com/9.x/fun-emoji/svg?seed=fox&backgroundColor=ff8c00',
+  'https://api.dicebear.com/9.x/fun-emoji/svg?seed=panda&backgroundColor=ffffff',
+  'https://api.dicebear.com/9.x/fun-emoji/svg?seed=koala&backgroundColor=c0c0c0',
+  'https://api.dicebear.com/9.x/fun-emoji/svg?seed=monkey&backgroundColor=d2691e',
+  'https://api.dicebear.com/9.x/fun-emoji/svg?seed=rabbit&backgroundColor=ffb6c1',
+  'https://api.dicebear.com/9.x/fun-emoji/svg?seed=cat&backgroundColor=ffa07a',
   
-  // ⚡ Monster Energy themed
-  'https://api.dicebear.com/7.x/bottts/svg?seed=monster1&backgroundColor=00ff41',
-  'https://api.dicebear.com/7.x/bottts/svg?seed=monster2&backgroundColor=1a1a1a',
-  'https://api.dicebear.com/7.x/bottts/svg?seed=energy&backgroundColor=00ff41',
-  'https://api.dicebear.com/7.x/bottts/svg?seed=ultra&backgroundColor=ffffff',
-  'https://api.dicebear.com/7.x/bottts/svg?seed=rehab&backgroundColor=ffcc00',
-  'https://api.dicebear.com/7.x/bottts/svg?seed=zero&backgroundColor=00ccff',
+  // 🦅 UCCELLI E RETTILI
+  'https://api.dicebear.com/9.x/fun-emoji/svg?seed=eagle&backgroundColor=4682b4',
+  'https://api.dicebear.com/9.x/fun-emoji/svg?seed=owl&backgroundColor=8a2be2',
+  'https://api.dicebear.com/9.x/fun-emoji/svg?seed=parrot&backgroundColor=32cd32',
+  'https://api.dicebear.com/9.x/fun-emoji/svg?seed=dragon&backgroundColor=dc143c',
+  'https://api.dicebear.com/9.x/fun-emoji/svg?seed=snake&backgroundColor=00ff00',
   
-  // 👾 Robot/Gaming
-  'https://api.dicebear.com/7.x/bottts/svg?seed=robot1&backgroundColor=667eea',
-  'https://api.dicebear.com/7.x/bottts/svg?seed=robot2&backgroundColor=764ba2',
-  'https://api.dicebear.com/7.x/bottts/svg?seed=cyber&backgroundColor=f093fb',
-  'https://api.dicebear.com/7.x/bottts/svg?seed=neon&backgroundColor=4facfe',
+  // 🐶 DOMESTICI E FARM
+  'https://api.dicebear.com/9.x/fun-emoji/svg?seed=dog&backgroundColor=daa520',
+  'https://api.dicebear.com/9.x/fun-emoji/svg?seed=pig&backgroundColor=ffb6c1',
+  'https://api.dicebear.com/9.x/fun-emoji/svg?seed=cow&backgroundColor=f5deb3',
+  'https://api.dicebear.com/9.x/fun-emoji/svg?seed=horse&backgroundColor=8b4513',
+  'https://api.dicebear.com/9.x/fun-emoji/svg?seed=chicken&backgroundColor=ffd700',
   
-  // 🐾 Altri animali
-  'https://api.dicebear.com/7.x/bottts/svg?seed=panda&backgroundColor=ffeaa7',
-  'https://api.dicebear.com/7.x/bottts/svg?seed=fox&backgroundColor=fdcb6e',
-  'https://api.dicebear.com/7.x/bottts/svg?seed=owl&backgroundColor=a29bfe',
-  'https://api.dicebear.com/7.x/bottts/svg?seed=raccoon&backgroundColor=fd79a8',
+  // 🦈 ACQUATICI
+  'https://api.dicebear.com/9.x/fun-emoji/svg?seed=shark&backgroundColor=1e90ff',
+  'https://api.dicebear.com/9.x/fun-emoji/svg?seed=dolphin&backgroundColor=00bfff',
+  'https://api.dicebear.com/9.x/fun-emoji/svg?seed=whale&backgroundColor=4169e1',
+  'https://api.dicebear.com/9.x/fun-emoji/svg?seed=octopus&backgroundColor=9370db',
+  'https://api.dicebear.com/9.x/fun-emoji/svg?seed=fish&backgroundColor=20b2aa',
   
-  // 🎮 Gaming icons
-  'https://api.dicebear.com/7.x/bottts/svg?seed=gamer1&backgroundColor=00b894',
-  'https://api.dicebear.com/7.x/bottts/svg?seed=gamer2&backgroundColor=6c5ce7',
-  'https://api.dicebear.com/7.x/bottts/svg?seed=speedrun&backgroundColor=ff7675',
-  'https://api.dicebear.com/7.x/bottts/svg?seed=victory&backgroundColor=fdcb6e',
+  // ⚡ MONSTER ENERGY THEMED (colori verde neon/nero)
+  'https://api.dicebear.com/9.x/fun-emoji/svg?seed=monster1&backgroundColor=00ff41',
+  'https://api.dicebear.com/9.x/fun-emoji/svg?seed=monster2&backgroundColor=1a1a1a',
+  'https://api.dicebear.com/9.x/fun-emoji/svg?seed=energy&backgroundColor=00ff41',
+  'https://api.dicebear.com/9.x/fun-emoji/svg?seed=ultra&backgroundColor=ffffff',
+  'https://api.dicebear.com/9.x/fun-emoji/svg?seed=rehab&backgroundColor=ffcc00',
   
-  // 🌟 Special
-  'https://api.dicebear.com/7.x/bottts/svg?seed=legend&backgroundColor=ffeaa7',
-  'https://api.dicebear.com/7.x/bottts/svg?seed=champion&backgroundColor=55efc4',
-  'https://api.dicebear.com/7.x/bottts/svg?seed=collector&backgroundColor=fab1a0',
-  'https://api.dicebear.com/7.x/bottts/svg?seed=master&backgroundColor=74b9ff'
+  // 🎮 GAMING/FANTASY
+  'https://api.dicebear.com/9.x/fun-emoji/svg?seed=phoenix&backgroundColor=ff4500',
+  'https://api.dicebear.com/9.x/fun-emoji/svg?seed=unicorn&backgroundColor=ff1493',
+  'https://api.dicebear.com/9.x/fun-emoji/svg?seed=griffin&backgroundColor=daa520',
+  'https://api.dicebear.com/9.x/fun-emoji/svg?seed=kraken&backgroundColor=000080',
+  'https://api.dicebear.com/9.x/fun-emoji/svg?seed=hydra&backgroundColor=8b0000',
+  
+  // 🦎 ESOTICI
+  'https://api.dicebear.com/9.x/fun-emoji/svg?seed=gecko&backgroundColor=32cd32',
+  'https://api.dicebear.com/9.x/fun-emoji/svg?seed=chameleon&backgroundColor=7fff00',
+  'https://api.dicebear.com/9.x/fun-emoji/svg?seed=frog&backgroundColor=3cb371',
+  'https://api.dicebear.com/9.x/fun-emoji/svg?seed=turtle&backgroundColor=2e8b57',
+  'https://api.dicebear.com/9.x/fun-emoji/svg?seed=raccoon&backgroundColor=696969'
 ];
+
 
 
 document.addEventListener('DOMContentLoaded', () => {
