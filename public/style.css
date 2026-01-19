@@ -2648,7 +2648,7 @@ input:checked + .slider:before {
 /* Pulsante hamburger */
 .sidebar-toggle {
   position: fixed;
-  top: 20px;
+  top: 70px;
   left: 20px;
   z-index: 1001;
   background: var(--primary-color, #00ff41);
