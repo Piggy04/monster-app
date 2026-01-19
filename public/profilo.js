@@ -266,12 +266,14 @@ async function cambiaUsername() {
 }
 
 
-// MODIFICA EMAIL
+// MODIFICA EMAIL (con debug completo)
 async function cambiaEmail() {
   const nuova = document.getElementById('inputEmail').value.trim();
   if (!nuova) return alert('Inserisci una email valida');
   
   try {
+    console.log('🔵 Invio richiesta cambio email:', nuova);
+    
     const res = await fetch(`${API_AUTH}/cambia-email`, {
       method: 'PUT',
       headers: {
@@ -281,30 +283,37 @@ async function cambiaEmail() {
       body: JSON.stringify({ email: nuova })
     });
     
-    // ✅ Gestione 204 No Content
-    if (res.status === 204 || res.ok) {
+    console.log('🔵 Status risposta:', res.status, res.statusText);
+    
+    // ✅ Gestione 204 No Content o 200 OK
+    if (res.status === 204 || res.status === 200) {
       alert('✅ Email aggiornata con successo!');
       caricaProfilo();
       return;
     }
     
-    // Solo se errore 4xx/5xx - controlla se c'è body JSON
-    let err;
-    try {
-      err = await res.json();
-    } catch {
-      err = { errore: `Errore ${res.status}` };
+    // ❌ Errore - leggi dettagli
+    let errBody;
+    const contentType = res.headers.get('content-type');
+    
+    if (contentType && contentType.includes('application/json')) {
+      errBody = await res.json();
+    } else {
+      errBody = { errore: await res.text() };
     }
-    alert('❌ ' + (err.errore || err.message || 'Errore aggiornamento email'));
+    
+    console.error('❌ Errore backend:', errBody);
+    alert('❌ Errore: ' + (errBody.errore || errBody.message || 'Errore server 500'));
     
   } catch (e) {
-    console.error('Errore cambiaEmail:', e);
-    alert('❌ Errore di connessione al server');
+    console.error('❌ Errore rete:', e);
+    alert('❌ Errore di connessione: ' + e.message);
   }
 }
 
 
-// MODIFICA PASSWORD
+
+// MODIFICA PASSWORD (con debug completo)
 async function cambiaPassword() {
   const vecchia = document.getElementById('oldPassword').value;
   const nuova   = document.getElementById('newPassword').value;
@@ -315,6 +324,8 @@ async function cambiaPassword() {
   if (nuova.length < 4) return alert('Minimo 4 caratteri');
 
   try {
+    console.log('🔵 Invio richiesta cambio password');
+    
     const res = await fetch(`${API_AUTH}/cambia-password`, {
       method: 'PUT',
       headers: {
@@ -327,8 +338,10 @@ async function cambiaPassword() {
       })
     });
 
-    // ✅ Gestione 204 No Content
-    if (res.status === 204 || res.ok) {
+    console.log('🔵 Status risposta:', res.status, res.statusText);
+
+    // ✅ Gestione 204 No Content o 200 OK
+    if (res.status === 204 || res.status === 200) {
       alert('✅ Password aggiornata con successo!');
       ['oldPassword','newPassword','confirmPassword'].forEach(id => {
         document.getElementById(id).value = '';
@@ -336,20 +349,25 @@ async function cambiaPassword() {
       return;
     }
 
-    // Solo se errore 4xx/5xx - controlla se c'è body JSON
-    let err;
-    try {
-      err = await res.json();
-    } catch {
-      err = { errore: `Errore ${res.status}` };
+    // ❌ Errore - leggi dettagli
+    let errBody;
+    const contentType = res.headers.get('content-type');
+    
+    if (contentType && contentType.includes('application/json')) {
+      errBody = await res.json();
+    } else {
+      errBody = { errore: await res.text() };
     }
-    alert('❌ ' + (err.errore || err.message || 'Password vecchia errata'));
+    
+    console.error('❌ Errore backend:', errBody);
+    alert('❌ Errore: ' + (errBody.errore || errBody.message || 'Password errata o errore server'));
 
   } catch (e) {
-    console.error('Errore cambiaPassword:', e);
-    alert('❌ Errore di connessione al server');
+    console.error('❌ Errore rete:', e);
+    alert('❌ Errore di connessione: ' + e.message);
   }
 }
+
 
 
 
