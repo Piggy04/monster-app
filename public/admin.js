@@ -82,18 +82,21 @@ async function caricaGestione() {
           });
           
           // Varianti
-          if (lattina.varianti) {
-            lattina.varianti.forEach(variante => {
-              datiFlat.push({
-                _id: variante._id,
-                tipo: 'variante',
-                nome: variante.nome,
-                ordine: variante.ordine || 0,
-                categoria_id: categoria._id,
-                categoria: { nome: categoria.nome }
-              });
-            });
-          }
+if (lattina.varianti) {
+  lattina.varianti.forEach(variante => {
+    datiFlat.push({
+      _id: variante._id,
+      tipo: 'variante',
+      nome: variante.nome,
+      ordine: variante.ordine || 0,
+      categoria_id: categoria._id,
+      categoria: { nome: categoria.nome },
+      lattina_id: lattina._id,  // ← AGGIUNTO
+      lattina: { nome: lattina.nome }  // ← AGGIUNTO
+    });
+  });
+}
+
         });
       }
     });
@@ -132,10 +135,12 @@ function filtraAdmin() {
   
   let risultato = [...datiGestioneOriginali];
   
+  // Filtro per tipo
   if (tipo !== 'tutti') {
     risultato = risultato.filter(item => item.tipo === tipo);
   }
   
+  // Filtro per categoria
   if (categoriaId) {
     risultato = risultato.filter(item => {
       if (item.tipo === 'categoria') return item._id === categoriaId;
@@ -143,40 +148,69 @@ function filtraAdmin() {
     });
   }
   
+  // ✅ RICERCA INTELLIGENTE: cerca anche nella lattina/categoria padre
   if (ricerca) {
-    risultato = risultato.filter(item =>
-      item.nome?.toLowerCase().includes(ricerca)
-    );
+    risultato = risultato.filter(item => {
+      const nomeMatch = item.nome?.toLowerCase().includes(ricerca);
+      const categoriaMatch = item.categoria?.nome?.toLowerCase().includes(ricerca);
+      const lattinaMatch = item.lattina?.nome?.toLowerCase().includes(ricerca);
+      
+      return nomeMatch || categoriaMatch || lattinaMatch;
+    });
   }
   
   mostraGestione(risultato);
 }
 
+
 function mostraGestione(dati) {
   const container = document.getElementById('gestioneContainer');
   
   if (!dati || dati.length === 0) {
-    container.innerHTML = '<p>Nessun risultato trovato</p>';
+    container.innerHTML = '<p class="no-results">🔍 Nessun risultato trovato</p>';
     return;
   }
   
   let html = '';
   dati.forEach(item => {
+    // Icona per tipo
+    const icona = {
+      'categoria': '📁',
+      'lattina': '🥤',
+      'variante': '🎨'
+    }[item.tipo] || '📦';
+    
+    // Info parent (categoria/lattina)
+    let infoParent = '';
+    if (item.tipo === 'lattina' && item.categoria?.nome) {
+      infoParent = `<span class="parent-info">📁 ${item.categoria.nome}</span>`;
+    } else if (item.tipo === 'variante') {
+      const cat = item.categoria?.nome || 'N/D';
+      const latt = item.lattina?.nome || 'N/D';
+      infoParent = `<span class="parent-info">📁 ${cat} → 🥤 ${latt}</span>`;
+    }
+    
     html += `
       <div class="gestione-item ${item.tipo}">
-        <h4>${item.nome} <small>(ord: ${item.ordine})</small></h4>
-        <p><strong>Tipo:</strong> ${item.tipo}</p>
-        ${item.categoria_id ? `<p><strong>Categoria:</strong> ${item.categoria?.nome || 'N/D'}</p>` : ''}
-        <div class="gestione-actions">
-          <button class="btn-edit" onclick="modificaItem('${item._id}', '${item.nome.replace(/'/g, "\\'")}', ${item.ordine}, '${item.tipo}')">✏️</button>
-          <button class="btn-delete" onclick="eliminaItem('${item._id}', '${item.tipo}')">🗑️</button>
+        <div class="gestione-header">
+          <div class="gestione-title">
+            <span class="tipo-icon">${icona}</span>
+            <h4>${item.nome}</h4>
+            <span class="ordine-badge">ord: ${item.ordine}</span>
+          </div>
+          <div class="gestione-actions">
+            <button class="btn-edit btn-icon" onclick="modificaItem('${item._id}', '${item.nome.replace(/'/g, "\\'")}', ${item.ordine}, '${item.tipo}')" title="Modifica">✏️</button>
+            <button class="btn-delete btn-icon" onclick="eliminaItem('${item._id}', '${item.tipo}')" title="Elimina">🗑️</button>
+          </div>
         </div>
+        ${infoParent ? `<div class="gestione-meta">${infoParent}</div>` : ''}
       </div>
     `;
   });
   
   container.innerHTML = html;
 }
+
 
 // ===== FORM AGGIUNGI (tab Aggiungi) =====
 async function caricaCategorie() {
