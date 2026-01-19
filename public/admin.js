@@ -366,20 +366,36 @@ document.getElementById('formVariante').addEventListener('submit', async (e) => 
 
 // ===== MODAL MODIFICA / ELIMINA =====
 function modificaItem(id, nome, ordine, tipo) {
-  document.getElementById('modificaId').value = id;
-  document.getElementById('modificaTipo').value = tipo;
-  document.getElementById('modificaNome').value = nome;
-  document.getElementById('modificaOrdine').value = ordine;
-  document.getElementById('modalTitolo').textContent = `Modifica ${tipo}`;
-  
-  if (tipo === 'variante') {
-    document.getElementById('uploadForm').style.display = 'block';
-  } else {
-    document.getElementById('uploadForm').style.display = 'none';
+  // ✅ Controlli null per evitare crash
+  const modal = document.getElementById('modalModifica');
+  const modificaId = document.getElementById('modificaId');
+  const modificaTipo = document.getElementById('modificaTipo');
+  const modificaNome = document.getElementById('modificaNome');
+  const modificaOrdine = document.getElementById('modificaOrdine');
+  const modalTitolo = document.getElementById('modalTitolo');
+  const uploadForm = document.getElementById('uploadForm');
+
+  if (!modal || !modificaId || !modificaTipo || !modificaNome || !modificaOrdine || !modalTitolo) {
+    console.error('❌ Elementi modal mancanti nell\'HTML');
+    return;
   }
-  
-  document.getElementById('modalModifica').style.display = 'block';
+
+  // Popola i campi
+  modificaId.value = id;
+  modificaTipo.value = tipo;
+  modificaNome.value = nome;
+  modificaOrdine.value = ordine;
+  modalTitolo.textContent = `Modifica ${tipo}`;
+
+  // Se è una variante, mostra il form upload immagine
+  if (uploadForm) {
+    uploadForm.style.display = (tipo === 'variante') ? 'block' : 'none';
+  }
+
+  // Apri il modal
+  modal.style.display = 'block';
 }
+
 
 function chiudiModal() {
   document.getElementById('modalModifica').style.display = 'none';
