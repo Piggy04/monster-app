@@ -242,17 +242,25 @@ async function cambiaUsername() {
       body: JSON.stringify({ username: nuovo })
     });
     
-    if (res.ok) {
+    // ✅ Gestione 204 No Content
+    if (res.status === 204 || res.ok) {
       localStorage.setItem('username', nuovo);
       alert('✅ Username aggiornato con successo!');
       caricaProfilo();
       return;
     }
     
-    const err = await res.json().catch(() => ({ errore: 'Errore sconosciuto' }));
+    // Solo se errore 4xx/5xx - controlla se c'è body JSON
+    let err;
+    try {
+      err = await res.json();
+    } catch {
+      err = { errore: `Errore ${res.status}` };
+    }
     alert('❌ ' + (err.errore || err.message || 'Username già in uso'));
     
-  } catch {
+  } catch (e) {
+    console.error('Errore cambiaUsername:', e);
     alert('❌ Errore di connessione al server');
   }
 }
@@ -273,23 +281,27 @@ async function cambiaEmail() {
       body: JSON.stringify({ email: nuova })
     });
     
-    // ✅ Se status 200-299, è successo
-    if (res.ok) {
+    // ✅ Gestione 204 No Content
+    if (res.status === 204 || res.ok) {
       alert('✅ Email aggiornata con successo!');
       caricaProfilo();
       return;
     }
     
-    // Solo se errore 4xx/5xx
-    const err = await res.json().catch(() => ({ errore: 'Errore sconosciuto' }));
+    // Solo se errore 4xx/5xx - controlla se c'è body JSON
+    let err;
+    try {
+      err = await res.json();
+    } catch {
+      err = { errore: `Errore ${res.status}` };
+    }
     alert('❌ ' + (err.errore || err.message || 'Errore aggiornamento email'));
     
-  } catch (err) {
-    console.error('Errore di rete cambiaEmail:', err);
+  } catch (e) {
+    console.error('Errore cambiaEmail:', e);
     alert('❌ Errore di connessione al server');
   }
 }
-
 
 
 // MODIFICA PASSWORD
@@ -315,8 +327,8 @@ async function cambiaPassword() {
       })
     });
 
-    // ✅ Se status 200-299, è successo
-    if (res.ok) {
+    // ✅ Gestione 204 No Content
+    if (res.status === 204 || res.ok) {
       alert('✅ Password aggiornata con successo!');
       ['oldPassword','newPassword','confirmPassword'].forEach(id => {
         document.getElementById(id).value = '';
@@ -324,15 +336,21 @@ async function cambiaPassword() {
       return;
     }
 
-    // Solo se errore 4xx/5xx
-    const data = await res.json().catch(() => ({ errore: 'Errore sconosciuto' }));
-    alert('❌ ' + (data.errore || data.message || 'Password vecchia errata o errore server'));
+    // Solo se errore 4xx/5xx - controlla se c'è body JSON
+    let err;
+    try {
+      err = await res.json();
+    } catch {
+      err = { errore: `Errore ${res.status}` };
+    }
+    alert('❌ ' + (err.errore || err.message || 'Password vecchia errata'));
 
   } catch (e) {
-    console.error('Errore di rete cambia-password:', e);
+    console.error('Errore cambiaPassword:', e);
     alert('❌ Errore di connessione al server');
   }
 }
+
 
 
 
