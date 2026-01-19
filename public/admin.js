@@ -468,3 +468,85 @@ function resetPreview() {
 }
 
 
+// 📷 CARICA IMMAGINE per variante (nel modal modifica)
+async function caricaImmagine() {
+  const varianteId = document.getElementById('modificaId').value;
+  const immagineUrl = document.getElementById('uploadImage').value.trim();
+  const preview = document.getElementById('previewImage');
+
+  if (!immagineUrl) {
+    return alert('Inserisci un URL immagine');
+  }
+
+  // Test se l'immagine carica
+  const img = new Image();
+  img.onload = async () => {
+    // ✅ Immagine valida, salva nel DB
+    try {
+      const response = await fetch(`${API_URL}/collezione/variante/${varianteId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ immagine: immagineUrl })
+      });
+
+      if (response.ok) {
+        preview.src = immagineUrl;
+        preview.style.display = 'block';
+        alert('✅ Immagine salvata!');
+        caricaGestione(); // Ricarica lista
+      } else {
+        alert('❌ Errore nel salvataggio');
+      }
+    } catch (err) {
+      console.error('Errore caricaImmagine:', err);
+      alert('Errore di rete');
+    }
+  };
+
+  img.onerror = () => {
+    preview.style.display = 'none';
+    alert('❌ URL non valido o immagine non caricabile');
+  };
+
+  img.src = immagineUrl;
+}
+
+// 💾 SALVA MODIFICHE (nome/ordine nel modal)
+document.getElementById('formModifica').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const id = document.getElementById('modificaId').value;
+  const tipo = document.getElementById('modificaTipo').value;
+  const nome = document.getElementById('modificaNome').value.trim();
+  const ordine = parseInt(document.getElementById('modificaOrdine').value) || 0;
+
+  if (!nome) return alert('Inserisci un nome');
+
+  try {
+    const response = await fetch(`${API_URL}/collezione/${tipo}/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ nome, ordine })
+    });
+
+    if (response.ok) {
+      alert('✅ Modifiche salvate!');
+      chiudiModal();
+      caricaGestione();
+      caricaCategorie();
+    } else {
+      alert('❌ Errore nel salvataggio');
+    }
+  } catch (err) {
+    console.error('Errore formModifica:', err);
+    alert('Errore di rete');
+  }
+});
+
+
