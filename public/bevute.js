@@ -3,6 +3,15 @@ let tutteVarianti = [];
 // 🔧 Render API diretta (bypass Netlify 404)
 const RENDER_API = 'https://monster-app-ocdj.onrender.com/api';
 
+
+let token = localStorage.getItem('token');
+
+if (!token) {
+  window.location.href = 'index.html';
+}
+
+const username = localStorage.getItem('username');
+const ruolo = localStorage.getItem('ruolo');
   if (ruolo === 'admin') {
   const linkAdmin = document.getElementById('linkAdmin');
   const linkUsers = document.getElementById('linkUsers');
