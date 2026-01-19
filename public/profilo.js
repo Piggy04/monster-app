@@ -10,11 +10,49 @@ const API_AUTH  = API_URL.endsWith('/api') ? `${API_URL}/auth`  : `${API_URL}/ap
 let avatarSelezionato = '';
 
 const AVATARS = [
-  'https://randomuser.me/api/portraits/men/32.jpg',
-  'https://randomuser.me/api/portraits/women/44.jpg',
-  'https://randomuser.me/api/portraits/men/75.jpg',
-  'https://randomuser.me/api/portraits/women/91.jpg'
+  // 🦁 Animali
+  'https://api.dicebear.com/7.x/bottts/svg?seed=lion&backgroundColor=b6e3f4',
+  'https://api.dicebear.com/7.x/bottts/svg?seed=tiger&backgroundColor=c0aede',
+  'https://api.dicebear.com/7.x/bottts/svg?seed=bear&backgroundColor=d1d4f9',
+  'https://api.dicebear.com/7.x/bottts/svg?seed=wolf&backgroundColor=ffd5dc',
+  'https://api.dicebear.com/7.x/bottts/svg?seed=eagle&backgroundColor=ffdfbf',
+  'https://api.dicebear.com/7.x/bottts/svg?seed=shark&backgroundColor=b6e3f4',
+  'https://api.dicebear.com/7.x/bottts/svg?seed=dragon&backgroundColor=ffadad',
+  'https://api.dicebear.com/7.x/bottts/svg?seed=phoenix&backgroundColor=fdffb6',
+  
+  // ⚡ Monster Energy themed
+  'https://api.dicebear.com/7.x/bottts/svg?seed=monster1&backgroundColor=00ff41',
+  'https://api.dicebear.com/7.x/bottts/svg?seed=monster2&backgroundColor=1a1a1a',
+  'https://api.dicebear.com/7.x/bottts/svg?seed=energy&backgroundColor=00ff41',
+  'https://api.dicebear.com/7.x/bottts/svg?seed=ultra&backgroundColor=ffffff',
+  'https://api.dicebear.com/7.x/bottts/svg?seed=rehab&backgroundColor=ffcc00',
+  'https://api.dicebear.com/7.x/bottts/svg?seed=zero&backgroundColor=00ccff',
+  
+  // 👾 Robot/Gaming
+  'https://api.dicebear.com/7.x/bottts/svg?seed=robot1&backgroundColor=667eea',
+  'https://api.dicebear.com/7.x/bottts/svg?seed=robot2&backgroundColor=764ba2',
+  'https://api.dicebear.com/7.x/bottts/svg?seed=cyber&backgroundColor=f093fb',
+  'https://api.dicebear.com/7.x/bottts/svg?seed=neon&backgroundColor=4facfe',
+  
+  // 🐾 Altri animali
+  'https://api.dicebear.com/7.x/bottts/svg?seed=panda&backgroundColor=ffeaa7',
+  'https://api.dicebear.com/7.x/bottts/svg?seed=fox&backgroundColor=fdcb6e',
+  'https://api.dicebear.com/7.x/bottts/svg?seed=owl&backgroundColor=a29bfe',
+  'https://api.dicebear.com/7.x/bottts/svg?seed=raccoon&backgroundColor=fd79a8',
+  
+  // 🎮 Gaming icons
+  'https://api.dicebear.com/7.x/bottts/svg?seed=gamer1&backgroundColor=00b894',
+  'https://api.dicebear.com/7.x/bottts/svg?seed=gamer2&backgroundColor=6c5ce7',
+  'https://api.dicebear.com/7.x/bottts/svg?seed=speedrun&backgroundColor=ff7675',
+  'https://api.dicebear.com/7.x/bottts/svg?seed=victory&backgroundColor=fdcb6e',
+  
+  // 🌟 Special
+  'https://api.dicebear.com/7.x/bottts/svg?seed=legend&backgroundColor=ffeaa7',
+  'https://api.dicebear.com/7.x/bottts/svg?seed=champion&backgroundColor=55efc4',
+  'https://api.dicebear.com/7.x/bottts/svg?seed=collector&backgroundColor=fab1a0',
+  'https://api.dicebear.com/7.x/bottts/svg?seed=master&backgroundColor=74b9ff'
 ];
+
 
 document.addEventListener('DOMContentLoaded', () => {
   if (ruoloLS === 'admin') {
@@ -204,6 +242,7 @@ async function cambiaUsername() {
 async function cambiaEmail() {
   const nuova = document.getElementById('inputEmail').value.trim();
   if (!nuova) return alert('Inserisci una email valida');
+  
   try {
     const res = await fetch(`${API_AUTH}/cambia-email`, {
       method: 'PUT',
@@ -213,17 +252,24 @@ async function cambiaEmail() {
       },
       body: JSON.stringify({ email: nuova })
     });
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      alert(err.errore || 'Errore aggiornamento email');
+    
+    // ✅ Anche se 200/204 senza JSON, è successo
+    if (res.ok) {
+      alert('✅ Email aggiornata con successo!');
+      caricaProfilo();
       return;
     }
-    alert('Email aggiornata');
-    caricaProfilo();
-  } catch {
+    
+    // Solo se errore vero (4xx/5xx)
+    const err = await res.json().catch(() => ({}));
+    alert(err.errore || 'Errore aggiornamento email');
+    
+  } catch (err) {
+    console.error('Errore di rete cambiaEmail:', err);
     alert('Errore di rete');
   }
 }
+
 
 // MODIFICA PASSWORD
 async function cambiaPassword() {
@@ -248,22 +294,25 @@ async function cambiaPassword() {
       })
     });
 
-    const data = await res.json().catch(() => ({}));
-
-    if (!res.ok) {
-      console.error('Errore cambia-password:', data);
-      return alert(data.errore || 'Errore nel cambio password');
+    // ✅ Se 200/204, è andata
+    if (res.ok) {
+      alert('✅ Password aggiornata con successo!');
+      ['oldPassword','newPassword','confirmPassword'].forEach(id => {
+        document.getElementById(id).value = '';
+      });
+      return;
     }
 
-    alert(data.messaggio || 'Password aggiornata');
-    ['oldPassword','newPassword','confirmPassword'].forEach(id => {
-      document.getElementById(id).value = '';
-    });
+    // Solo se errore vero
+    const data = await res.json().catch(() => ({}));
+    alert(data.errore || 'Errore nel cambio password');
+
   } catch (e) {
     console.error('Errore di rete cambia-password:', e);
     alert('Errore di rete');
   }
 }
+
 
 
 
