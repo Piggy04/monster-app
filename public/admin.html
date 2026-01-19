@@ -151,12 +151,12 @@
       </form>
       
       <!-- URL immagine per variante -->
-      <div id="uploadForm" class="upload-form" style="display:none;">
-        <h3>📷 Immagine</h3>
-        <input type="url" id="uploadImage" placeholder="Inserisci URL immagine (https://...)">
-        <button type="button" onclick="caricaImmagine()">Salva Immagine</button>
-        <img id="previewImage" class="upload-preview" style="display:none;">
-      </div>
+      <input type="url" id="immagineVariante" placeholder="https://i.imgur.com/tua-immagine.jpg">
+<button type="button" onclick="previewImmagine()" style="margin-top:8px;">👁️ Preview</button>
+<div id="previewContainer" style="margin-top:12px;display:none;">
+  <img id="previewImage" style="max-width:200px;max-height:200px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.2);">
+  <p id="previewStatus" style="margin-top:8px;font-size:14px;"></p>
+</div>
     </div>
   </div>
 

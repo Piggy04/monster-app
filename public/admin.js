@@ -328,7 +328,7 @@ document.getElementById('formVariante').addEventListener('submit', async (e) => 
       body.immagine = immagineUrl; // ← Nome esatto per il backend
     }
 
-    const response = await fetch(`${API_URL}/collezione/variante`, {
+        const response = await fetch(`${API_URL}/collezione/variante`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -340,22 +340,26 @@ document.getElementById('formVariante').addEventListener('submit', async (e) => 
     const data = await response.json().catch(() => ({}));
 
     if (!response.ok) {
-      console.error('Errore API variante:', data);
+      console.error('❌ Errore API variante:', data);
       return alert(data.errore || 'Errore nella creazione della variante');
     }
 
-    document.getElementById('successoVariante').textContent = '✓ Variante aggiunta!';
+    // ✅ SUCCESSO
+    document.getElementById('successoVariante').textContent = '✓ Variante aggiunta con immagine!';
     document.getElementById('formVariante').reset();
     document.getElementById('lattinaVariante').innerHTML = '<option value="">Prima seleziona categoria</option>';
+    
+    // Reset preview se esiste
+    if (typeof resetPreview === 'function') resetPreview();
+    
     setTimeout(() => {
       document.getElementById('successoVariante').textContent = '';
-      document.getElementById('immagineVariante').value = '';
       caricaCategorie();
       caricaGestione();
     }, 1500);
-  } catch
- (err) {
-    console.error('Errore di rete variante:', err);
+
+  } catch (err) {
+    console.error('❌ Errore di rete variante:', err);
     alert('Errore di rete');
   }
 });
@@ -408,4 +412,43 @@ if (['admin', 'beta'].includes(utente?.ruolo)) {
   document.getElementById('linkBevute').style.display = 'block';
   document.getElementById('linkAdmin').style.display = 'block';
 }
+
+
+// 👁️ PREVIEW IMMAGINE URL
+function previewImmagine() {
+  const url = document.getElementById('immagineVariante').value.trim();
+  const preview = document.getElementById('previewImage');
+  const status = document.getElementById('previewStatus');
+  const container = document.getElementById('previewContainer');
+
+  if (!url) {
+    alert('Inserisci un URL immagine');
+    return;
+  }
+
+  // Testa se l'immagine carica
+  const img = new Image();
+  img.onload = () => {
+    preview.src = url;
+    preview.style.display = 'block';
+    status.textContent = '✅ Immagine valida!';
+    status.style.color = 'green';
+    container.style.display = 'block';
+  };
+  img.onerror = () => {
+    preview.style.display = 'none';
+    status.textContent = '❌ URL non valido o immagine non caricabile';
+    status.style.color = 'red';
+    container.style.display = 'block';
+  };
+  img.src = url;
+}
+
+// 🔄 Reset preview
+function resetPreview() {
+  document.getElementById('previewImage').style.display = 'none';
+  document.getElementById('previewContainer').style.display = 'none';
+  document.getElementById('immagineVariante').value = '';
+}
+
 
