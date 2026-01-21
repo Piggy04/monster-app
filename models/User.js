@@ -52,7 +52,24 @@ const userSchema = new mongoose.Schema({
       ref: 'Variante',
       default: []
     }
-  ]
+  ],
+  
+  // ✅ NUOVO CAMPO: bevute personali
+  bevute: [{
+    variante_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Variante',
+      required: true
+    },
+    contatore: {
+      type: Number,
+      default: 0
+    },
+    ultima_bevuta: {
+      type: Date,
+      default: Date.now
+    }
+  }]
 
 }, { timestamps: true });
 

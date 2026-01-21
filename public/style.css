@@ -438,6 +438,36 @@ body {
   color: var(--text-secondary);
   opacity: 0.8;
 }
+/* ===== FORZA DESKTOP SU SCHERMI GRANDI ===== */
+@media (min-width: 901px) {
+  .sidebar {
+    display: block !important;
+    position: fixed !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 260px !important;
+    height: 100vh !important;
+    transform: translateX(0) !important;
+  }
+  
+  .main-content {
+    margin-left: 260px !important;
+  }
+  
+  .sidebar-toggle {
+    display: none !important;
+  }
+  
+  .sidebar-overlay {
+    display: none !important;
+    opacity: 0 !important;
+  }
+}
+
+/* Mobile/Tablet (<900px) */
+@media (max-width: 900px) {
+  /* ... tutto il codice mobile */
+}
 
 /* Scaffale responsive */
 @media (max-width: 600px) {
