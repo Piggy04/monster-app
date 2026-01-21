@@ -94,6 +94,39 @@ router.delete('/:id', authenticateToken, async (req, res) => {
   }
 });
 
+// GET - Bevute raggruppate per variante (con contatore)
+router.get('/raggruppate', authenticateToken, async (req, res) => {
+  try {
+    const bevute = await Bevuta.aggregate([
+      { $match: { utenteId: mongoose.Types.ObjectId(req.user.id) } },
+      {
+        $group: {
+          _id: '$varianteId',
+          conteggio: { $sum: 1 },
+          ultimaBevuta: { $max: '$data' },
+          stati: { $push: '$stato' }
+        }
+      },
+      {
+        $lookup: {
+          from: 'variantes',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'variante'
+        }
+      },
+      { $unwind: { path: '$variante', preserveNullAndEmptyArrays: true } },
+      { $sort: { ultimaBevuta: -1 } }
+    ]);
+
+    res.json(bevute);
+  } catch (err) {
+    console.error('Errore bevute raggruppate:', err);
+    res.status(500).json({ errore: 'Errore caricamento' });
+  }
+});
+
+
 // ===== GET - Statistiche bevute utente =====
 router.get('/statistiche', authenticateToken, async (req, res) => {
   try {

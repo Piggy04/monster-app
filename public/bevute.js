@@ -26,7 +26,6 @@ async function caricaBevute() {
     const ricerca = document.getElementById('ricercaBevuta')?.value?.toLowerCase() || '';
     const data = document.getElementById('filtroData')?.value || '';
 
-    // ✅ AGGIUNGI TOKEN
     const res = await fetch(`${RENDER_API}/bevute`, {
       headers: {
         'Authorization': `Bearer ${token}`
@@ -47,24 +46,26 @@ async function caricaBevute() {
         (b.nome && b.nome.toLowerCase().includes(ricerca)) ||
         !ricerca
       ) &&
-      (!data || (b.data && String(b.data).startsWith(data)))
+      (!data || (b.data && new Date(b.data).toISOString().split('T')[0] === data))
     );
 
     let html = '';
 
     bevute.forEach(bevuta => {
-      const nomeCompleto = `${bevuta.nomeLattina || 'Monster'} ${bevuta.nomeVariante || bevuta.nome || ''}`;
+      const nomeCompleto = bevuta.nome || `${bevuta.nomeLattina || 'Monster'} ${bevuta.nomeVariante || ''}`;
       const immagine = bevuta.varianteId?.immagine || bevuta.immagine || '/placeholder-beer.jpg';
+      const dataFormattata = bevuta.data ? new Date(bevuta.data).toLocaleDateString('it-IT') : 'Data sconosciuta';
       
       html += `
-        <div class="variante bevuta-card" data-id="${bevuta._id}" style="min-height: 360px;">
+        <div class="variante bevuta-card" data-id="${bevuta._id}">
           <div class="bevuta-nome">${nomeCompleto}</div>
           <div class="variante-immagine">
             <img src="${immagine}" class="variante-img bevuta-foto" alt="${nomeCompleto}">
           </div>
           <div class="bevuta-info">
-            <span class="bevuta-stato">${getIconStato(bevuta.stato)} ${bevuta.stato}</span>
-            <span class="bevuta-data">📅 ${formattaData(bevuta.data)}</span>
+            <span class="bevuta-stato">${getIconStato(bevuta.stato)} ${bevuta.stato || 'bevuta'}</span>
+            <span class="bevuta-data">📅 ${dataFormattata}</span>
+            ${bevuta.ora ? `<span class="bevuta-ora">🕐 ${bevuta.ora}</span>` : ''}
             ${bevuta.note ? `<p class="bevuta-note">📝 ${bevuta.note}</p>` : ''}
           </div>
           <div class="bevuta-azioni">
@@ -79,9 +80,10 @@ async function caricaBevute() {
   } catch (e) {
     console.error('Errore bevute:', e);
     document.getElementById('bevuteContainer').innerHTML =
-      '<p class="no-results">❌ Errore caricamento bevute</p>';
+      '<p class="no-results">❌ Errore caricamento bevute<br>' + e.message + '</p>';
   }
 }
+
 
 async function caricaVariantiPerModal() {
   try {
