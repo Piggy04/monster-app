@@ -3965,6 +3965,103 @@ input:checked + .slider:before {
 }
 
 
+/* ===== MODAL RICERCA VARIANTI (mancante) ===== */
+#risultatiRicerca {
+  position: relative;
+  background: var(--bg-secondary);
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1000;
+  margin-top: 4px;
+  box-shadow: 0 4px 12px var(--shadow);
+}
+
+.risultato-item {
+  padding: 12px 16px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border-color);
+  transition: all 0.2s;
+}
+
+.risultato-item:last-child {
+  border-bottom: none;
+}
+
+.risultato-item:hover {
+  background: var(--accent-color) !important;
+  color: white;
+}
+
+.risultato-item strong {
+  font-weight: 700;
+  color: var(--accent-color);
+}
+
+.risultato-item:hover strong {
+  color: white;
+}
+
+/* ===== FIX CONTEGGIO BADGE ===== */
+.conteggio-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #10b981, #059669) !important;
+  color: white !important;
+  padding: 8px 16px !important;
+  border-radius: 20px !important;
+  font-weight: 700 !important;
+  font-size: 16px !important;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(46, 204, 113, 0.3);
+}
+
+/* ===== BTN-MINI (tasti +/-) ===== */
+.btn-mini {
+  padding: 10px 18px !important;
+  font-size: 18px !important;
+  border-radius: 10px !important;
+  border: none !important;
+  cursor: pointer !important;
+  transition: all 0.3s !important;
+  font-weight: 600 !important;
+}
+
+.btn-primary.btn-mini {
+  background: linear-gradient(135deg, var(--accent-color), var(--accent-hover)) !important;
+  color: white !important;
+}
+
+.btn-danger.btn-mini {
+  background: linear-gradient(135deg, #e74c3c, #c0392b) !important;
+  color: white !important;
+}
+
+.btn-mini:hover {
+  transform: scale(1.1) !important;
+  box-shadow: 0 4px 12px var(--shadow-hover) !important;
+}
+
+.btn-mini:active {
+  transform: scale(0.95) !important;
+}
+
+/* ===== BEVUTE CONTAINER GRID ===== */
+#bevuteContainer {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)) !important;
+  gap: 20px !important;
+  margin-top: 20px !important;
+}
+
+/* ===== NO RESULTS ===== */
+.no-results {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-secondary);
+  font-size: 18px;
+  grid-column: 1 / -1;
+}
 
 
 

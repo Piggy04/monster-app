@@ -68,33 +68,33 @@ function apriModalImmagine(src) {
 </div>
 
 <!-- MODAL AGGIUNGI BEVUTA -->
-<div id="modalNuovaBevuta" class="modal" style="display: none;">
+<div id="modalNuovaBevuta" class="modal" style="display:none;">
   <div class="modal-content">
     <span class="close" onclick="chiudiModalNuovaBevuta()">&times;</span>
-    <h2 id="modalTitolo">➕ Nuova Bevuta</h2>
+    <h2>Aggiungi Bevuta</h2>
     
     <form id="formNuovaBevuta">
-      <div class="ricerca-modal">
-  <input type="text" id="ricercaVariante" placeholder="🔍 Cerca Monster..." oninput="filtraVarianti()">
-  <div id="risultatiRicerca" class="risultati-lista"></div>
-</div>
-<input type="hidden" id="selectVariante" name="varianteId">
-
+      <input type="hidden" id="selectVariante">
+      
+      <label>Cerca Monster:</label>
+      <input type="text" id="ricercaVariante" oninput="filtraVarianti()" placeholder="Es: Original, Ultra White...">
+      <div id="risultatiRicerca" style="display:none;"></div>
       
       <label>Stato:</label>
-      <select id="selectStato" style="width: 100%; margin-bottom: 16px;">
+      <select id="selectStato">
         <option value="bevuta">🍺 Bevuta</option>
         <option value="assaggiata">👅 Assaggiata</option>
         <option value="fatta-finta">😜 Fatta finta</option>
       </select>
       
       <label>Note (opzionale):</label>
-      <textarea id="inputNote" rows="3" placeholder="Es: 'Super buona!', 'Troppo dolce'..."></textarea>
+      <textarea id="inputNote" placeholder="Es: Buonissima!"></textarea>
       
-      <button type="submit" class="btn-large">✅ Registra Bevuta</button>
+      <button type="submit" class="btn-primary">Salva Bevuta</button>
     </form>
   </div>
 </div>
+
 
 
 
