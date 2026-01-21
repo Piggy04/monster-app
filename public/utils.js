@@ -1,15 +1,30 @@
 // utils.js
+const API_URL = 'https://monster-app-ocdj.onrender.com/api';
+
 async function mostraLinkAdmin() {
   try {
-    const res = await fetch('/api/utente');
+    const token = localStorage.getItem('token');
+    
+    if (!token) return; // Non loggato
+    
+    const res = await fetch(`${API_URL}/users/me`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    
+    if (!res.ok) return;
+    
     const utente = await res.json();
     
     if (['admin', 'beta'].includes(utente.ruolo)) {
       document.querySelectorAll('#linkAdmin, #linkUsers, #linkLogAdmin, #linkBevute')
-        .forEach(link => link.style.display = 'block');
+        .forEach(link => {
+          if (link) link.style.display = 'block';
+        });
     }
   } catch(e) {
-    // Non admin → link restano nascosti
+    console.log('Utils: utente non admin o errore fetch');
   }
 }
 
