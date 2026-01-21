@@ -1,9 +1,7 @@
 let tutteVarianti = [];
 
-// 🔧 Render API diretta (bypass Netlify 404)
 const RENDER_API = 'https://monster-app-ocdj.onrender.com/api';
-
-let token = localStorage.getItem('token');
+const token = localStorage.getItem('token');
 
 if (!token) {
   window.location.href = 'index.html';
@@ -13,19 +11,15 @@ const username = localStorage.getItem('username');
 const ruolo = localStorage.getItem('ruolo');
 
 if (ruolo === 'admin') {
-  const linkAdmin = document.getElementById('linkAdmin');
-  const linkUsers = document.getElementById('linkUsers');
-  const linkLogAdmin = document.getElementById('linkLogAdmin');
-  if (linkAdmin) linkAdmin.style.display = 'block';
-  if (linkUsers) linkUsers.style.display = 'block';
-  if (linkLogAdmin) linkLogAdmin.style.display = 'block';
+  ['linkAdmin', 'linkUsers', 'linkLogAdmin'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'block';
+  });
 }
 
+// ===== CARICA BEVUTE RAGGRUPPATE PER VARIANTE =====
 async function caricaBevute() {
   try {
-    const ricerca = document.getElementById('ricercaBevuta')?.value?.toLowerCase() || '';
-    const data = document.getElementById('filtroData')?.value || '';
-
     const res = await fetch(`${RENDER_API}/bevute`, {
       headers: {
         'Authorization': `Bearer ${token}`
@@ -33,61 +27,117 @@ async function caricaBevute() {
     });
     
     if (!res.ok) {
-      throw new Error(`Errore ${res.status}`);
+      throw new Error(`Errore ${res.status}: ${res.statusText}`);
     }
     
-    let bevute = await res.json();
-
-    // Filtri ricerca + data
-    bevute = bevute.filter(b =>
-      (
-        (b.nomeLattina && b.nomeLattina.toLowerCase().includes(ricerca)) ||
-        (b.nomeVariante && b.nomeVariante.toLowerCase().includes(ricerca)) ||
-        (b.nome && b.nome.toLowerCase().includes(ricerca)) ||
-        !ricerca
-      ) &&
-      (!data || (b.data && new Date(b.data).toISOString().split('T')[0] === data))
-    );
-
-    let html = '';
-
-    bevute.forEach(bevuta => {
-      const nomeCompleto = bevuta.nome || `${bevuta.nomeLattina || 'Monster'} ${bevuta.nomeVariante || ''}`;
-      const immagine = bevuta.varianteId?.immagine || bevuta.immagine || '/placeholder-beer.jpg';
-      const dataFormattata = bevuta.data ? new Date(bevuta.data).toLocaleDateString('it-IT') : 'Data sconosciuta';
+    const bevute = await res.json();
+    
+    console.log('📊 Bevute ricevute:', bevute.length);
+    
+    // Raggruppa per varianteId
+    const raggruppate = {};
+    
+    bevute.forEach(b => {
+      const varId = b.varianteId?._id || b.varianteId;
+      if (!varId) return;
       
+      if (!raggruppate[varId]) {
+        raggruppate[varId] = {
+          varianteId: varId,
+          nome: b.varianteId?.nome || b.nome || 'Monster',
+          immagine: b.varianteId?.immagine || '/placeholder-beer.jpg',
+          conteggio: 0,
+          bevuteIds: []
+        };
+      }
+      
+      raggruppate[varId].conteggio++;
+      raggruppate[varId].bevuteIds.push(b._id);
+    });
+    
+    const lista = Object.values(raggruppate);
+    
+    let html = '';
+    
+    lista.forEach(item => {
       html += `
-        <div class="variante bevuta-card" data-id="${bevuta._id}">
-          <div class="bevuta-nome">${nomeCompleto}</div>
+        <div class="variante bevuta-card">
+          <div class="bevuta-nome">${item.nome}</div>
           <div class="variante-immagine">
-            <img src="${immagine}" class="variante-img bevuta-foto" alt="${nomeCompleto}">
+            <img src="${item.immagine}" class="variante-img bevuta-foto" alt="${item.nome}">
           </div>
-          <div class="bevuta-info">
-            <span class="bevuta-stato">${getIconStato(bevuta.stato)} ${bevuta.stato || 'bevuta'}</span>
-            <span class="bevuta-data">📅 ${dataFormattata}</span>
-            ${bevuta.ora ? `<span class="bevuta-ora">🕐 ${bevuta.ora}</span>` : ''}
-            ${bevuta.note ? `<p class="bevuta-note">📝 ${bevuta.note}</p>` : ''}
+          <div class="variante-checkbox">
+            <span class="conteggio-badge">🍺 x${item.conteggio}</span>
           </div>
           <div class="bevuta-azioni">
-            <button class="btn-delete btn-mini" onclick="eliminaBevuta('${bevuta._id}')">🗑️ Elimina</button>
+            <button class="btn-primary btn-mini" onclick="incrementaBevuta('${item.varianteId}')">➕</button>
+            <button class="btn-danger btn-mini" onclick="decrementaBevuta('${item.bevuteIds[item.bevuteIds.length - 1]}')">➖</button>
           </div>
         </div>
       `;
     });
-
-    document.getElementById('bevuteContainer').innerHTML =
+    
+    document.getElementById('bevuteContainer').innerHTML = 
       html || '<p class="no-results">Nessuna bevuta registrata 😢<br>Clicca "➕ Nuova Bevuta" per iniziare!</p>';
+      
   } catch (e) {
-    console.error('Errore bevute:', e);
-    document.getElementById('bevuteContainer').innerHTML =
-      '<p class="no-results">❌ Errore caricamento bevute<br>' + e.message + '</p>';
+    console.error('❌ Errore caricamento bevute:', e);
+    document.getElementById('bevuteContainer').innerHTML = 
+      `<p class="no-results">❌ Errore: ${e.message}</p>`;
   }
 }
 
+// ===== INCREMENTA BEVUTA (aggiunge una nuova) =====
+async function incrementaBevuta(varianteId) {
+  try {
+    const res = await fetch(`${RENDER_API}/bevute`, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ 
+        varianteId, 
+        stato: 'bevuta' 
+      })
+    });
+    
+    if (res.ok) {
+      caricaBevute();
+    } else {
+      alert('❌ Errore nel salvataggio');
+    }
+  } catch(e) { 
+    console.error('Errore incrementa:', e);
+    alert('❌ Errore rete');
+  }
+}
 
+// ===== DECREMENTA BEVUTA (elimina l'ultima) =====
+async function decrementaBevuta(bevutaId) {
+  if (!bevutaId) return alert('Nessuna bevuta da eliminare');
+  
+  try {
+    const res = await fetch(`${RENDER_API}/bevute/${bevutaId}`, { 
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    
+    if (res.ok) {
+      caricaBevute();
+    } else {
+      alert('❌ Errore eliminazione');
+    }
+  } catch (e) {
+    console.error('Errore decrementa:', e);
+  }
+}
+
+// ===== CARICA VARIANTI PER MODAL =====
 async function caricaVariantiPerModal() {
   try {
-    // ✅ AGGIUNGI TOKEN
     const res = await fetch(`${RENDER_API}/monster-varianti`, {
       headers: {
         'Authorization': `Bearer ${token}`
@@ -100,6 +150,7 @@ async function caricaVariantiPerModal() {
   }
 }
 
+// ===== FILTRO VARIANTI NEL MODAL =====
 function filtraVarianti() {
   const query = document.getElementById('ricercaVariante').value.toLowerCase();
   const risultati = document.getElementById('risultatiRicerca');
@@ -128,40 +179,6 @@ function selezionaVariante(id, nomeVariante, nomeLattina) {
   document.getElementById('risultatiRicerca').style.display = 'none';
 }
 
-function getIconStato(stato) {
-  const icons = { 
-    'bevuta': '🍺', 
-    'assaggiata': '👅', 
-    'fatta-finta': '😜' 
-  };
-  return icons[stato] || '🍻';
-}
-
-function formattaData(dataISO) {
-  try { 
-    const d = new Date(dataISO);
-    return d.toLocaleDateString('it-IT', { 
-      day: '2-digit', 
-      month: '2-digit', 
-      year: 'numeric' 
-    });
-  } catch { 
-    return '?'; 
-  }
-}
-
-function oggi() {
-  document.getElementById('filtroData').value = new Date().toISOString().split('T')[0];
-  caricaBevute();
-}
-
-function settimanaScorsa() {
-  const data = new Date(); 
-  data.setDate(data.getDate() - 7);
-  document.getElementById('filtroData').value = data.toISOString().split('T')[0];
-  caricaBevute();
-}
-
 function apriModalNuovaBevuta() {
   document.getElementById('modalNuovaBevuta').style.display = 'block';
   caricaVariantiPerModal();
@@ -182,7 +199,6 @@ async function gestisciSubmitBevuta(e) {
   if (!varianteId) return alert('⚠️ Seleziona una Monster!');
   
   try {
-    // ✅ AGGIUNGI TOKEN
     const res = await fetch(`${RENDER_API}/bevute`, {
       method: 'POST',
       headers: { 
@@ -198,7 +214,7 @@ async function gestisciSubmitBevuta(e) {
       alert('🍺 Bevuta registrata!');
     } else {
       const err = await res.json().catch(() => ({}));
-      alert('❌ Errore: ' + (err.errore || 'Errore server'));
+      alert('❌ ' + (err.errore || 'Errore server'));
     }
   } catch(err) {
     console.error('Submit errore:', err);
@@ -206,30 +222,7 @@ async function gestisciSubmitBevuta(e) {
   }
 }
 
-async function eliminaBevuta(bevutaId) {
-  if (!confirm('🗑️ Eliminare questa bevuta?')) return;
-  
-  try {
-    // ✅ AGGIUNGI TOKEN
-    const res = await fetch(`${RENDER_API}/bevute/${bevutaId}`, { 
-      method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    });
-    
-    if (res.ok) {
-      alert('✅ Bevuta eliminata');
-      caricaBevute();
-    } else {
-      alert('❌ Errore eliminazione');
-    }
-  } catch (e) {
-    console.error('Errore DELETE:', e);
-    alert('❌ Errore rete');
-  }
-}
-
+// ===== INIT =====
 document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('formNuovaBevuta');
   if (form) form.addEventListener('submit', gestisciSubmitBevuta);
@@ -237,9 +230,6 @@ document.addEventListener('DOMContentLoaded', () => {
   window.onclick = (e) => {
     if (e.target.id === 'modalNuovaBevuta') chiudiModalNuovaBevuta();
   };
-  
-  document.getElementById('ricercaBevuta')?.addEventListener('input', caricaBevute);
-  document.getElementById('filtroData')?.addEventListener('change', caricaBevute);
   
   caricaBevute();
 });
