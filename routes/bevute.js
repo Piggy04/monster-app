@@ -6,23 +6,24 @@ const authenticateToken = require('../middleware/auth'); // ← Usa il tuo middl
 // ===== GET - Bevute dell'utente loggato =====
 router.get('/', authenticateToken, async (req, res) => {
   try {
-    const bevute = await Bevuta.find({ utenteId: req.user.id }) // ← FILTRO per utente
-      .populate('varianteId', 'nome immagine')
-      .sort({ data: -1 })
-      .limit(100);
+    const bevute = await Bevuta.find({ utenteId: req.user.id })
+      .populate({
+        path: 'varianteId',
+        select: 'nome immagine lattina_id',
+        populate: {
+          path: 'lattina_id',
+          select: 'nome'
+        }
+      })
+      .sort({ data: -1 });
     
-    // Aggiungi nome variante
-    const conNome = bevute.map(b => ({
-      ...b._doc,
-      nome: b.varianteId?.nome || 'Sconosciuta'
-    }));
-    
-    res.json(conNome);
+    res.json(bevute);
   } catch(err) {
     console.error('Errore GET bevute:', err);
     res.status(500).json({ errore: 'Errore caricamento bevute' });
   }
 });
+
 
 // ===== POST - Aggiungi bevuta per utente loggato =====
 router.post('/', authenticateToken, async (req, res) => {

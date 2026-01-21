@@ -38,14 +38,20 @@ async function caricaBevute() {
     const raggruppate = {};
     
     bevute.forEach(b => {
+      // Usa varianteId se esiste, altrimenti fallback
       const varId = b.varianteId?._id || b.varianteId;
-      if (!varId) return;
+      
+      if (!varId) {
+        console.warn('⚠️ Bevuta senza varianteId:', b);
+        return;
+      }
       
       if (!raggruppate[varId]) {
         raggruppate[varId] = {
           varianteId: varId,
-          nome: b.varianteId?.nome || b.nome || 'Monster',
-          immagine: b.varianteId?.immagine || '/placeholder-beer.jpg',
+          nome: b.varianteId?.nome || b.nomeVariante || 'Monster',
+          lattinaNome: b.varianteId?.lattina_id?.nome || b.nomeLattina || '',
+          immagine: b.varianteId?.immagine || b.immagine || '/placeholder-beer.jpg',
           conteggio: 0,
           bevuteIds: []
         };
@@ -60,11 +66,13 @@ async function caricaBevute() {
     let html = '';
     
     lista.forEach(item => {
+      const nomeCompleto = item.lattinaNome ? `${item.lattinaNome} - ${item.nome}` : item.nome;
+      
       html += `
         <div class="variante bevuta-card">
-          <div class="bevuta-nome">${item.nome}</div>
+          <div class="bevuta-nome">${nomeCompleto}</div>
           <div class="variante-immagine">
-            <img src="${item.immagine}" class="variante-img bevuta-foto" alt="${item.nome}">
+            <img src="${item.immagine}" class="variante-img bevuta-foto" alt="${nomeCompleto}">
           </div>
           <div class="variante-checkbox">
             <span class="conteggio-badge">🍺 x${item.conteggio}</span>
@@ -86,6 +94,7 @@ async function caricaBevute() {
       `<p class="no-results">❌ Errore: ${e.message}</p>`;
   }
 }
+
 
 // ===== INCREMENTA BEVUTA (aggiunge una nuova) =====
 async function incrementaBevuta(varianteId) {
