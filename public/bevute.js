@@ -1,6 +1,6 @@
 let tutteVarianti = [];
-let bevuteOriginali = []; // ← Array completo per filtri
-let periodoAttivo = 'tutto'; // ← Stato filtro periodo
+let bevuteOriginali = [];
+let periodoAttivo = 'tutto';
 
 const RENDER_API = 'https://monster-app-ocdj.onrender.com/api';
 const token = localStorage.getItem('token');
@@ -40,7 +40,7 @@ async function caricaStatistiche() {
   }
 }
 
-// ===== CARICA BEVUTE (senza raggruppamento) =====
+// ===== CARICA BEVUTE =====
 async function caricaBevute() {
   try {
     const res = await fetch(`${RENDER_API}/bevute`, {
@@ -53,8 +53,8 @@ async function caricaBevute() {
     
     console.log('📊 Bevute caricate:', bevuteOriginali.length);
     
-    caricaStatistiche(); // ← Aggiorna statistiche
-    applicaFiltri(); // ← Applica filtri/ordinamento
+    caricaStatistiche();
+    applicaFiltri();
     
   } catch (e) {
     console.error('❌ Errore caricamento bevute:', e);
@@ -67,11 +67,13 @@ async function caricaBevute() {
 function filtraPeriodo(periodo) {
   periodoAttivo = periodo;
   
-  // Aggiorna pulsanti attivi
   document.querySelectorAll('.filtri-box button').forEach(btn => {
     btn.classList.remove('active');
   });
-  document.getElementById(`btn${periodo.charAt(0).toUpperCase() + periodo.slice(1)}`).classList.add('active');
+  
+  const btnId = `btn${periodo.charAt(0).toUpperCase() + periodo.slice(1)}`;
+  const btnElement = document.getElementById(btnId);
+  if (btnElement) btnElement.classList.add('active');
   
   applicaFiltri();
 }
@@ -110,10 +112,8 @@ function filtraPerData(bevute) {
 function applicaFiltri() {
   let risultato = [...bevuteOriginali];
   
-  // 1️⃣ Filtro periodo
   risultato = filtraPerData(risultato);
   
-  // 2️⃣ Ricerca
   const query = document.getElementById('ricercaBevuta')?.value.toLowerCase() || '';
   if (query) {
     risultato = risultato.filter(b => {
@@ -127,7 +127,6 @@ function applicaFiltri() {
     });
   }
   
-  // 3️⃣ Ordinamento
   const ordine = document.getElementById('selectOrdinamento')?.value || 'data-desc';
   
   if (ordine === 'data-desc') {
@@ -145,7 +144,7 @@ function applicaFiltri() {
   mostraBevute(risultato);
 }
 
-// ===== MOSTRA BEVUTE (SINGOLE, non raggruppate) =====
+// ===== MOSTRA BEVUTE (con + e -) =====
 function mostraBevute(bevute) {
   const container = document.getElementById('bevuteContainer');
   
@@ -166,20 +165,16 @@ function mostraBevute(bevute) {
     const dataStr = data.toLocaleDateString('it-IT');
     const oraStr = b.ora || data.toLocaleTimeString('it-IT');
     
-    // Info nutrizionali
     const caffeina = b.varianteId?.caffeina_mg || 0;
     const calorie = b.varianteId?.calorie_kcal || 0;
     const zuccheri = b.varianteId?.zuccheri_g || 0;
     
     html += `
       <div class="bevuta-card">
-        <div class="bevuta-header">
-          <div class="bevuta-nome">${nomeCompleto}</div>
-          <button class="btn-danger btn-mini" onclick="eliminaBevuta('${b._id}')" title="Elimina">🗑️</button>
-        </div>
+        <div class="bevuta-nome">${nomeCompleto}</div>
         
-        <div class="variante-immagine">
-          <img src="${immagine}" class="variante-img bevuta-foto" alt="${nomeCompleto}" onclick="apriModalImmagine('${immagine}')">
+        <div class="bevuta-immagine">
+          <img src="${immagine}" class="bevuta-foto" alt="${nomeCompleto}" onclick="apriModalImmagine('${immagine}')">
         </div>
         
         <div class="bevuta-info">
@@ -190,19 +185,49 @@ function mostraBevute(bevute) {
           
           ${caffeina || calorie || zuccheri ? `
             <div class="info-nutrizionale">
-              ${caffeina ? `<span title="Caffeina">⚡ ${caffeina}mg</span>` : ''}
-              ${calorie ? `<span title="Calorie">🔥 ${calorie}kcal</span>` : ''}
-              ${zuccheri ? `<span title="Zuccheri">🍬 ${zuccheri}g</span>` : ''}
+              ${caffeina ? `<span>⚡ ${caffeina}mg</span>` : ''}
+              ${calorie ? `<span>🔥 ${calorie}kcal</span>` : ''}
+              ${zuccheri ? `<span>🍬 ${zuccheri}g</span>` : ''}
             </div>
           ` : ''}
           
           ${b.note ? `<div class="bevuta-note">📝 ${b.note}</div>` : ''}
+        </div>
+        
+        <div class="bevuta-azioni">
+          <button class="btn-primary btn-mini" onclick="incrementaBevuta('${b.varianteId?._id}')" title="Aggiungi un'altra">➕</button>
+          <button class="btn-danger btn-mini" onclick="eliminaBevuta('${b._id}')" title="Elimina questa">🗑️</button>
         </div>
       </div>
     `;
   });
   
   container.innerHTML = html;
+}
+
+// ===== INCREMENTA BEVUTA (aggiungi un'altra della stessa variante) =====
+async function incrementaBevuta(varianteId) {
+  if (!varianteId) return alert('Variante non trovata');
+  
+  try {
+    const res = await fetch(`${RENDER_API}/bevute`, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ varianteId })
+    });
+    
+    if (res.ok) {
+      caricaBevute();
+    } else {
+      alert('❌ Errore nel salvataggio');
+    }
+  } catch(e) { 
+    console.error('Errore incrementa:', e);
+    alert('❌ Errore rete');
+  }
 }
 
 // ===== ELIMINA BEVUTA =====
@@ -216,7 +241,7 @@ async function eliminaBevuta(bevutaId) {
     });
     
     if (res.ok) {
-      caricaBevute(); // Ricarica tutto
+      caricaBevute();
     } else {
       alert('❌ Errore eliminazione');
     }

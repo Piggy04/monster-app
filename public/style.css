@@ -3596,136 +3596,159 @@ input:checked + .slider:before {
 }
 
 /* ========== CONTAINER GRID BEVUTE ========== */
-.log-container {
+#bevuteContainer {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 20px;
-  max-width: 1400px;
+  margin-top: 20px;
 }
 
-/* ========== CARD SINGOLA BEVUTA ========== */
+/* ========== CARD BEVUTA VERTICALE (Opzione A) ========== */
 .bevuta-card {
-  background: var(--bg-secondary);
-  border-radius: 12px;
-  padding: 16px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  border: 1px solid var(--border-color);
-  transition: all 0.3s;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  background: var(--bg-secondary);
+  border-radius: 16px;
+  padding: 20px 16px;
+  border: 2px solid var(--border-color);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  transition: all 0.3s;
+  min-height: 420px;
 }
 
 .bevuta-card:hover {
-  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
-  transform: translateY(-2px);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
   border-color: var(--accent-color);
 }
 
-/* Header con nome + pulsante elimina */
-.bevuta-card .bevuta-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 12px;
-  gap: 12px;
-}
-
+/* Nome lattina */
 .bevuta-card .bevuta-nome {
-  font-weight: bold;
-  font-size: 1em;
+  text-align: center;
+  font-weight: 700;
+  font-size: 15px;
   color: var(--text-primary);
-  flex: 1;
+  margin: 0 0 12px 0;
   line-height: 1.3;
-  margin: 0;
-  text-align: left;
-}
-
-.bevuta-card .btn-danger.btn-mini {
-  padding: 6px 10px;
-  font-size: 16px;
-  border-radius: 6px;
-  background: rgba(231, 76, 60, 0.1);
-  color: #e74c3c;
-  border: 1px solid #e74c3c;
-  cursor: pointer;
-  transition: all 0.3s;
-  flex-shrink: 0;
-}
-
-.bevuta-card .btn-danger.btn-mini:hover {
-  background: #e74c3c;
-  color: white;
-  transform: scale(1.05);
-}
-
-/* Immagine */
-.bevuta-card .variante-immagine {
-  width: 100%;
-  height: 180px;
-  margin-bottom: 12px;
-  border-radius: 10px;
-  overflow: hidden;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  background: var(--bg-primary);
+  min-height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.bevuta-card .variante-img {
+/* Immagine */
+.bevuta-card .bevuta-immagine {
+  width: 100%;
+  height: 160px;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-primary);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  margin-bottom: 12px;
+}
+
+.bevuta-card .bevuta-foto {
   width: 100%;
   height: 100%;
   object-fit: contain;
   cursor: pointer;
   transition: transform 0.3s;
+  padding: 10px;
 }
 
-.bevuta-card .variante-img:hover {
+.bevuta-card .bevuta-foto:hover {
   transform: scale(1.08);
 }
 
-/* Info data/ora/note */
-.bevuta-info {
-  margin-top: auto;
-  padding-top: 10px;
+/* Info data/ora/nutrizionali */
+.bevuta-card .bevuta-info {
+  width: 100%;
+  padding: 12px 0;
   border-top: 2px solid var(--border-color);
+  border-bottom: 2px solid var(--border-color);
+  margin-bottom: 12px;
 }
 
-.bevuta-info .info-row {
+.bevuta-card .bevuta-info .info-row {
   display: flex;
   justify-content: space-between;
   margin: 6px 0;
   font-size: 0.85em;
   color: var(--text-secondary);
-  font-weight: 500;
+  font-weight: 600;
 }
 
-.info-nutrizionale {
+.bevuta-card .info-nutrizionale {
   display: flex;
   gap: 6px;
   flex-wrap: wrap;
+  justify-content: center;
   margin-top: 10px;
 }
 
-.info-nutrizionale span {
+.bevuta-card .info-nutrizionale span {
   background: var(--bg-primary);
   padding: 5px 10px;
   border-radius: 6px;
-  font-size: 0.8em;
+  font-size: 0.75em;
   color: var(--text-primary);
-  font-weight: 600;
+  font-weight: 700;
   border: 1px solid var(--border-color);
 }
 
-.bevuta-note {
-  margin-top: 10px;
-  padding: 8px;
+.bevuta-card .bevuta-note {
+  margin-top: 8px;
+  padding: 6px 8px;
   background: var(--bg-primary);
   border-radius: 6px;
-  font-size: 0.85em;
+  font-size: 0.8em;
   font-style: italic;
   color: var(--text-secondary);
+  text-align: center;
   border-left: 3px solid var(--accent-color);
+}
+
+/* Pulsanti + e 🗑️ */
+.bevuta-card .bevuta-azioni {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  margin-top: auto;
+}
+
+.bevuta-card .btn-mini {
+  flex: 1;
+  padding: 12px 16px;
+  font-size: 18px;
+  font-weight: 700;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.bevuta-card .btn-primary.btn-mini {
+  background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
+  color: white;
+}
+
+.bevuta-card .btn-danger.btn-mini {
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  color: white;
+}
+
+.bevuta-card .btn-mini:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.25);
+}
+
+.bevuta-card .btn-mini:active {
+  transform: scale(0.95);
 }
 
 /* ========== FILTRI PERIODO ========== */
@@ -3816,119 +3839,6 @@ input:checked + .slider:before {
   font-weight: 700;
 }
 
-/* ========== GESTIONE TAB ========== */
-.gestione-item {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
-  padding: 16px 20px;
-  margin-bottom: 12px;
-  transition: all 0.3s ease;
-}
-
-.gestione-item:hover {
-  border-color: var(--accent-color);
-  box-shadow: 0 4px 12px var(--shadow-hover);
-  transform: translateY(-2px);
-}
-
-.gestione-item.categoria {
-  border-left: 4px solid #3498db;
-}
-
-.gestione-item.lattina {
-  border-left: 4px solid #9b59b6;
-}
-
-.gestione-item.variante {
-  border-left: 4px solid var(--accent-color);
-}
-
-.gestione-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-}
-
-.gestione-title {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex: 1;
-}
-
-.tipo-icon {
-  font-size: 20px;
-}
-
-.gestione-title h4 {
-  margin: 0;
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.ordine-badge {
-  background: var(--bg-primary);
-  color: var(--text-secondary);
-  padding: 4px 10px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.gestione-actions {
-  display: flex;
-  gap: 8px;
-}
-
-.btn-icon {
-  width: 36px;
-  height: 36px;
-  padding: 0;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 16px;
-  transition: all 0.3s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.btn-edit {
-  background: linear-gradient(135deg, #3498db, #2980b9);
-  color: white;
-}
-
-.btn-edit:hover {
-  transform: scale(1.1);
-  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
-}
-
-.btn-delete {
-  background: linear-gradient(135deg, #e74c3c, #c0392b);
-  color: white;
-}
-
-.btn-delete:hover {
-  transform: scale(1.1);
-  box-shadow: 0 4px 12px rgba(231, 76, 60, 0.4);
-}
-
-.gestione-meta {
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid var(--border-color);
-}
-
-.parent-info {
-  font-size: 13px;
-  color: var(--text-secondary);
-  font-weight: 500;
-}
-
 /* ========== NO RESULTS ========== */
 .no-results {
   text-align: center;
@@ -3938,83 +3848,34 @@ input:checked + .slider:before {
   grid-column: 1 / -1;
 }
 
-/* ========== AVATAR PROFILO ========== */
-.avatar-grid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 8px;
-  max-height: 280px;
-  overflow-y: scroll;
-  padding: 10px;
-  background: var(--bg-primary);
-  border-radius: 12px;
-  margin-bottom: 20px;
-  border: 2px solid var(--border-color);
-}
-
-.avatar-option {
-  width: 55px;
-  height: 55px;
-  border-radius: 8px;
-  border: 2px solid var(--border-color);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  overflow: hidden;
-  background: white;
-  padding: 2px;
-  margin: 0 auto;
-}
-
-.avatar-option:hover {
-  transform: scale(1.12);
-  border-color: var(--accent-color);
-  box-shadow: 0 3px 12px rgba(46, 204, 113, 0.5);
-}
-
-.avatar-option.selected {
-  border-color: var(--accent-color);
-  border-width: 3px;
-  box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.3);
-  transform: scale(1.08);
-}
-
-.avatar-option img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-.avatar-large {
-  width: 90px;
-  height: 90px;
-  border-radius: 50%;
-  border: 3px solid var(--accent-color);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-  margin: 0 auto 10px;
-  display: block;
-  background: white;
-  padding: 3px;
-}
-
 /* ========== RESPONSIVE ========== */
 @media (max-width: 768px) {
-  .log-container {
-    grid-template-columns: 1fr;
+  #bevuteContainer {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
   }
   
-  .bevuta-card .variante-immagine {
-    height: 160px;
+  .bevuta-card {
+    min-height: 380px;
+    padding: 16px 12px;
   }
   
-  .gestione-header {
-    flex-direction: column;
-    align-items: flex-start;
+  .bevuta-card .bevuta-immagine {
+    height: 140px;
   }
   
-  .gestione-actions {
-    align-self: flex-end;
+  .bevuta-card .btn-mini {
+    padding: 10px 12px;
+    font-size: 16px;
   }
 }
+
+@media (max-width: 480px) {
+  #bevuteContainer {
+    grid-template-columns: 1fr;
+  }
+}
+
 
 
 
