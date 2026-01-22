@@ -312,23 +312,48 @@ async function eliminaBevuta(bevutaId) {
 // ===== CARICA VARIANTI PER MODAL =====
 async function caricaVariantiPerModal() {
   try {
+    console.log('⏳ Caricamento varianti...');
+    
     const res = await fetch(`${RENDER_API}/monster-varianti`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
+    
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}`);
+    }
+    
     tutteVarianti = await res.json();
-    console.log('✅', tutteVarianti.length, 'varianti caricate');
+    
+    console.log('✅ Varianti caricate:', tutteVarianti.length);
+    
+    // Mostra alcune varianti per debug
+    if (tutteVarianti.length > 0) {
+      console.log('Esempio variante:', tutteVarianti[0]);
+    }
+    
   } catch(e) {
-    console.error('Varianti errore:', e);
+    console.error('❌ Errore caricamento varianti:', e);
+    alert('⚠️ Impossibile caricare le varianti. Riprova.');
   }
 }
+
 
 // ===== FILTRO VARIANTI NEL MODAL =====
 function filtraVarianti() {
   const query = document.getElementById('ricercaVariante').value.toLowerCase().trim();
   const risultati = document.getElementById('risultatiRicerca');
   
+  console.log('🔍 Ricerca:', query, '| Varianti disponibili:', tutteVarianti.length);
+  
   if (!query || query.length < 2) {
     risultati.style.display = 'none';
+    return;
+  }
+  
+  if (tutteVarianti.length === 0) {
+    risultati.innerHTML = '<div class="risultato-item" style="pointer-events: none; opacity: 0.6;">⏳ Caricamento varianti...</div>';
+    risultati.style.display = 'block';
+    caricaVariantiPerModal();
     return;
   }
   
@@ -338,6 +363,8 @@ function filtraVarianti() {
     
     return nomeVariante.includes(query) || nomeLattina.includes(query);
   });
+  
+  console.log('✅ Trovate:', match.length, 'varianti');
   
   if (match.length === 0) {
     risultati.innerHTML = '<div class="risultato-item" style="pointer-events: none; opacity: 0.6;">❌ Nessun risultato</div>';
@@ -360,16 +387,24 @@ function filtraVarianti() {
 }
 
 
+
 function selezionaVariante(id, nomeVariante, nomeLattina) {
   document.getElementById('selectVariante').value = id;
   document.getElementById('ricercaVariante').value = `${nomeLattina} - ${nomeVariante}`;
   document.getElementById('risultatiRicerca').style.display = 'none';
 }
 
-function apriModalNuovaBevuta() {
+async function apriModalNuovaBevuta() {
   document.getElementById('modalNuovaBevuta').style.display = 'block';
-  caricaVariantiPerModal();
+  
+  // Carica varianti se non ci sono
+  if (tutteVarianti.length === 0) {
+    await caricaVariantiPerModal();
+  }
+  
+  console.log('✅ Modal aperto, varianti disponibili:', tutteVarianti.length);
 }
+
 
 function chiudiModalNuovaBevuta() {
   document.getElementById('modalNuovaBevuta').style.display = 'none';
