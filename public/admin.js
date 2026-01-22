@@ -1,42 +1,33 @@
 const token = localStorage.getItem('token');
 const ruolo = localStorage.getItem('ruolo');
 const username = localStorage.getItem('username');
-
 const API_URL = 'https://monster-app-ocdj.onrender.com/api';
-
 
 if (!token) {
   window.location.href = 'index.html';
 }
 
 let categorie = [];
-let datiGestioneOriginali = []; // Dati flat per filtri
+let datiGestioneOriginali = [];
 
+console.log('✅ admin.js caricato - inizio');
+
+// ===== INIT =====
 document.addEventListener('DOMContentLoaded', () => {
-  const nomeElement = document.getElementById('nomeUtente');
-  if (nomeElement) {
-    nomeElement.textContent = `Ciao, ${username}!`;
-  }
-
+  console.log('✅ DOMContentLoaded admin');
+  
   if (ruolo !== 'admin') {
-    const accessoNegato = document.getElementById('accessoNegato');
-    const adminContent = document.getElementById('adminContent');
-    if (accessoNegato) accessoNegato.style.display = 'block';
-    if (adminContent) adminContent.style.display = 'none';
-  }
-
-  caricaTema();
-  if (ruolo === 'admin') {
+    document.getElementById('accessoNegato').style.display = 'block';
+    document.getElementById('adminContent').style.display = 'none';
+  } else {
     caricaCategorie();
   }
 });
 
-function logout() {
-  localStorage.clear();
-  window.location.href = 'index.html';
-}
-
+// ===== MOSTRA TAB =====
 function mostraTab(tab) {
+  console.log('🔵 mostraTab:', tab);
+  
   document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
   
@@ -50,231 +41,64 @@ function mostraTab(tab) {
   }
 }
 
-// ===== GESTIONE (tab Gestisci) =====
+// ===== CARICA GESTIONE =====
 async function caricaGestione() {
-  try {
-    const container = document.getElementById('gestioneContainer');
-    container.innerHTML = '<p style="text-align: center; padding: 40px;">⏳ Caricamento...</p>';
-    
-    // Carica collezione completa (gerarchica)
-    const responseCollezione = await fetch(`${API_URL}/collezione/completa`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-    
-    if (!responseCollezione.ok) throw new Error(`HTTP ${responseCollezione.status}`);
-    
-    const datiGerarchici = await responseCollezione.json();
-    
-    // Carica ANCHE tutte le varianti singole (per sicurezza)
-    const responseVarianti = await fetch(`${API_URL}/monster-varianti`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-    
-    const tutteVarianti = responseVarianti.ok ? await responseVarianti.json() : [];
-    
-    console.log('✅ Collezione gerarchica:', datiGerarchici.length, 'categorie');
-    console.log('✅ Varianti totali:', tutteVarianti.length);
-    
-    // Crea array flat per la gestione
-    const datiFlat = [];
-    
-    datiGerarchici.forEach(categoria => {
-      // Categoria
-      datiFlat.push({
-        _id: categoria._id,
-        tipo: 'categoria',
-        nome: categoria.nome,
-        ordine: categoria.ordine || 0
-      });
-      
-      // Lattine
-      if (categoria.lattine) {
-        categoria.lattine.forEach(lattina => {
-          datiFlat.push({
-            _id: lattina._id,
-            tipo: 'lattina',
-            nome: lattina.nome,
-            ordine: lattina.ordine || 0,
-            categoria_id: categoria._id,
-            categoria: { nome: categoria.nome }
-          });
-          
-          // Varianti dalla lattina
-          if (lattina.varianti) {
-            lattina.varianti.forEach(variante => {
-              datiFlat.push({
-                _id: variante._id,
-                tipo: 'variante',
-                nome: variante.nome,
-                ordine: variante.ordine || 0,
-                categoria_id: categoria._id,
-                categoria: { nome: categoria.nome },
-                lattina_id: lattina._id,
-                lattina: { nome: lattina.nome }
-              });
-            });
-          }
-        });
-      }
-    });
-    
-    // Aggiungi varianti "orfane" (se non presenti nella gerarchica)
-    const variantiIdsPresenti = new Set(datiFlat.filter(d => d.tipo === 'variante').map(d => d._id));
-    
-    tutteVarianti.forEach(v => {
-      if (!variantiIdsPresenti.has(v._id)) {
-        datiFlat.push({
-          _id: v._id,
-          tipo: 'variante',
-          nome: v.nome,
-          ordine: v.ordine || 0,
-          categoria_id: v.categoria_id?._id || v.categoria_id,
-          categoria: { nome: v.categoria_id?.nome || 'Sconosciuta' },
-          lattina_id: v.lattina_id?._id || v.lattina_id,
-          lattina: { nome: v.lattina_id?.nome || 'Sconosciuta' }
-        });
-      }
-    });
-    
-    console.log('✅ Dati flat totali:', datiFlat.length, '(cat+latt+var)');
-    
-    datiGestioneOriginali = datiFlat;
-    
-    popolaFiltroCategorie(datiFlat);
-    mostraGestione(datiFlat);
-    
-  } catch (errore) {
-    console.error('❌ Errore caricaGestione:', errore);
-    document.getElementById('gestioneContainer').innerHTML =
-      `<p class="no-results">❌ Errore: ${errore.message}<br><small>Ricarica la pagina</small></p>`;
-  }
-}
-
-
-
-function popolaFiltroCategorie(dati) {
-  const select = document.getElementById('filtroCategoriaAdmin');
-  if (!select) return;
+  console.log('🔵 caricaGestione chiamata');
   
-  select.innerHTML = '<option value="">Tutte le categorie</option>';
-  
-  const categorie = dati.filter(item => item.tipo === 'categoria');
-  categorie.forEach(cat => {
-    const option = document.createElement('option');
-    option.value = cat._id;
-    option.textContent = cat.nome;
-    select.appendChild(option);
-  });
-}
-
-function filtraAdmin() {
-  const ricerca = document.getElementById('ricercaAdmin')?.value.toLowerCase() || '';
-  const tipo = document.getElementById('filtroTipo')?.value || 'tutti';
-  const categoriaId = document.getElementById('filtroCategoriaAdmin')?.value || '';
-  
-  let risultato = [...datiGestioneOriginali];
-  
-  // Filtro per tipo
-  if (tipo !== 'tutti') {
-    risultato = risultato.filter(item => item.tipo === tipo);
-  }
-  
-  // Filtro per categoria
-  if (categoriaId) {
-    risultato = risultato.filter(item => {
-      if (item.tipo === 'categoria') return item._id === categoriaId;
-      return item.categoria_id === categoriaId;
-    });
-  }
-  
-  // ✅ RICERCA INTELLIGENTE: cerca anche nella lattina/categoria padre
-  if (ricerca) {
-    risultato = risultato.filter(item => {
-      const nomeMatch = item.nome?.toLowerCase().includes(ricerca);
-      const categoriaMatch = item.categoria?.nome?.toLowerCase().includes(ricerca);
-      const lattinaMatch = item.lattina?.nome?.toLowerCase().includes(ricerca);
-      
-      return nomeMatch || categoriaMatch || lattinaMatch;
-    });
-  }
-  
-  mostraGestione(risultato);
-}
-
-
-function mostraGestione(dati) {
   const container = document.getElementById('gestioneContainer');
+  container.innerHTML = '<p style="text-align: center; padding: 40px;">⏳ Caricamento...</p>';
   
-  if (!dati || dati.length === 0) {
-    container.innerHTML = '<p class="no-results">🔍 Nessun risultato trovato</p>';
-    return;
-  }
-  
-  let html = '';
-  dati.forEach(item => {
-    // Icona per tipo
-    const icona = {
-      'categoria': '📁',
-      'lattina': '🥤',
-      'variante': '🎨'
-    }[item.tipo] || '📦';
-    
-    // Info parent (categoria/lattina)
-    let infoParent = '';
-    if (item.tipo === 'lattina' && item.categoria?.nome) {
-      infoParent = `<span class="parent-info">📁 ${item.categoria.nome}</span>`;
-    } else if (item.tipo === 'variante') {
-      const cat = item.categoria?.nome || 'N/D';
-      const latt = item.lattina?.nome || 'N/D';
-      infoParent = `<span class="parent-info">📁 ${cat} → 🥤 ${latt}</span>`;
-    }
-    
-    html += `
-      <div class="gestione-item ${item.tipo}">
-        <div class="gestione-header">
-          <div class="gestione-title">
-            <span class="tipo-icon">${icona}</span>
-            <h4>${item.nome}</h4>
-            <span class="ordine-badge">ord: ${item.ordine}</span>
-          </div>
-          <div class="gestione-actions">
-            <button class="btn-edit btn-icon" onclick="modificaItem('${item._id}', '${item.nome.replace(/'/g, "\\'")}', ${item.ordine}, '${item.tipo}')" title="Modifica">✏️</button>
-            <button class="btn-delete btn-icon" onclick="eliminaItem('${item._id}', '${item.tipo}')" title="Elimina">🗑️</button>
-          </div>
-        </div>
-        ${infoParent ? `<div class="gestione-meta">${infoParent}</div>` : ''}
-      </div>
-    `;
-  });
-  
-  container.innerHTML = html;
-}
-
-
-// ===== FORM AGGIUNGI (tab Aggiungi) =====
-async function caricaCategorie() {
   try {
-    const response = await fetch(`${API_URL}/collezione/completa`, {
+    const res = await fetch(`${API_URL}/collezione/completa`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     
-    if (!response.ok) throw new Error('Errore');
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
     
-    categorie = await response.json();
+    const dati = await res.json();
+    console.log('✅ Dati caricati:', dati.length, 'categorie');
+    
+    container.innerHTML = '<p class="no-results">✅ Dati caricati! (funzionalità complete in arrivo)</p>';
+    
+  } catch(e) {
+    console.error('❌ Errore:', e);
+    container.innerHTML = `<p class="no-results">❌ ${e.message}</p>`;
+  }
+}
+
+// ===== CARICA CATEGORIE =====
+async function caricaCategorie() {
+  console.log('🔵 caricaCategorie chiamata');
+  
+  try {
+    const res = await fetch(`${API_URL}/collezione/completa`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    
+    if (!res.ok) throw new Error('Errore');
+    
+    categorie = await res.json();
+    console.log('✅ Categorie caricate:', categorie.length);
     
     const selectCategoriaLattina = document.getElementById('categoriaLattina');
     const selectCategoriaVariante = document.getElementById('categoriaVariante');
     
-    selectCategoriaLattina.innerHTML = '<option value="">Seleziona categoria</option>';
-    selectCategoriaVariante.innerHTML = '<option value="">Seleziona categoria</option>';
+    if (selectCategoriaLattina) {
+      selectCategoriaLattina.innerHTML = '<option value="">Seleziona categoria</option>';
+      categorie.forEach(cat => {
+        selectCategoriaLattina.innerHTML += `<option value="${cat._id}">${cat.nome}</option>`;
+      });
+    }
     
-    categorie.forEach(cat => {
-      selectCategoriaLattina.innerHTML += `<option value="${cat._id}">${cat.nome}</option>`;
-      selectCategoriaVariante.innerHTML += `<option value="${cat._id}">${cat.nome}</option>`;
-    });
+    if (selectCategoriaVariante) {
+      selectCategoriaVariante.innerHTML = '<option value="">Seleziona categoria</option>';
+      categorie.forEach(cat => {
+        selectCategoriaVariante.innerHTML += `<option value="${cat._id}">${cat.nome}</option>`;
+      });
+    }
     
-  } catch (errore) {
-    console.error('Errore caricamento categorie:', errore);
+  } catch(e) {
+    console.error('❌ Errore categorie:', e);
   }
 }
 
@@ -288,7 +112,6 @@ function caricaLattineVariante() {
   }
   
   const categoria = categorie.find(c => c._id === categoriaId);
-  
   selectLattina.innerHTML = '<option value="">Seleziona lattina</option>';
   
   if (categoria && categoria.lattine) {
@@ -298,337 +121,5 @@ function caricaLattineVariante() {
   }
 }
 
-// FORM CATEGORIA
-document.getElementById('formCategoria').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const nome = document.getElementById('nomeCategoria').value.trim();
-  const ordine = parseInt(document.getElementById('ordineCategoria').value) || 0;
-  
-  if (!nome) return alert('Inserisci un nome categoria');
-
-  try {
-    const response = await fetch(`${API_URL}/collezione/categoria`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify({ nome, ordine })
-    });
-    
-    if (response.ok) {
-      document.getElementById('successoCategoria').textContent = '✓ Categoria aggiunta!';
-      document.getElementById('formCategoria').reset();
-      setTimeout(() => {
-        document.getElementById('successoCategoria').textContent = '';
-        caricaCategorie();
-        caricaGestione();
-      }, 1500);
-    } else {
-      alert('Errore nella creazione della categoria');
-    }
-  } catch (errore) {
-    alert('Errore di rete');
-  }
-});
-
-// FORM LATTINA
-document.getElementById('formLattina').addEventListener('submit', async (e) => {
-  e.preventDefault();
-
-  const categoriaId = document.getElementById('categoriaLattina').value;
-  const nome = document.getElementById('nomeLattina').value.trim();
-  const ordine = parseInt(document.getElementById('ordineLattina').value) || 0;
-
-  if (!categoriaId || !nome) return alert('Compila tutti i campi');
-
-  try {
-    const response = await fetch(`${API_URL}/collezione/lattina`, {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${token}`
-  },
-  body: JSON.stringify({
-    categoria_id: categoriaId,   // ⬅ nome corretto per il backend
-    nome,
-    ordine
-  })
-});
-
-
-    if (response.ok) {
-      document.getElementById('successoLattina').textContent = '✓ Lattina aggiunta!';
-      document.getElementById('formLattina').reset();
-      setTimeout(() => {
-        document.getElementById('successoLattina').textContent = '';
-        caricaCategorie();
-        caricaGestione();
-      }, 1500);
-    } else {
-      alert('Errore nella creazione della lattina');
-    }
-  } catch (err) {
-    alert('Errore di rete');
-  }
-});
-
-// FORM VARIANTE
-document.getElementById('formVariante').addEventListener('submit', async (e) => {
-  e.preventDefault();
-
-  const categoriaId = document.getElementById('categoriaVariante').value;
-  const lattinaId   = document.getElementById('lattinaVariante').value;
-  const nome        = document.getElementById('nomeVariante').value.trim();
-  const ordine      = parseInt(document.getElementById('ordineVariante').value) || 0;
-  const immagineUrl = document.getElementById('immagineVariante').value.trim();
-  
-  // ✅ NUOVI CAMPI NUTRIZIONALI
-  const caffeina = parseFloat(document.getElementById('caffeinaVariante').value) || 0;
-  const calorie  = parseFloat(document.getElementById('calorieVariante').value) || 0;
-  const zuccheri = parseFloat(document.getElementById('zuccheriVariante').value) || 0;
-
-  if (!categoriaId || !lattinaId || !nome) {
-    return alert('Compila tutti i campi obbligatori');
-  }
-
-  try {
-    const body = {
-      categoria_id: categoriaId,
-      lattina_id: lattinaId,
-      nome,
-      ordine,
-      
-      // ✅ AGGIUNGI CAMPI NUTRIZIONALI
-      caffeina_mg: caffeina,
-      calorie_kcal: calorie,
-      zuccheri_g: zuccheri
-    };
-
-    // Se hai URL immagine, lo salva
-    if (immagineUrl) {
-      body.immagine = immagineUrl;
-    }
-
-    const response = await fetch(`${API_URL}/collezione/variante`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify(body)
-    });
-
-    const data = await response.json().catch(() => ({}));
-
-    if (!response.ok) {
-      console.error('❌ Errore API variante:', data);
-      return alert(data.errore || 'Errore nella creazione della variante');
-    }
-
-    // ✅ SUCCESSO
-    document.getElementById('successoVariante').textContent = '✓ Variante aggiunta!';
-    document.getElementById('formVariante').reset();
-    document.getElementById('lattinaVariante').innerHTML = '<option value="">Prima seleziona categoria</option>';
-    
-    if (typeof resetPreview === 'function') resetPreview();
-    
-    setTimeout(() => {
-      document.getElementById('successoVariante').textContent = '';
-      caricaCategorie();
-      caricaGestione();
-    }, 1500);
-
-  } catch (err) {
-    console.error('❌ Errore di rete variante:', err);
-    alert('Errore di rete');
-  }
-});
-
-
-// ===== MODAL MODIFICA / ELIMINA =====
-function modificaItem(id, nome, ordine, tipo) {
-  // ✅ Controlli null per evitare crash
-  const modal = document.getElementById('modalModifica');
-  const modificaId = document.getElementById('modificaId');
-  const modificaTipo = document.getElementById('modificaTipo');
-  const modificaNome = document.getElementById('modificaNome');
-  const modificaOrdine = document.getElementById('modificaOrdine');
-  const modalTitolo = document.getElementById('modalTitolo');
-  const uploadForm = document.getElementById('uploadForm');
-
-  if (!modal || !modificaId || !modificaTipo || !modificaNome || !modificaOrdine || !modalTitolo) {
-    console.error('❌ Elementi modal mancanti nell\'HTML');
-    return;
-  }
-
-  // Popola i campi
-  modificaId.value = id;
-  modificaTipo.value = tipo;
-  modificaNome.value = nome;
-  modificaOrdine.value = ordine;
-  modalTitolo.textContent = `Modifica ${tipo}`;
-
-  // Se è una variante, mostra il form upload immagine
-  if (uploadForm) {
-    uploadForm.style.display = (tipo === 'variante') ? 'block' : 'none';
-  }
-
-  // Apri il modal
-  modal.style.display = 'block';
-}
-
-
-function chiudiModal() {
-  document.getElementById('modalModifica').style.display = 'none';
-}
-
-async function eliminaItem(id, tipo) {
-  if (!confirm(`Elimina ${tipo}?`)) return;
-  
-  try {
-    const response = await fetch(`${API_URL}/collezione/${tipo}/${id}`, {
-      method: 'DELETE',
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-    
-    if (response.ok) {
-      caricaGestione();
-      caricaCategorie();
-    }
-  } catch (errore) {
-    alert('Errore');
-  }
-}
-
-window.onclick = function(event) {
-  const modal = document.getElementById('modalModifica');
-  if (event.target === modal) chiudiModal();
-};
-
-if (['admin', 'beta'].includes(utente?.ruolo)) {
-  document.getElementById('linkBevute').style.display = 'block';
-  document.getElementById('linkAdmin').style.display = 'block';
-}
-
-
-// 👁️ PREVIEW IMMAGINE URL
-function previewImmagine() {
-  const url = document.getElementById('immagineVariante').value.trim();
-  const preview = document.getElementById('previewImage');
-  const status = document.getElementById('previewStatus');
-  const container = document.getElementById('previewContainer');
-
-  if (!url) {
-    alert('Inserisci un URL immagine');
-    return;
-  }
-
-  // Testa se l'immagine carica
-  const img = new Image();
-  img.onload = () => {
-    preview.src = url;
-    preview.style.display = 'block';
-    status.textContent = '✅ Immagine valida!';
-    status.style.color = 'green';
-    container.style.display = 'block';
-  };
-  img.onerror = () => {
-    preview.style.display = 'none';
-    status.textContent = '❌ URL non valido o immagine non caricabile';
-    status.style.color = 'red';
-    container.style.display = 'block';
-  };
-  img.src = url;
-}
-
-// 🔄 Reset preview
-function resetPreview() {
-  document.getElementById('previewImage').style.display = 'none';
-  document.getElementById('previewContainer').style.display = 'none';
-  document.getElementById('immagineVariante').value = '';
-}
-
-
-// 📷 CARICA IMMAGINE per variante (nel modal modifica)
-async function caricaImmagine() {
-  const varianteId = document.getElementById('modificaId').value;
-  const immagineUrl = document.getElementById('uploadImage').value.trim();
-  const preview = document.getElementById('previewImage');
-
-  if (!immagineUrl) {
-    return alert('Inserisci un URL immagine');
-  }
-
-  // Test se l'immagine carica
-  const img = new Image();
-  img.onload = async () => {
-    // ✅ Immagine valida, salva nel DB
-    try {
-      const response = await fetch(`${API_URL}/collezione/variante/${varianteId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ immagine: immagineUrl })
-      });
-
-      if (response.ok) {
-        preview.src = immagineUrl;
-        preview.style.display = 'block';
-        alert('✅ Immagine salvata!');
-        caricaGestione(); // Ricarica lista
-      } else {
-        alert('❌ Errore nel salvataggio');
-      }
-    } catch (err) {
-      console.error('Errore caricaImmagine:', err);
-      alert('Errore di rete');
-    }
-  };
-
-  img.onerror = () => {
-    preview.style.display = 'none';
-    alert('❌ URL non valido o immagine non caricabile');
-  };
-
-  img.src = immagineUrl;
-}
-
-// 💾 SALVA MODIFICHE (nome/ordine nel modal)
-document.getElementById('formModifica').addEventListener('submit', async (e) => {
-  e.preventDefault();
-
-  const id = document.getElementById('modificaId').value;
-  const tipo = document.getElementById('modificaTipo').value;
-  const nome = document.getElementById('modificaNome').value.trim();
-  const ordine = parseInt(document.getElementById('modificaOrdine').value) || 0;
-
-  if (!nome) return alert('Inserisci un nome');
-
-  try {
-    const response = await fetch(`${API_URL}/collezione/${tipo}/${id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify({ nome, ordine })
-    });
-
-    if (response.ok) {
-      alert('✅ Modifiche salvate!');
-      chiudiModal();
-      caricaGestione();
-      caricaCategorie();
-    } else {
-      alert('❌ Errore nel salvataggio');
-    }
-  } catch (err) {
-    console.error('Errore formModifica:', err);
-    alert('Errore di rete');
-  }
-});
-
-
+console.log('✅ admin.js caricato - fine');
+console.log('✅ mostraTab definito:', typeof mostraTab);
