@@ -90,23 +90,30 @@
           </div>
 
           <div class="card">
-            <h3>🎨 Aggiungi Variante</h3>
-            <form id="formVariante">
-              <select id="categoriaVariante" required onchange="caricaLattineVariante()">
-                <option value="">Seleziona categoria</option>
-              </select>
-              <select id="lattinaVariante" required>
-                <option value="">Prima seleziona categoria</option>
-              </select>
-              <input type="text" id="nomeVariante" placeholder="Nome variante (es: Edizione USA 2023)" required>
-              <input type="number" id="ordineVariante" placeholder="Ordine" value="0">
-              <input type="url" id="immagineVariante" placeholder="URL immagine (facoltativo)">
-              <button type="submit">Aggiungi Variante</button>
-            </form>
-            <p class="successo" id="successoVariante"></p>
-          </div>
-        </div>
-      </div>
+  <h3>🎨 Aggiungi Variante</h3>
+  <form id="formVariante">
+    <select id="categoriaVariante" required onchange="caricaLattineVariante()">
+      <option value="">Seleziona categoria</option>
+    </select>
+    <select id="lattinaVariante" required>
+      <option value="">Prima seleziona categoria</option>
+    </select>
+    <input type="text" id="nomeVariante" placeholder="Nome variante (es: Edizione USA 2023)" required>
+    <input type="number" id="ordineVariante" placeholder="Ordine" value="0">
+    
+    <!-- ✅ NUOVI CAMPI NUTRIZIONALI -->
+    <label style="margin-top: 12px; font-weight: 600;">Valori nutrizionali (opzionali)</label>
+    
+    <input type="number" id="caffeinaVariante" placeholder="Caffeina (mg) - es: 160" min="0" step="1">
+    <input type="number" id="calorieVariante" placeholder="Calorie (kcal) - es: 210" min="0" step="1">
+    <input type="number" id="zuccheriVariante" placeholder="Zuccheri (g) - es: 54" min="0" step="0.1">
+    
+    <input type="url" id="immagineVariante" placeholder="URL immagine (facoltativo)">
+    <button type="submit">Aggiungi Variante</button>
+  </form>
+  <p class="successo" id="successoVariante"></p>
+</div>
+
 
       <div id="tabGestisci" class="tab-content" style="display:none;">
   <!-- ⬇️ AGGIUNGI QUESTA SEZIONE -->

@@ -335,7 +335,6 @@ document.getElementById('formLattina').addEventListener('submit', async (e) => {
 });
 
 // FORM VARIANTE
-// FORM VARIANTE
 document.getElementById('formVariante').addEventListener('submit', async (e) => {
   e.preventDefault();
 
@@ -344,6 +343,11 @@ document.getElementById('formVariante').addEventListener('submit', async (e) => 
   const nome        = document.getElementById('nomeVariante').value.trim();
   const ordine      = parseInt(document.getElementById('ordineVariante').value) || 0;
   const immagineUrl = document.getElementById('immagineVariante').value.trim();
+  
+  // ✅ NUOVI CAMPI NUTRIZIONALI
+  const caffeina = parseFloat(document.getElementById('caffeinaVariante').value) || 0;
+  const calorie  = parseFloat(document.getElementById('calorieVariante').value) || 0;
+  const zuccheri = parseFloat(document.getElementById('zuccheriVariante').value) || 0;
 
   if (!categoriaId || !lattinaId || !nome) {
     return alert('Compila tutti i campi obbligatori');
@@ -354,15 +358,20 @@ document.getElementById('formVariante').addEventListener('submit', async (e) => 
       categoria_id: categoriaId,
       lattina_id: lattinaId,
       nome,
-      ordine
+      ordine,
+      
+      // ✅ AGGIUNGI CAMPI NUTRIZIONALI
+      caffeina_mg: caffeina,
+      calorie_kcal: calorie,
+      zuccheri_g: zuccheri
     };
 
-    // ✅ Se hai URL immagine, lo salva come 'immagine'
+    // Se hai URL immagine, lo salva
     if (immagineUrl) {
-      body.immagine = immagineUrl; // ← Nome esatto per il backend
+      body.immagine = immagineUrl;
     }
 
-        const response = await fetch(`${API_URL}/collezione/variante`, {
+    const response = await fetch(`${API_URL}/collezione/variante`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -379,11 +388,10 @@ document.getElementById('formVariante').addEventListener('submit', async (e) => 
     }
 
     // ✅ SUCCESSO
-    document.getElementById('successoVariante').textContent = '✓ Variante aggiunta con immagine!';
+    document.getElementById('successoVariante').textContent = '✓ Variante aggiunta!';
     document.getElementById('formVariante').reset();
     document.getElementById('lattinaVariante').innerHTML = '<option value="">Prima seleziona categoria</option>';
     
-    // Reset preview se esiste
     if (typeof resetPreview === 'function') resetPreview();
     
     setTimeout(() => {
@@ -397,6 +405,7 @@ document.getElementById('formVariante').addEventListener('submit', async (e) => 
     alert('Errore di rete');
   }
 });
+
 
 // ===== MODAL MODIFICA / ELIMINA =====
 function modificaItem(id, nome, ordine, tipo) {

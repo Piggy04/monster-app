@@ -214,7 +214,7 @@ async function gestisciSubmitBevuta(e) {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
       },
-      body: JSON.stringify({ varianteId, stato, note })
+      body: JSON.stringify({ varianteId, note })
     });
     
     if (res.ok) {

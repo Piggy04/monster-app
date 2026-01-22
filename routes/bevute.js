@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Bevuta = require('../models/Bevuta');
-const authenticateToken = require('../middleware/auth'); // ← Usa il tuo middleware esistente
+const authenticateToken = require('../middleware/auth');
 
 // ===== GET - Bevute dell'utente loggato =====
 router.get('/', authenticateToken, async (req, res) => {
@@ -9,7 +9,7 @@ router.get('/', authenticateToken, async (req, res) => {
     const bevute = await Bevuta.find({ utenteId: req.user.id })
       .populate({
         path: 'varianteId',
-        select: 'nome immagine lattina_id',
+        select: 'nome immagine lattina_id caffeina_mg calorie_kcal zuccheri_g', // ← AGGIUNGI campi nutrizionali
         populate: {
           path: 'lattina_id',
           select: 'nome'
@@ -24,23 +24,19 @@ router.get('/', authenticateToken, async (req, res) => {
   }
 });
 
-
 // ===== POST - Aggiungi bevuta per utente loggato =====
 router.post('/', authenticateToken, async (req, res) => {
   try {
-    const { varianteId, stato, note } = req.body;
+    const { varianteId, note } = req.body; // ← RIMOSSO stato
     
-    // Validazione
     if (!varianteId) {
       return res.status(400).json({ errore: 'varianteId mancante' });
     }
     
-    // Crea bevuta con ID utente autenticato
     const bevuta = new Bevuta({ 
       varianteId, 
-      stato: stato || 'bevuta',
       note: note || '',
-      utenteId: req.user.id, // ← SALVA ID utente dal token JWT
+      utenteId: req.user.id,
       ora: new Date().toLocaleTimeString('it-IT')
     });
     
@@ -52,7 +48,7 @@ router.post('/', authenticateToken, async (req, res) => {
       utente_id: req.user.id,
       azione: 'aggiunto',
       tipo: 'collezione',
-      descrizione: `Ha segnato una bevuta come ${stato || 'bevuta'}`,
+      descrizione: 'Ha bevuto una Monster',
       dettagli: {
         variante_id: varianteId
       }
@@ -70,7 +66,7 @@ router.delete('/:id', authenticateToken, async (req, res) => {
   try {
     const bevuta = await Bevuta.findOne({ 
       _id: req.params.id, 
-      utenteId: req.user.id // ← VERIFICA che sia dell'utente
+      utenteId: req.user.id
     });
     
     if (!bevuta) {
@@ -95,52 +91,31 @@ router.delete('/:id', authenticateToken, async (req, res) => {
   }
 });
 
-// GET - Bevute raggruppate per variante (con contatore)
-router.get('/raggruppate', authenticateToken, async (req, res) => {
-  try {
-    const bevute = await Bevuta.aggregate([
-      { $match: { utenteId: mongoose.Types.ObjectId(req.user.id) } },
-      {
-        $group: {
-          _id: '$varianteId',
-          conteggio: { $sum: 1 },
-          ultimaBevuta: { $max: '$data' },
-          stati: { $push: '$stato' }
-        }
-      },
-      {
-        $lookup: {
-          from: 'variantes',
-          localField: '_id',
-          foreignField: '_id',
-          as: 'variante'
-        }
-      },
-      { $unwind: { path: '$variante', preserveNullAndEmptyArrays: true } },
-      { $sort: { ultimaBevuta: -1 } }
-    ]);
-
-    res.json(bevute);
-  } catch (err) {
-    console.error('Errore bevute raggruppate:', err);
-    res.status(500).json({ errore: 'Errore caricamento' });
-  }
-});
-
-
-// ===== GET - Statistiche bevute utente =====
+// ===== GET - Statistiche nutrizionali =====
 router.get('/statistiche', authenticateToken, async (req, res) => {
   try {
-    const totali = await Bevuta.countDocuments({ utenteId: req.user.id });
-    const bevute = await Bevuta.countDocuments({ utenteId: req.user.id, stato: 'bevuta' });
-    const assaggiate = await Bevuta.countDocuments({ utenteId: req.user.id, stato: 'assaggiata' });
-    const finteBevute = await Bevuta.countDocuments({ utenteId: req.user.id, stato: 'fatta-finta' });
+    const bevute = await Bevuta.find({ utenteId: req.user.id })
+      .populate('varianteId', 'caffeina_mg calorie_kcal zuccheri_g');
+    
+    const totali = bevute.length;
+    
+    let caffeinaTotale = 0;
+    let calorieTotali = 0;
+    let zuccheriTotali = 0;
+    
+    bevute.forEach(b => {
+      if (b.varianteId) {
+        caffeinaTotale += b.varianteId.caffeina_mg || 0;
+        calorieTotali += b.varianteId.calorie_kcal || 0;
+        zuccheriTotali += b.varianteId.zuccheri_g || 0;
+      }
+    });
     
     res.json({
       totali,
-      bevute,
-      assaggiate,
-      finteBevute
+      caffeinaTotale,
+      calorieTotali,
+      zuccheriTotali
     });
   } catch(err) {
     console.error('Errore statistiche bevute:', err);
