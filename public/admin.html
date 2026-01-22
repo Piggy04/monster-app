@@ -189,30 +189,57 @@
 
 
 
-  <script src="config.js"></script>
-  <script src="theme.js"></script>
-  <script src="sidebar.js"></script>
-  <script src="scroll.js"></script> 
-  <script src="utils.js"></script>  <!-- ← AGGIUNGI --> 
-  <script>
-console.log('🔵 Test: admin.js sta per caricarsi...');
+<script src="config.js"></script>
+<script src="theme.js"></script>
+<script src="sidebar.js"></script>
+<script src="scroll.js"></script>
+<!-- <script src="utils.js"></script> -->  <!-- ← COMMENTA QUESTA -->
+<script>
+console.log('🔵 Inizio script inline');
 
-// Test se API_URL esiste
-if (typeof API_URL === 'undefined') {
-  console.error('❌ API_URL non definito!');
-  const API_URL = 'https://monster-app-ocdj.onrender.com/api';
+const token = localStorage.getItem('token');
+const ruolo = localStorage.getItem('ruolo');
+const username = localStorage.getItem('username');
+const API_URL = 'https://monster-app-ocdj.onrender.com/api';
+
+console.log('🔵 Token:', token ? 'OK' : 'NO');
+console.log('🔵 Ruolo:', ruolo);
+console.log('🔵 API_URL:', API_URL);
+
+if (!token) {
+  window.location.href = 'index.html';
 }
 
-// Test se mostraTab esiste
-setTimeout(() => {
-  if (typeof mostraTab === 'undefined') {
-    console.error('❌ mostraTab non definito! admin.js non caricato!');
-  } else {
-    console.log('✅ mostraTab definito correttamente');
+function mostraTab(tab) {
+  console.log('✅ mostraTab chiamata con:', tab);
+  
+  document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+  
+  if (tab === 'aggiungi') {
+    document.querySelectorAll('.admin-tab')[0].classList.add('active');
+    document.getElementById('tabAggiungi').style.display = 'block';
+  } else if (tab === 'gestisci') {
+    document.querySelectorAll('.admin-tab')[1].classList.add('active');
+    document.getElementById('tabGestisci').style.display = 'block';
+    alert('Tab gestisci attivato! (funzionalità in arrivo)');
   }
-}, 500);
+}
+
+console.log('✅ mostraTab definito:', typeof mostraTab);
+
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('✅ DOMContentLoaded');
+  
+  if (ruolo !== 'admin') {
+    document.getElementById('accessoNegato').style.display = 'block';
+    document.getElementById('adminContent').style.display = 'none';
+  }
+});
+
+console.log('✅ Script inline caricato');
 </script>
 
-<script src="admin.js"></script>
+
 </body>
 </html>
