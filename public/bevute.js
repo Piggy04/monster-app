@@ -144,7 +144,7 @@ function applicaFiltri() {
   mostraBevute(risultato);
 }
 
-// ===== MOSTRA BEVUTE (con + e -) =====
+// ===== MOSTRA BEVUTE RAGGRUPPATE PER VARIANTE =====
 function mostraBevute(bevute) {
   const container = document.getElementById('bevuteContainer');
   
@@ -153,29 +153,63 @@ function mostraBevute(bevute) {
     return;
   }
   
-  let html = '';
+  // Raggruppa per varianteId
+  const raggruppate = {};
   
   bevute.forEach(b => {
-    const nomeVariante = b.varianteId?.nome || 'Monster';
-    const nomeLattina = b.varianteId?.lattina_id?.nome || '';
-    const nomeCompleto = nomeLattina ? `${nomeLattina} - ${nomeVariante}` : nomeVariante;
-    const immagine = b.varianteId?.immagine || '/placeholder-beer.jpg';
+    const varId = b.varianteId?._id || 'sconosciuta';
     
-    const data = new Date(b.data);
+    if (!raggruppate[varId]) {
+      raggruppate[varId] = {
+        varianteId: varId,
+        nome: b.varianteId?.nome || 'Monster',
+        lattinaNome: b.varianteId?.lattina_id?.nome || '',
+        immagine: b.varianteId?.immagine || '/placeholder-beer.jpg',
+        caffeina: b.varianteId?.caffeina_mg || 0,
+        calorie: b.varianteId?.calorie_kcal || 0,
+        zuccheri: b.varianteId?.zuccheri_g || 0,
+        conteggio: 0,
+        bevuteIds: [],
+        ultimaData: null,
+        ultimaOra: null,
+        note: b.note || ''
+      };
+    }
+    
+    raggruppate[varId].conteggio++;
+    raggruppate[varId].bevuteIds.push(b._id);
+    
+    // Salva data/ora più recente
+    if (!raggruppate[varId].ultimaData || new Date(b.data) > new Date(raggruppate[varId].ultimaData)) {
+      raggruppate[varId].ultimaData = b.data;
+      raggruppate[varId].ultimaOra = b.ora;
+      if (b.note) raggruppate[varId].note = b.note;
+    }
+  });
+  
+  const lista = Object.values(raggruppate);
+  
+  // Ordina per data più recente
+  lista.sort((a, b) => new Date(b.ultimaData) - new Date(a.ultimaData));
+  
+  let html = '';
+  
+  lista.forEach(item => {
+    const nomeCompleto = item.lattinaNome ? `${item.lattinaNome} - ${item.nome}` : item.nome;
+    
+    const data = new Date(item.ultimaData);
     const dataStr = data.toLocaleDateString('it-IT');
-    const oraStr = b.ora || data.toLocaleTimeString('it-IT');
-    
-    const caffeina = b.varianteId?.caffeina_mg || 0;
-    const calorie = b.varianteId?.calorie_kcal || 0;
-    const zuccheri = b.varianteId?.zuccheri_g || 0;
+    const oraStr = item.ultimaOra || data.toLocaleTimeString('it-IT');
     
     html += `
       <div class="bevuta-card">
         <div class="bevuta-nome">${nomeCompleto}</div>
         
         <div class="bevuta-immagine">
-          <img src="${immagine}" class="bevuta-foto" alt="${nomeCompleto}" onclick="apriModalImmagine('${immagine}')">
+          <img src="${item.immagine}" class="bevuta-foto" alt="${nomeCompleto}" onclick="apriModalImmagine('${item.immagine}')">
         </div>
+        
+        <div class="conteggio-badge">🍺 x${item.conteggio}</div>
         
         <div class="bevuta-info">
           <div class="info-row">
@@ -183,20 +217,20 @@ function mostraBevute(bevute) {
             <span>🕐 ${oraStr}</span>
           </div>
           
-          ${caffeina || calorie || zuccheri ? `
+          ${item.caffeina || item.calorie || item.zuccheri ? `
             <div class="info-nutrizionale">
-              ${caffeina ? `<span>⚡ ${caffeina}mg</span>` : ''}
-              ${calorie ? `<span>🔥 ${calorie}kcal</span>` : ''}
-              ${zuccheri ? `<span>🍬 ${zuccheri}g</span>` : ''}
+              ${item.caffeina ? `<span>⚡ ${item.caffeina}mg</span>` : ''}
+              ${item.calorie ? `<span>🔥 ${item.calorie}kcal</span>` : ''}
+              ${item.zuccheri ? `<span>🍬 ${item.zuccheri}g</span>` : ''}
             </div>
           ` : ''}
           
-          ${b.note ? `<div class="bevuta-note">📝 ${b.note}</div>` : ''}
+          ${item.note ? `<div class="bevuta-note">📝 ${item.note}</div>` : ''}
         </div>
         
         <div class="bevuta-azioni">
-          <button class="btn-primary btn-mini" onclick="incrementaBevuta('${b.varianteId?._id}')" title="Aggiungi un'altra">➕</button>
-          <button class="btn-danger btn-mini" onclick="eliminaBevuta('${b._id}')" title="Elimina questa">🗑️</button>
+          <button class="btn-primary btn-mini" onclick="incrementaBevuta('${item.varianteId}')" title="Aggiungi un'altra">➕</button>
+          <button class="btn-danger btn-mini" onclick="decrementaBevuta('${item.bevuteIds[item.bevuteIds.length - 1]}')" title="Rimuovi ultima">➖</button>
         </div>
       </div>
     `;
@@ -204,6 +238,30 @@ function mostraBevute(bevute) {
   
   container.innerHTML = html;
 }
+
+// ===== DECREMENTA BEVUTA (rimuovi ultima) =====
+async function decrementaBevuta(bevutaId) {
+  if (!bevutaId) return alert('Nessuna bevuta da eliminare');
+  
+  if (!confirm('Rimuovere l\'ultima bevuta?')) return;
+  
+  try {
+    const res = await fetch(`${RENDER_API}/bevute/${bevutaId}`, { 
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    
+    if (res.ok) {
+      caricaBevute();
+    } else {
+      alert('❌ Errore eliminazione');
+    }
+  } catch (e) {
+    console.error('Errore decrementa:', e);
+    alert('❌ Errore rete');
+  }
+}
+
 
 // ===== INCREMENTA BEVUTA (aggiungi un'altra della stessa variante) =====
 async function incrementaBevuta(varianteId) {
