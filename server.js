@@ -41,32 +41,32 @@ app.get('/api/monster-varianti', authMiddleware, async (req, res) => {
     const Variante = mongoose.model('Variante');
     const { search } = req.query;
     
-    let query = {};
-    
-    // Se c'è una ricerca, usa regex case-insensitive
-    if (search && search.trim()) {
-      const searchRegex = { $regex: search.trim(), $options: 'i' };
-      query = {
-        $or: [
-          { nome: searchRegex },
-          { 'lattina_id.nome': searchRegex }
-        ]
-      };
-    }
-    
-    const varianti = await Variante.find(query)
+    let varianti = await Variante.find()
       .populate('lattina_id', 'nome ordine')
       .populate('categoria_id', 'nome')
-      .sort({ 'lattina_id.ordine': 1, ordine: 1 });
+      .sort({ 'lattina_id.ordine': 1, ordine: 1 })
+      .lean();
     
-    console.log(`✅ Varianti: ${varianti.length} trovate${search ? ` per "${search}"` : ''}`);
+    // Se c'è ricerca, filtra DOPO il populate
+    if (search && search.trim()) {
+      const searchLower = search.trim().toLowerCase();
+      varianti = varianti.filter(v => {
+        const nomeVariante = (v.nome || '').toLowerCase();
+        const nomeLattina = (v.lattina_id?.nome || '').toLowerCase();
+        return nomeVariante.includes(searchLower) || nomeLattina.includes(searchLower);
+      });
+    }
+    
+    console.log(`✅ Varianti: ${varianti.length}${search ? ` per "${search}"` : ''}`);
     
     res.json(varianti);
   } catch(err) {
-    console.error('❌ Varianti errore:', err);
-    res.status(500).json({ errore: 'Errore caricamento varianti' });
+    console.error('❌ Errore /api/monster-varianti:', err.message);
+    res.status(500).json({ errore: 'Errore caricamento varianti: ' + err.message });
   }
 });
+
+
 
 
 // REGISTRA ROUTES
