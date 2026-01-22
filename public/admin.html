@@ -194,6 +194,25 @@
   <script src="sidebar.js"></script>
   <script src="scroll.js"></script> 
   <script src="utils.js"></script>  <!-- ← AGGIUNGI --> 
-  <script src="admin.js"></script>
+  <script>
+console.log('🔵 Test: admin.js sta per caricarsi...');
+
+// Test se API_URL esiste
+if (typeof API_URL === 'undefined') {
+  console.error('❌ API_URL non definito!');
+  const API_URL = 'https://monster-app-ocdj.onrender.com/api';
+}
+
+// Test se mostraTab esiste
+setTimeout(() => {
+  if (typeof mostraTab === 'undefined') {
+    console.error('❌ mostraTab non definito! admin.js non caricato!');
+  } else {
+    console.log('✅ mostraTab definito correttamente');
+  }
+}, 500);
+</script>
+
+<script src="admin.js"></script>
 </body>
 </html>
