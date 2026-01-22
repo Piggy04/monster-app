@@ -35,20 +35,39 @@ mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('✓ MongoDB connesso'))
   .catch(err => console.error('✗ Errore MongoDB:', err));
 
-// 🍺 VARIANTI per bevute modal
+// 🍺 VARIANTI per bevute modal (con ricerca case-insensitive)
 app.get('/api/monster-varianti', authMiddleware, async (req, res) => {
   try {
     const Variante = mongoose.model('Variante');
-    const varianti = await Variante.find()
-      .populate('lattina_id', 'nome')
-      .sort({ nome: 1 });
+    const { search } = req.query;
+    
+    let query = {};
+    
+    // Se c'è una ricerca, usa regex case-insensitive
+    if (search && search.trim()) {
+      const searchRegex = { $regex: search.trim(), $options: 'i' };
+      query = {
+        $or: [
+          { nome: searchRegex },
+          { 'lattina_id.nome': searchRegex }
+        ]
+      };
+    }
+    
+    const varianti = await Variante.find(query)
+      .populate('lattina_id', 'nome ordine')
+      .populate('categoria_id', 'nome')
+      .sort({ 'lattina_id.ordine': 1, ordine: 1 });
+    
+    console.log(`✅ Varianti: ${varianti.length} trovate${search ? ` per "${search}"` : ''}`);
     
     res.json(varianti);
   } catch(err) {
-    console.error('Varianti errore:', err);
+    console.error('❌ Varianti errore:', err);
     res.status(500).json({ errore: 'Errore caricamento varianti' });
   }
 });
+
 
 // REGISTRA ROUTES
 app.use('/api/auth', authRoutes);

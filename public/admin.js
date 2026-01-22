@@ -2,6 +2,9 @@ const token = localStorage.getItem('token');
 const ruolo = localStorage.getItem('ruolo');
 const username = localStorage.getItem('username');
 
+const API_URL = 'https://monster-app-ocdj.onrender.com/api';
+
+
 if (!token) {
   window.location.href = 'index.html';
 }
@@ -50,14 +53,29 @@ function mostraTab(tab) {
 // ===== GESTIONE (tab Gestisci) =====
 async function caricaGestione() {
   try {
-    const response = await fetch(`${API_URL}/collezione/completa`, {
+    const container = document.getElementById('gestioneContainer');
+    container.innerHTML = '<p style="text-align: center; padding: 40px;">⏳ Caricamento...</p>';
+    
+    // Carica collezione completa (gerarchica)
+    const responseCollezione = await fetch(`${API_URL}/collezione/completa`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    if (!responseCollezione.ok) throw new Error(`HTTP ${responseCollezione.status}`);
     
-    const datiGerarchici = await response.json(); // [categorie] con [lattine] con [varianti]
+    const datiGerarchici = await responseCollezione.json();
     
+    // Carica ANCHE tutte le varianti singole (per sicurezza)
+    const responseVarianti = await fetch(`${API_URL}/monster-varianti`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    
+    const tutteVarianti = responseVarianti.ok ? await responseVarianti.json() : [];
+    
+    console.log('✅ Collezione gerarchica:', datiGerarchici.length, 'categorie');
+    console.log('✅ Varianti totali:', tutteVarianti.length);
+    
+    // Crea array flat per la gestione
     const datiFlat = [];
     
     datiGerarchici.forEach(categoria => {
@@ -81,25 +99,44 @@ async function caricaGestione() {
             categoria: { nome: categoria.nome }
           });
           
-          // Varianti
-if (lattina.varianti) {
-  lattina.varianti.forEach(variante => {
-    datiFlat.push({
-      _id: variante._id,
-      tipo: 'variante',
-      nome: variante.nome,
-      ordine: variante.ordine || 0,
-      categoria_id: categoria._id,
-      categoria: { nome: categoria.nome },
-      lattina_id: lattina._id,  // ← AGGIUNTO
-      lattina: { nome: lattina.nome }  // ← AGGIUNTO
-    });
-  });
-}
-
+          // Varianti dalla lattina
+          if (lattina.varianti) {
+            lattina.varianti.forEach(variante => {
+              datiFlat.push({
+                _id: variante._id,
+                tipo: 'variante',
+                nome: variante.nome,
+                ordine: variante.ordine || 0,
+                categoria_id: categoria._id,
+                categoria: { nome: categoria.nome },
+                lattina_id: lattina._id,
+                lattina: { nome: lattina.nome }
+              });
+            });
+          }
         });
       }
     });
+    
+    // Aggiungi varianti "orfane" (se non presenti nella gerarchica)
+    const variantiIdsPresenti = new Set(datiFlat.filter(d => d.tipo === 'variante').map(d => d._id));
+    
+    tutteVarianti.forEach(v => {
+      if (!variantiIdsPresenti.has(v._id)) {
+        datiFlat.push({
+          _id: v._id,
+          tipo: 'variante',
+          nome: v.nome,
+          ordine: v.ordine || 0,
+          categoria_id: v.categoria_id?._id || v.categoria_id,
+          categoria: { nome: v.categoria_id?.nome || 'Sconosciuta' },
+          lattina_id: v.lattina_id?._id || v.lattina_id,
+          lattina: { nome: v.lattina_id?.nome || 'Sconosciuta' }
+        });
+      }
+    });
+    
+    console.log('✅ Dati flat totali:', datiFlat.length, '(cat+latt+var)');
     
     datiGestioneOriginali = datiFlat;
     
@@ -107,11 +144,13 @@ if (lattina.varianti) {
     mostraGestione(datiFlat);
     
   } catch (errore) {
-    console.error('Errore caricaGestione:', errore);
+    console.error('❌ Errore caricaGestione:', errore);
     document.getElementById('gestioneContainer').innerHTML =
-      '<p>❌ Errore: ' + errore.message + '</p>';
+      `<p class="no-results">❌ Errore: ${errore.message}<br><small>Ricarica la pagina</small></p>`;
   }
 }
+
+
 
 function popolaFiltroCategorie(dati) {
   const select = document.getElementById('filtroCategoriaAdmin');

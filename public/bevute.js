@@ -324,27 +324,41 @@ async function caricaVariantiPerModal() {
 
 // ===== FILTRO VARIANTI NEL MODAL =====
 function filtraVarianti() {
-  const query = document.getElementById('ricercaVariante').value.toLowerCase();
+  const query = document.getElementById('ricercaVariante').value.toLowerCase().trim();
   const risultati = document.getElementById('risultatiRicerca');
   
-  if (!query) {
+  if (!query || query.length < 2) {
     risultati.style.display = 'none';
     return;
   }
   
-  const match = tutteVarianti.filter(v => 
-    v.nome.toLowerCase().includes(query) ||
-    v.lattina_id?.nome?.toLowerCase().includes(query)
-  );
+  const match = tutteVarianti.filter(v => {
+    const nomeVariante = (v.nome || '').toLowerCase();
+    const nomeLattina = (v.lattina_id?.nome || '').toLowerCase();
+    
+    return nomeVariante.includes(query) || nomeLattina.includes(query);
+  });
   
-  risultati.innerHTML = match.slice(0, 10).map(v => `
-    <div class="risultato-item" onclick="selezionaVariante('${v._id}', '${v.nome}', '${v.lattina_id?.nome || ''}')">
-      <strong>${v.lattina_id?.nome || 'Monster'}</strong> - ${v.nome}
-    </div>
-  `).join('');
+  if (match.length === 0) {
+    risultati.innerHTML = '<div class="risultato-item" style="pointer-events: none; opacity: 0.6;">❌ Nessun risultato</div>';
+    risultati.style.display = 'block';
+    return;
+  }
   
-  risultati.style.display = match.length > 0 ? 'block' : 'none';
+  risultati.innerHTML = match.slice(0, 15).map(v => {
+    const nomeLattina = v.lattina_id?.nome || 'Monster';
+    const nomeVariante = v.nome || 'Sconosciuta';
+    
+    return `
+      <div class="risultato-item" onclick="selezionaVariante('${v._id}', '${nomeVariante.replace(/'/g, "\\'")}', '${nomeLattina.replace(/'/g, "\\'")}')">
+        <strong>${nomeLattina}</strong> - ${nomeVariante}
+      </div>
+    `;
+  }).join('');
+  
+  risultati.style.display = 'block';
 }
+
 
 function selezionaVariante(id, nomeVariante, nomeLattina) {
   document.getElementById('selectVariante').value = id;
