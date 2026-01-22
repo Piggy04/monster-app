@@ -4064,89 +4064,125 @@ input:checked + .slider:before {
 }
 
 
-/* Statistiche bevute */
+/* ========== STATISTICHE BEVUTE (nuove) ========== */
 .stats-bevute-container {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 16px;
-  margin-bottom: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
 }
 
 .stat-card-bevuta {
   background: var(--bg-secondary);
   border-radius: 12px;
-  padding: 20px;
+  padding: 16px;
   text-align: center;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  border: 1px solid var(--border-color);
 }
 
-.stat-icon {
-  font-size: 2.5em;
-  margin-bottom: 8px;
-}
-
-.stat-value {
+.stat-card-bevuta .stat-icon {
   font-size: 2em;
-  font-weight: bold;
-  color: var(--primary);
-  margin: 8px 0;
+  margin-bottom: 6px;
 }
 
-.stat-label {
-  font-size: 0.9em;
+.stat-card-bevuta .stat-value {
+  font-size: 1.8em;
+  font-weight: bold;
+  color: var(--accent-color);
+  margin: 6px 0;
+}
+
+.stat-card-bevuta .stat-label {
+  font-size: 0.85em;
   color: var(--text-secondary);
 }
 
-/* Card bevuta singola */
-.bevuta-card {
-  background: var(--bg-secondary);
-  border-radius: 12px;
-  padding: 16px;
-  margin-bottom: 16px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+/* ========== BEVUTE: INFO EXTRA NELLE CARD ========== */
+.bevuta-info {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 2px solid var(--border-color);
 }
 
-.bevuta-header {
+.bevuta-info .info-row {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-}
-
-.bevuta-nome {
-  font-weight: bold;
-  font-size: 1.1em;
-}
-
-.info-row {
-  display: flex;
-  justify-content: space-between;
-  margin: 8px 0;
+  margin: 6px 0;
   font-size: 0.9em;
   color: var(--text-secondary);
 }
 
 .info-nutrizionale {
   display: flex;
-  gap: 12px;
+  gap: 10px;
+  flex-wrap: wrap;
   margin-top: 8px;
   font-size: 0.85em;
+}
+
+.info-nutrizionale span {
+  background: var(--bg-primary);
+  padding: 4px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
   color: var(--text-secondary);
 }
 
 .bevuta-note {
-  margin-top: 12px;
+  margin-top: 10px;
   padding: 8px;
   background: var(--bg-primary);
   border-radius: 6px;
   font-size: 0.9em;
   font-style: italic;
+  color: var(--text-secondary);
+}
+
+/* ========== PULSANTI FILTRI ATTIVI ========== */
+.filtri-box button {
+  padding: 8px 16px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.3s;
 }
 
 .filtri-box button.active {
-  background: var(--gradient-primary);
+  background: var(--accent-color);
   color: white;
+  border-color: var(--accent-color);
+  box-shadow: 0 2px 8px rgba(46, 204, 113, 0.3);
 }
+
+.filtri-box button:hover {
+  border-color: var(--accent-color);
+  transform: translateY(-2px);
+}
+
+/* ========== BEVUTA HEADER FIX ========== */
+.bevuta-card .bevuta-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.bevuta-card .bevuta-header .bevuta-nome {
+  flex: 1;
+  font-weight: bold;
+  font-size: 1.1em;
+  margin: 0;
+}
+
+.bevuta-card .bevuta-header .btn-danger {
+  flex-shrink: 0;
+}
+
 
 
 
