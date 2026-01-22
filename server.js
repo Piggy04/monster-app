@@ -13,6 +13,8 @@ const statisticheRoutes = require('./routes/statistiche');
 const amiciRoutes = require('./routes/amici');
 const logRoutes = require('./routes/log');
 const bevuteRoutes = require('./routes/bevute'); // ← AGGIUNGI
+// ✅ IMPORTA IL MODEL VARIANTE
+const Variante = require('./models/Variante');  // ← AGGIUNGI QUESTA RIGA
 
 const authMiddleware = require('./middleware/auth');
 
@@ -35,36 +37,32 @@ mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('✓ MongoDB connesso'))
   .catch(err => console.error('✗ Errore MongoDB:', err));
 
-// 🍺 VARIANTI per bevute modal (con ricerca case-insensitive)
+// 🍺 VARIANTI per bevute modal
 app.get('/api/monster-varianti', authMiddleware, async (req, res) => {
   try {
-    const Variante = mongoose.model('Variante');
-    const { search } = req.query;
+    console.log('📡 GET /api/monster-varianti');
     
-    let varianti = await Variante.find()
+    // ✅ Usa il model importato (non mongoose.model)
+    const varianti = await Variante.find()
       .populate('lattina_id', 'nome ordine')
       .populate('categoria_id', 'nome')
-      .sort({ 'lattina_id.ordine': 1, ordine: 1 })
+      .sort({ ordine: 1 })
       .lean();
     
-    // Se c'è ricerca, filtra DOPO il populate
-    if (search && search.trim()) {
-      const searchLower = search.trim().toLowerCase();
-      varianti = varianti.filter(v => {
-        const nomeVariante = (v.nome || '').toLowerCase();
-        const nomeLattina = (v.lattina_id?.nome || '').toLowerCase();
-        return nomeVariante.includes(searchLower) || nomeLattina.includes(searchLower);
-      });
-    }
-    
-    console.log(`✅ Varianti: ${varianti.length}${search ? ` per "${search}"` : ''}`);
+    console.log('✅ Varianti caricate:', varianti.length);
     
     res.json(varianti);
+    
   } catch(err) {
-    console.error('❌ Errore /api/monster-varianti:', err.message);
-    res.status(500).json({ errore: 'Errore caricamento varianti: ' + err.message });
+    console.error('❌ ERRORE /api/monster-varianti:', err.message);
+    res.status(500).json({ 
+      errore: 'Errore caricamento varianti', 
+      dettagli: err.message 
+    });
   }
 });
+
+
 
 
 
