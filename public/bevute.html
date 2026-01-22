@@ -47,50 +47,85 @@ function apriModalImmagine(src) {
       <p id="nomeUtente"></p>
     </div>
 
+    <!-- ✅ STATISTICHE TOTALI -->
+    <div class="stats-bevute-container">
+      <div class="stat-card-bevuta">
+        <div class="stat-icon">🍺</div>
+        <div class="stat-value" id="statTotali">0</div>
+        <div class="stat-label">Bevute Totali</div>
+      </div>
+      
+      <div class="stat-card-bevuta">
+        <div class="stat-icon">⚡</div>
+        <div class="stat-value" id="statCaffeina">0</div>
+        <div class="stat-label">mg Caffeina</div>
+      </div>
+      
+      <div class="stat-card-bevuta">
+        <div class="stat-icon">🔥</div>
+        <div class="stat-value" id="statCalorie">0</div>
+        <div class="stat-label">kcal Totali</div>
+      </div>
+      
+      <div class="stat-card-bevuta">
+        <div class="stat-icon">🍬</div>
+        <div class="stat-value" id="statZuccheri">0</div>
+        <div class="stat-label">g Zuccheri</div>
+      </div>
+    </div>
+
     <!-- Controlli bevute -->
     <div class="filtri-container">
-  <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
-    <div class="ricerca-box" style="flex: 1; min-width: 200px;">
-      <input type="text" id="ricercaBevuta" placeholder="🔍 Cerca bevuta..." onkeyup="caricaBevute()">
+      <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+        <div class="ricerca-box" style="flex: 1; min-width: 200px;">
+          <input type="text" id="ricercaBevuta" placeholder="🔍 Cerca bevuta..." oninput="applicaFiltri()">
+        </div>
+        
+        <button class="btn-large" onclick="apriModalNuovaBevuta()" style="background: var(--gradient-primary);">
+          ➕ Aggiungi Monster
+        </button>
+      </div>
+      
+      <!-- ✅ FILTRI TEMPORALI -->
+      <div class="filtri-box" style="margin-top: 16px;">
+        <label>Periodo:</label>
+        <button class="btn-small active" id="btnTutto" onclick="filtraPeriodo('tutto')">Tutto</button>
+        <button class="btn-small" id="btnOggi" onclick="filtraPeriodo('oggi')">Oggi</button>
+        <button class="btn-small" id="btnSettimana" onclick="filtraPeriodo('settimana')">Settimana</button>
+        <button class="btn-small" id="btnMese" onclick="filtraPeriodo('mese')">Mese</button>
+      </div>
+      
+      <!-- ✅ ORDINAMENTO -->
+      <div class="filtri-box" style="margin-top: 12px;">
+        <label>Ordina per:</label>
+        <select id="selectOrdinamento" onchange="applicaFiltri()">
+          <option value="data-desc">Data (recente)</option>
+          <option value="data-asc">Data (vecchia)</option>
+          <option value="categoria">Categoria</option>
+        </select>
+      </div>
     </div>
-    
-    <button class="btn-large" onclick="apriModalNuovaBevuta()" style="background: var(--gradient-primary);">
-      ➕ Aggiungi Monster
-    </button>
-  </div>
-  
-  <div class="filtri-box" style="margin-top: 16px;">
-    <label>Data:</label>
-    <input type="date" id="filtroData" onchange="caricaBevute()">
-    <button class="btn-small" onclick="oggi()">Oggi</button>
-    <button class="btn-small" onclick="settimanaScorsa()">Settimana</button>
-  </div>
-</div>
 
-<!-- MODAL AGGIUNGI BEVUTA -->
-<div id="modalNuovaBevuta" class="modal" style="display:none;">
-  <div class="modal-content">
-    <span class="close" onclick="chiudiModalNuovaBevuta()">&times;</span>
-    <h2>Aggiungi Bevuta</h2>
-    
-    <form id="formNuovaBevuta">
-      <input type="hidden" id="selectVariante">
-      
-      <label>Cerca Monster:</label>
-      <input type="text" id="ricercaVariante" oninput="filtraVarianti()" placeholder="Es: Original, Ultra White...">
-      <div id="risultatiRicerca" style="display:none;"></div>
-      
-      
-      <label>Note (opzionale):</label>
-      <textarea id="inputNote" placeholder="Es: Buonissima!"></textarea>
-      
-      <button type="submit" class="btn-primary">Salva Bevuta</button>
-    </form>
-  </div>
-</div>
-
-
-
+    <!-- MODAL AGGIUNGI BEVUTA -->
+    <div id="modalNuovaBevuta" class="modal" style="display:none;">
+      <div class="modal-content">
+        <span class="close" onclick="chiudiModalNuovaBevuta()">&times;</span>
+        <h2>Aggiungi Bevuta</h2>
+        
+        <form id="formNuovaBevuta">
+          <input type="hidden" id="selectVariante">
+          
+          <label>Cerca Monster:</label>
+          <input type="text" id="ricercaVariante" oninput="filtraVarianti()" placeholder="Es: Original, Ultra White...">
+          <div id="risultatiRicerca" style="display:none;"></div>
+          
+          <label>Note (opzionale):</label>
+          <textarea id="inputNote" placeholder="Es: Buonissima!"></textarea>
+          
+          <button type="submit" class="btn-primary">Salva Bevuta</button>
+        </form>
+      </div>
+    </div>
 
     <div id="bevuteContainer" class="log-container">
       <p>Caricamento...</p>
@@ -100,7 +135,7 @@ function apriModalImmagine(src) {
   <script src="config.js"></script>
   <script src="theme.js"></script>
   <script src="sidebar.js"></script>
-  <script src="utils.js"></script>  <!-- ← AGGIUNGI --> 
+  <script src="utils.js"></script>
   <script src="bevute.js"></script>
 </body>
 </html>
