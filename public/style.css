@@ -3595,31 +3595,31 @@ input:checked + .slider:before {
   font-weight: 600;
 }
 
-/* ========== CONTAINER GRID BEVUTE ========== */
+/* ========== CONTAINER GRID BEVUTE (COMPATTO) ========== */
 #bevuteContainer {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
   margin-top: 20px;
 }
 
-/* ========== CARD BEVUTA VERTICALE (Opzione A) ========== */
+/* ========== CARD BEVUTA COMPATTA ========== */
 .bevuta-card {
   display: flex;
   flex-direction: column;
   align-items: center;
   background: var(--bg-secondary);
-  border-radius: 16px;
-  padding: 20px 16px;
+  border-radius: 12px;
+  padding: 14px 12px;
   border: 2px solid var(--border-color);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
   transition: all 0.3s;
-  min-height: 420px;
+  min-height: 320px;
 }
 
 .bevuta-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.12);
   border-color: var(--accent-color);
 }
 
@@ -3627,28 +3627,33 @@ input:checked + .slider:before {
 .bevuta-card .bevuta-nome {
   text-align: center;
   font-weight: 700;
-  font-size: 15px;
+  font-size: 13px;
   color: var(--text-primary);
-  margin: 0 0 12px 0;
-  line-height: 1.3;
-  min-height: 40px;
+  margin: 0 0 10px 0;
+  line-height: 1.2;
+  min-height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 
-/* Immagine */
+/* Immagine COMPATTA */
 .bevuta-card .bevuta-immagine {
   width: 100%;
-  height: 160px;
-  border-radius: 12px;
+  height: 120px;
+  border-radius: 10px;
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
   background: var(--bg-primary);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  margin-bottom: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  margin-bottom: 10px;
 }
 
 .bevuta-card .bevuta-foto {
@@ -3657,79 +3662,85 @@ input:checked + .slider:before {
   object-fit: contain;
   cursor: pointer;
   transition: transform 0.3s;
-  padding: 10px;
+  padding: 8px;
 }
 
 .bevuta-card .bevuta-foto:hover {
   transform: scale(1.08);
 }
 
-/* Info data/ora/nutrizionali */
+/* Info compatte */
 .bevuta-card .bevuta-info {
   width: 100%;
-  padding: 12px 0;
-  border-top: 2px solid var(--border-color);
-  border-bottom: 2px solid var(--border-color);
-  margin-bottom: 12px;
+  padding: 8px 0;
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 10px;
 }
 
 .bevuta-card .bevuta-info .info-row {
   display: flex;
   justify-content: space-between;
-  margin: 6px 0;
-  font-size: 0.85em;
+  margin: 4px 0;
+  font-size: 0.75em;
   color: var(--text-secondary);
   font-weight: 600;
 }
 
 .bevuta-card .info-nutrizionale {
   display: flex;
-  gap: 6px;
+  gap: 4px;
   flex-wrap: wrap;
   justify-content: center;
-  margin-top: 10px;
+  margin-top: 6px;
 }
 
 .bevuta-card .info-nutrizionale span {
   background: var(--bg-primary);
-  padding: 5px 10px;
-  border-radius: 6px;
-  font-size: 0.75em;
+  padding: 3px 6px;
+  border-radius: 4px;
+  font-size: 0.7em;
   color: var(--text-primary);
   font-weight: 700;
   border: 1px solid var(--border-color);
 }
 
 .bevuta-card .bevuta-note {
-  margin-top: 8px;
-  padding: 6px 8px;
+  margin-top: 6px;
+  padding: 4px 6px;
   background: var(--bg-primary);
-  border-radius: 6px;
-  font-size: 0.8em;
+  border-radius: 4px;
+  font-size: 0.7em;
   font-style: italic;
   color: var(--text-secondary);
   text-align: center;
-  border-left: 3px solid var(--accent-color);
+  border-left: 2px solid var(--accent-color);
+  max-height: 40px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 
-/* Pulsanti + e 🗑️ */
+/* Pulsanti + e 🗑️ COMPATTI */
 .bevuta-card .bevuta-azioni {
   display: flex;
-  gap: 12px;
+  gap: 8px;
   width: 100%;
   margin-top: auto;
 }
 
 .bevuta-card .btn-mini {
   flex: 1;
-  padding: 12px 16px;
-  font-size: 18px;
+  padding: 8px 12px;
+  font-size: 16px;
   font-weight: 700;
   border: none;
-  border-radius: 10px;
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
 }
 
 .bevuta-card .btn-primary.btn-mini {
@@ -3744,7 +3755,7 @@ input:checked + .slider:before {
 
 .bevuta-card .btn-mini:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(0,0,0,0.25);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
 }
 
 .bevuta-card .btn-mini:active {
@@ -3806,15 +3817,13 @@ input:checked + .slider:before {
   box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.1);
 }
 
-/* ========== MODAL RICERCA VARIANTI ========== */
+/* ========== MODAL RICERCA ========== */
 #risultatiRicerca {
-  position: relative;
   background: var(--bg-secondary);
   border: 2px solid var(--border-color);
   border-radius: 8px;
   max-height: 200px;
   overflow-y: auto;
-  z-index: 1000;
   margin-top: 4px;
   box-shadow: 0 4px 12px var(--shadow);
 }
@@ -3835,10 +3844,6 @@ input:checked + .slider:before {
   color: white;
 }
 
-.risultato-item strong {
-  font-weight: 700;
-}
-
 /* ========== NO RESULTS ========== */
 .no-results {
   text-align: center;
@@ -3851,30 +3856,30 @@ input:checked + .slider:before {
 /* ========== RESPONSIVE ========== */
 @media (max-width: 768px) {
   #bevuteContainer {
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 16px;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px;
   }
   
   .bevuta-card {
-    min-height: 380px;
-    padding: 16px 12px;
+    min-height: 280px;
+    padding: 12px 10px;
   }
   
   .bevuta-card .bevuta-immagine {
-    height: 140px;
+    height: 100px;
   }
   
-  .bevuta-card .btn-mini {
-    padding: 10px 12px;
-    font-size: 16px;
+  .bevuta-card .bevuta-nome {
+    font-size: 12px;
   }
 }
 
 @media (max-width: 480px) {
   #bevuteContainer {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
   }
 }
+
 
 
 
