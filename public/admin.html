@@ -133,10 +133,28 @@
       <input type="hidden" id="modificaTipo">
       <input type="text" id="modificaNome" placeholder="Nome" required>
       <input type="number" id="modificaOrdine" placeholder="Ordine" value="0">
+      
+      <!-- ✅ CAMPI NUTRIZIONALI (solo per varianti) -->
+      <div id="campiNutrizionali" style="display:none;">
+        <label style="margin-top: 12px; font-weight: 600;">Valori nutrizionali</label>
+        <input type="number" id="modificaCaffeina" placeholder="Caffeina (mg)" min="0" step="1">
+        <input type="number" id="modificaCalorie" placeholder="Calorie (kcal)" min="0" step="1">
+        <input type="number" id="modificaZuccheri" placeholder="Zuccheri (g)" min="0" step="0.1">
+      </div>
+      
       <button type="submit">Salva Modifiche</button>
     </form>
+    
+    <!-- URL immagine per variante -->
+    <div id="uploadForm" class="upload-form" style="display:none;">
+      <h3>📷 Immagine</h3>
+      <input type="url" id="uploadImage" placeholder="Inserisci URL immagine (https://...)">
+      <button type="button" onclick="salvaImmagine()">Salva Immagine</button>
+      <img id="previewImage" class="upload-preview" style="display:none;">
+    </div>
   </div>
 </div>
+
 
 <!-- Theme Drawer -->
 <div class="theme-drawer" id="themeDrawer">

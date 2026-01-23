@@ -157,14 +157,54 @@ async function eliminaItem(id, tipo) {
 }
 
 // ===== MODAL MODIFICA =====
-function modificaItem(id, nome, ordine, tipo) {
+async function modificaItem(id, nome, ordine, tipo) {
   document.getElementById('modificaId').value = id;
   document.getElementById('modificaTipo').value = tipo;
   document.getElementById('modificaNome').value = nome;
   document.getElementById('modificaOrdine').value = ordine;
   document.getElementById('modalTitolo').textContent = 'Modifica ' + tipo;
+  
+  const uploadForm = document.getElementById('uploadForm');
+  const campiNutrizionali = document.getElementById('campiNutrizionali');
+  
+  // Se è una variante, mostra campi extra
+  if (tipo === 'variante') {
+    uploadForm.style.display = 'block';
+    campiNutrizionali.style.display = 'block';
+    
+    // Carica dati completi della variante
+    try {
+      const res = await fetch(API_URL + '/collezione/' + tipo + '/' + id, {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      
+      if (res.ok) {
+        const variante = await res.json();
+        
+        document.getElementById('uploadImage').value = variante.immagine || '';
+        document.getElementById('modificaCaffeina').value = variante.caffeina_mg || 0;
+        document.getElementById('modificaCalorie').value = variante.calorie_kcal || 0;
+        document.getElementById('modificaZuccheri').value = variante.zuccheri_g || 0;
+        
+        const preview = document.getElementById('previewImage');
+        if (variante.immagine) {
+          preview.src = variante.immagine;
+          preview.style.display = 'block';
+        } else {
+          preview.style.display = 'none';
+        }
+      }
+    } catch(e) {
+      console.error('Errore caricamento variante:', e);
+    }
+  } else {
+    uploadForm.style.display = 'none';
+    campiNutrizionali.style.display = 'none';
+  }
+  
   document.getElementById('modalModifica').style.display = 'block';
 }
+
 
 function chiudiModal() {
   document.getElementById('modalModifica').style.display = 'none';
@@ -174,6 +214,47 @@ window.onclick = function(event) {
   const modal = document.getElementById('modalModifica');
   if (event.target === modal) chiudiModal();
 };
+
+async function salvaImmagine() {
+  const varianteId = document.getElementById('modificaId').value;
+  const immagineUrl = document.getElementById('uploadImage').value.trim();
+  const preview = document.getElementById('previewImage');
+  
+  if (!immagineUrl) return alert('Inserisci un URL immagine');
+  
+  const img = new Image();
+  img.onload = async function() {
+    try {
+      const res = await fetch(API_URL + '/collezione/variante/' + varianteId, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify({ immagine: immagineUrl })
+      });
+      
+      if (res.ok) {
+        preview.src = immagineUrl;
+        preview.style.display = 'block';
+        alert('✅ Immagine salvata!');
+        caricaGestione();
+      } else {
+        alert('❌ Errore salvataggio');
+      }
+    } catch(e) {
+      alert('❌ Errore: ' + e.message);
+    }
+  };
+  
+  img.onerror = function() {
+    preview.style.display = 'none';
+    alert('❌ URL non valido');
+  };
+  
+  img.src = immagineUrl;
+}
+
 
 
 // ===== CARICA CATEGORIE =====
@@ -242,6 +323,15 @@ document.getElementById('formModifica').addEventListener('submit', async functio
   
   if (!nome) return alert('Inserisci un nome');
   
+  const body = { nome: nome, ordine: ordine };
+  
+  // Se è una variante, aggiungi valori nutrizionali
+  if (tipo === 'variante') {
+    body.caffeina_mg = parseFloat(document.getElementById('modificaCaffeina').value) || 0;
+    body.calorie_kcal = parseFloat(document.getElementById('modificaCalorie').value) || 0;
+    body.zuccheri_g = parseFloat(document.getElementById('modificaZuccheri').value) || 0;
+  }
+  
   try {
     const res = await fetch(API_URL + '/collezione/' + tipo + '/' + id, {
       method: 'PUT',
@@ -249,7 +339,7 @@ document.getElementById('formModifica').addEventListener('submit', async functio
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ' + token
       },
-      body: JSON.stringify({ nome: nome, ordine: ordine })
+      body: JSON.stringify(body)
     });
     
     if (res.ok) {
@@ -264,8 +354,6 @@ document.getElementById('formModifica').addEventListener('submit', async functio
     alert('❌ Errore: ' + e.message);
   }
 });
-
-console.log('ADMIN.JS COMPLETE');
 
 
 console.log('ADMIN.JS COMPLETE');
