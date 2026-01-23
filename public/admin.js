@@ -122,7 +122,7 @@ function mostraGestione(dati) {
     html += '<span class="ordine-badge">ord: ' + item.ordine + '</span>';
     html += '</div>';
     html += '<div class="gestione-actions">';
-    html += '<button class="btn-edit btn-icon" onclick="alert(\'Modifica: ' + item.nome + '\')" title="Modifica">✏️</button>';
+    html += '<button class="btn-edit btn-icon" onclick="modificaItem(\'' + item._id + '\', \'' + item.nome.replace(/'/g, "\\'") + '\', ' + item.ordine + ', \'' + item.tipo + '\')" title="Modifica">✏️</button>';
     html += '<button class="btn-delete btn-icon" onclick="eliminaItem(\'' + item._id + '\', \'' + item.tipo + '\')" title="Elimina">🗑️</button>';
     html += '</div>';
     html += '</div>';
@@ -155,6 +155,26 @@ async function eliminaItem(id, tipo) {
     alert('❌ Errore: ' + e.message);
   }
 }
+
+// ===== MODAL MODIFICA =====
+function modificaItem(id, nome, ordine, tipo) {
+  document.getElementById('modificaId').value = id;
+  document.getElementById('modificaTipo').value = tipo;
+  document.getElementById('modificaNome').value = nome;
+  document.getElementById('modificaOrdine').value = ordine;
+  document.getElementById('modalTitolo').textContent = 'Modifica ' + tipo;
+  document.getElementById('modalModifica').style.display = 'block';
+}
+
+function chiudiModal() {
+  document.getElementById('modalModifica').style.display = 'none';
+}
+
+window.onclick = function(event) {
+  const modal = document.getElementById('modalModifica');
+  if (event.target === modal) chiudiModal();
+};
+
 
 // ===== CARICA CATEGORIE =====
 async function caricaCategorie() {
@@ -210,5 +230,42 @@ document.addEventListener('DOMContentLoaded', function() {
     caricaCategorie();
   }
 });
+
+// ===== FORM MODIFICA =====
+document.getElementById('formModifica').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  
+  const id = document.getElementById('modificaId').value;
+  const tipo = document.getElementById('modificaTipo').value;
+  const nome = document.getElementById('modificaNome').value.trim();
+  const ordine = parseInt(document.getElementById('modificaOrdine').value) || 0;
+  
+  if (!nome) return alert('Inserisci un nome');
+  
+  try {
+    const res = await fetch(API_URL + '/collezione/' + tipo + '/' + id, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
+      },
+      body: JSON.stringify({ nome: nome, ordine: ordine })
+    });
+    
+    if (res.ok) {
+      alert('✅ Modifiche salvate!');
+      chiudiModal();
+      caricaGestione();
+      caricaCategorie();
+    } else {
+      alert('❌ Errore salvataggio');
+    }
+  } catch(e) {
+    alert('❌ Errore: ' + e.message);
+  }
+});
+
+console.log('ADMIN.JS COMPLETE');
+
 
 console.log('ADMIN.JS COMPLETE');
