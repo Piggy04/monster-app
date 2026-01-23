@@ -30,15 +30,33 @@ async function caricaStatistiche() {
     
     const stats = await res.json();
     
-    document.getElementById('statTotali').textContent = stats.totali || 0;
-    document.getElementById('statCaffeina').textContent = Math.round(stats.caffeinaTotale || 0);
-    document.getElementById('statCalorie').textContent = Math.round(stats.calorieTotali || 0);
-    document.getElementById('statZuccheri').textContent = Math.round(stats.zuccheriTotali || 0);
+    // ✅ AGGIORNA TUTTE LE CARD
+    const totali = document.getElementById('statTotali') || document.getElementById('totaleTotali');
+    const caffeina = document.getElementById('statCaffeina') || document.getElementById('totaleCaffeina');
+    const calorie = document.getElementById('statCalorie') || document.getElementById('totaleCalorie');
+    const zuccheri = document.getElementById('statZuccheri') || document.getElementById('totaleZuccheri');
+    
+    if (totali) totali.textContent = stats.totali || 0;
+    if (caffeina) caffeina.textContent = Math.round(stats.caffeinaTotale || 0) + ' mg';
+    if (calorie) calorie.textContent = Math.round(stats.calorieTotali || 0) + ' kcal';
+    if (zuccheri) zuccheri.textContent = Math.round(stats.zuccheriTotali || 0) + ' g';
+    
+    // Aggiorna anche oggi, settimana, mese se esistono
+    const oggi = document.getElementById('totaleOggi');
+    const settimana = document.getElementById('totaleSettimana');
+    const mese = document.getElementById('totaleMese');
+    
+    if (oggi) oggi.textContent = stats.oggi || 0;
+    if (settimana) settimana.textContent = stats.settimana || 0;
+    if (mese) mese.textContent = stats.mese || 0;
+    
+    console.log('✅ Statistiche aggiornate:', stats);
     
   } catch(e) {
     console.error('❌ Errore statistiche:', e);
   }
 }
+
 
 // ===== CARICA BEVUTE =====
 async function caricaBevute() {
