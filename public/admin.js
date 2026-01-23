@@ -2,7 +2,6 @@ console.log('ADMIN.JS LOADED');
 
 const token = localStorage.getItem('token');
 const ruolo = localStorage.getItem('ruolo');
-const API_URL = 'https://monster-app-ocdj.onrender.com/api';
 
 if (!token) window.location.href = 'index.html';
 
