@@ -239,20 +239,33 @@ router.post('/variante', adminAuth, async (req, res) => {
 
 router.put('/variante/:id', adminAuth, async (req, res) => {
   try {
-    const { nome, ordine, immagine } = req.body;
+    const { nome, ordine, immagine, caffeina_mg, calorie_kcal, zuccheri_g } = req.body;
+    
+    const aggiornamento = { nome, ordine };
+    
+    // Aggiungi solo i campi presenti
+    if (immagine !== undefined) aggiornamento.immagine = immagine;
+    if (caffeina_mg !== undefined) aggiornamento.caffeina_mg = caffeina_mg;
+    if (calorie_kcal !== undefined) aggiornamento.calorie_kcal = calorie_kcal;
+    if (zuccheri_g !== undefined) aggiornamento.zuccheri_g = zuccheri_g;
+    
     const variante = await Variante.findByIdAndUpdate(
       req.params.id,
-      { nome, ordine, immagine },
+      aggiornamento,
       { new: true, runValidators: true }
     );
+    
     if (!variante) {
       return res.status(404).json({ errore: 'Variante non trovata' });
     }
+    
     res.json(variante);
   } catch (errore) {
+    console.error('Errore PUT variante:', errore);
     res.status(500).json({ errore: 'Errore aggiornamento variante' });
   }
 });
+
 
 
 
