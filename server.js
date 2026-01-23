@@ -42,14 +42,12 @@ app.get('/api/monster-varianti', authMiddleware, async (req, res) => {
   try {
     console.log('📡 GET /api/monster-varianti');
     
-    // ✅ Usa il model importato (non mongoose.model)
     const varianti = await Variante.find()
       .populate('lattina_id', 'nome ordine')
-      .populate('categoria_id', 'nome')
       .sort({ ordine: 1 })
       .lean();
     
-    console.log('✅ Varianti caricate:', varianti.length);
+    console.log('✅ Varianti trovate:', varianti.length);
     
     res.json(varianti);
     
@@ -61,6 +59,7 @@ app.get('/api/monster-varianti', authMiddleware, async (req, res) => {
     });
   }
 });
+
 
 
 
