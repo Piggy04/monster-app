@@ -82,6 +82,8 @@ async function caricaGestione() {
     console.log('Dati flat:', datiFlat.length);
     
     datiGestioneOriginali = datiFlat;
+    
+    popolaFiltroCategorie(datiFlat);
     mostraGestione(datiFlat);
     
   } catch(e) {
@@ -89,6 +91,59 @@ async function caricaGestione() {
     container.innerHTML = '<p class="no-results">❌ ' + e.message + '</p>';
   }
 }
+
+// ===== POPOLA FILTRO CATEGORIE =====
+function popolaFiltroCategorie(dati) {
+  const select = document.getElementById('filtroCategoriaAdmin');
+  if (!select) return;
+  
+  select.innerHTML = '<option value="">Tutte le categorie</option>';
+  
+  const categorie = dati.filter(item => item.tipo === 'categoria');
+  categorie.forEach(cat => {
+    const option = document.createElement('option');
+    option.value = cat._id;
+    option.textContent = cat.nome;
+    select.appendChild(option);
+  });
+}
+
+// ===== FILTRO ADMIN =====
+function filtraAdmin() {
+  const ricerca = document.getElementById('ricercaAdmin').value.toLowerCase().trim();
+  const tipo = document.getElementById('filtroTipo').value;
+  const categoriaId = document.getElementById('filtroCategoriaAdmin').value;
+  
+  let risultato = datiGestioneOriginali.slice();
+  
+  // Filtro per tipo
+  if (tipo !== 'tutti') {
+    risultato = risultato.filter(item => item.tipo === tipo);
+  }
+  
+  // Filtro per categoria
+  if (categoriaId) {
+    risultato = risultato.filter(item => {
+      if (item.tipo === 'categoria') return item._id === categoriaId;
+      return item.categoria_id === categoriaId;
+    });
+  }
+  
+  // ✅ RICERCA INTELLIGENTE: cerca nel nome, categoria padre e lattina padre
+  if (ricerca) {
+    risultato = risultato.filter(item => {
+      const nomeMatch = item.nome.toLowerCase().includes(ricerca);
+      const categoriaMatch = item.categoria && item.categoria.nome.toLowerCase().includes(ricerca);
+      const lattinaMatch = item.lattina && item.lattina.nome.toLowerCase().includes(ricerca);
+      
+      return nomeMatch || categoriaMatch || lattinaMatch;
+    });
+  }
+  
+  console.log('Filtrati:', risultato.length, 'elementi');
+  mostraGestione(risultato);
+}
+
 
 function mostraGestione(dati) {
   const container = document.getElementById('gestioneContainer');

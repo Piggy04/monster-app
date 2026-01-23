@@ -116,12 +116,32 @@
     </div>
 
     <div id="tabGestisci" class="tab-content" style="display:none;">
-      <div class="gestione-container" id="gestioneContainer">
-        <p style="text-align:center; padding:40px;">⏳ Caricamento...</p>
-      </div>
-    </div>
+  <!-- ✅ FILTRI -->
+  <div class="admin-filtri">
+    <input 
+      type="text" 
+      id="ricercaAdmin" 
+      placeholder="🔍 Cerca per nome..."
+      oninput="filtraAdmin()"
+    >
+    
+    <select id="filtroTipo" onchange="filtraAdmin()">
+      <option value="tutti">Tutti i tipi</option>
+      <option value="categoria">Solo Categorie</option>
+      <option value="lattina">Solo Lattine</option>
+      <option value="variante">Solo Varianti</option>
+    </select>
+    
+    <select id="filtroCategoriaAdmin" onchange="filtraAdmin()">
+      <option value="">Tutte le categorie</option>
+    </select>
+  </div>
+  
+  <div class="gestione-container" id="gestioneContainer">
+    <p style="text-align:center;padding:40px;">⏳ Caricamento...</p>
   </div>
 </div>
+
 
 <!-- Modal Modifica -->
 <div id="modalModifica" class="modal">
