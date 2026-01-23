@@ -7,144 +7,123 @@
   <link rel="icon" href="favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="style.css">
   <link rel="manifest" href="/manifest.json">
-<script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js');
-  }
-</script>
-
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js');
+    }
+  </script>
 </head>
 <body>
-  <script>
-    (function() {
-      const tema = localStorage.getItem('tema') || 'light';
-      document.documentElement.setAttribute('data-theme', tema);
-    })();
-  </script>
-  <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">
+  
+<script>
+(function() {
+  const tema = localStorage.getItem('tema') || 'light';
+  document.documentElement.setAttribute('data-theme', tema);
+})();
+</script>
+
+<button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">
   <span></span>
   <span></span>
   <span></span>
 </button>
-  
-  <div class="sidebar">
-    <h2>SW Archive</h2>
-    <nav>
-      <a href="collezione.html">La Mia Collezione</a>
-      <a href="chi-siamo.html">ℹ️ Chi Siamo</a>
-      <a href="profilo.html">👤 Profilo</a>
-      <a href="bevute.html">🍺 Monster Bevute</a>
-      <a href="amici.html">👥 Amici</a>
-      <a href="attivita.html">📝 Attività</a> 
-      <a href="admin.html" class="active">Gestione Contenuti</a>
-      <a href="users.html">👥 Gestione Utenti</a>
-      <a href="log-admin.html">📊 Log Utenti</a>
-    </nav>
+
+<div class="sidebar">
+  <h2>SW Archive</h2>
+  <nav>
+    <a href="collezione.html">La Mia Collezione</a>
+    <a href="chi-siamo.html">ℹ️ Chi Siamo</a>
+    <a href="profilo.html">👤 Profilo</a>
+    <a href="bevute.html">🍺 Monster Bevute</a>
+    <a href="amici.html">👥 Amici</a>
+    <a href="attivita.html">📝 Attività</a> 
+    <a href="admin.html" class="active">Gestione Contenuti</a>
+    <a href="users.html">👥 Gestione Utenti</a>
+    <a href="log-admin.html">📊 Log Utenti</a>
+  </nav>
+</div>
+
+<div class="main-content">
+  <div class="header">
+    <div>
+      <h1>Pannello Amministrazione</h1>
+      <p class="admin-badge">👑 Admin</p>
+    </div>
   </div>
 
-  <div class="main-content">
-    <div class="header">
-      <div>
-        <h1>Pannello Amministrazione</h1>
-        <p class="admin-badge">👑 Admin</p>
+  <div id="accessoNegato" style="display:none;">
+    <div class="card">
+      <h2 style="color: #e74c3c;">🚫 Accesso Negato</h2>
+      <p>Solo gli amministratori possono accedere a questa pagina.</p>
+      <a href="collezione.html" style="color: #3498db;">← Torna alla Collezione</a>
+    </div>
+  </div>
+
+  <div id="adminContent">
+    <div class="admin-tabs">
+      <button class="admin-tab active" onclick="mostraTab('aggiungi')">➕ Aggiungi</button>
+      <button class="admin-tab" onclick="mostraTab('gestisci')">✏️ Gestisci</button>
+    </div>
+
+    <div id="tabAggiungi" class="tab-content">
+      <div class="admin-grid">
+        <div class="card">
+          <h3>➕ Aggiungi Categoria</h3>
+          <form id="formCategoria">
+            <input type="text" id="nomeCategoria" placeholder="Nome categoria (es: Ultra)" required>
+            <input type="number" id="ordineCategoria" placeholder="Ordine" value="0">
+            <button type="submit">Aggiungi Categoria</button>
+          </form>
+          <p class="successo" id="successoCategoria"></p>
+        </div>
+
+        <div class="card">
+          <h3>🥤 Aggiungi Lattina</h3>
+          <form id="formLattina">
+            <select id="categoriaLattina" required>
+              <option value="">Seleziona categoria</option>
+            </select>
+            <input type="text" id="nomeLattina" placeholder="Nome lattina (es: Ultra White)" required>
+            <input type="number" id="ordineLattina" placeholder="Ordine" value="0">
+            <button type="submit">Aggiungi Lattina</button>
+          </form>
+          <p class="successo" id="successoLattina"></p>
+        </div>
+
+        <div class="card">
+          <h3>🎨 Aggiungi Variante</h3>
+          <form id="formVariante">
+            <select id="categoriaVariante" required onchange="caricaLattineVariante()">
+              <option value="">Seleziona categoria</option>
+            </select>
+            <select id="lattinaVariante" required>
+              <option value="">Prima seleziona categoria</option>
+            </select>
+            <input type="text" id="nomeVariante" placeholder="Nome variante (es: Edizione USA 2023)" required>
+            <input type="number" id="ordineVariante" placeholder="Ordine" value="0">
+            
+            <label style="margin-top: 12px; font-weight: 600;">Valori nutrizionali (opzionali)</label>
+            <input type="number" id="caffeinaVariante" placeholder="Caffeina (mg) - es: 160" min="0" step="1">
+            <input type="number" id="calorieVariante" placeholder="Calorie (kcal) - es: 210" min="0" step="1">
+            <input type="number" id="zuccheriVariante" placeholder="Zuccheri (g) - es: 54" min="0" step="0.1">
+            
+            <input type="url" id="immagineVariante" placeholder="URL immagine (facoltativo)">
+            <button type="submit">Aggiungi Variante</button>
+          </form>
+          <p class="successo" id="successoVariante"></p>
+        </div>
       </div>
     </div>
 
-    <div id="accessoNegato" style="display:none;">
-      <div class="card">
-        <h2 style="color: #e74c3c;">🚫 Accesso Negato</h2>
-        <p>Solo gli amministratori possono accedere a questa pagina.</p>
-        <a href="collezione.html" style="color: #3498db;">← Torna alla Collezione</a>
+    <div id="tabGestisci" class="tab-content" style="display:none;">
+      <div class="gestione-container" id="gestioneContainer">
+        <p style="text-align:center; padding:40px;">⏳ Caricamento...</p>
       </div>
     </div>
-
-    <div id="adminContent">
-      <div class="admin-tabs">
-        <button class="admin-tab active" onclick="mostraTab('aggiungi')">➕ Aggiungi</button>
-        <button class="admin-tab" onclick="mostraTab('gestisci')">✏️ Gestisci</button>
-      </div>
-
-      <div id="tabAggiungi" class="tab-content">
-        <div class="admin-grid">
-          <div class="card">
-            <h3>➕ Aggiungi Categoria</h3>
-            <form id="formCategoria">
-              <input type="text" id="nomeCategoria" placeholder="Nome categoria (es: Ultra)" required>
-              <input type="number" id="ordineCategoria" placeholder="Ordine" value="0">
-              <button type="submit">Aggiungi Categoria</button>
-            </form>
-            <p class="successo" id="successoCategoria"></p>
-          </div>
-
-          <div class="card">
-            <h3>🥤 Aggiungi Lattina</h3>
-            <form id="formLattina">
-              <select id="categoriaLattina" required>
-                <option value="">Seleziona categoria</option>
-              </select>
-              <input type="text" id="nomeLattina" placeholder="Nome lattina (es: Ultra White)" required>
-              <input type="number" id="ordineLattina" placeholder="Ordine" value="0">
-              <button type="submit">Aggiungi Lattina</button>
-            </form>
-            <p class="successo" id="successoLattina"></p>
-          </div>
-
-          <div class="card">
-  <h3>🎨 Aggiungi Variante</h3>
-  <form id="formVariante">
-    <select id="categoriaVariante" required onchange="caricaLattineVariante()">
-      <option value="">Seleziona categoria</option>
-    </select>
-    <select id="lattinaVariante" required>
-      <option value="">Prima seleziona categoria</option>
-    </select>
-    <input type="text" id="nomeVariante" placeholder="Nome variante (es: Edizione USA 2023)" required>
-    <input type="number" id="ordineVariante" placeholder="Ordine" value="0">
-    
-    <!-- ✅ NUOVI CAMPI NUTRIZIONALI -->
-    <label style="margin-top: 12px; font-weight: 600;">Valori nutrizionali (opzionali)</label>
-    
-    <input type="number" id="caffeinaVariante" placeholder="Caffeina (mg) - es: 160" min="0" step="1">
-    <input type="number" id="calorieVariante" placeholder="Calorie (kcal) - es: 210" min="0" step="1">
-    <input type="number" id="zuccheriVariante" placeholder="Zuccheri (g) - es: 54" min="0" step="0.1">
-    
-    <input type="url" id="immagineVariante" placeholder="URL immagine (facoltativo)">
-    <button type="submit">Aggiungi Variante</button>
-  </form>
-  <p class="successo" id="successoVariante"></p>
-</div>
-
-
-      <div id="tabGestisci" class="tab-content" style="display:none;">
-  <!-- ⬇️ AGGIUNGI QUESTA SEZIONE -->
-  <div class="admin-filtri">
-    <input 
-      type="text" 
-      id="ricercaAdmin" 
-      placeholder="🔍 Cerca per nome..."
-      oninput="filtraAdmin()"
-    >
-    
-    <select id="filtroTipo" onchange="filtraAdmin()">
-      <option value="tutti">Tutti i tipi</option>
-      <option value="categoria">Solo Categorie</option>
-      <option value="lattina">Solo Lattine</option>
-      <option value="variante">Solo Varianti</option>
-    </select>
-    
-    <select id="filtroCategoriaAdmin" onchange="filtraAdmin()">
-      <option value="">Tutte le categorie</option>
-      <!-- Popolato dinamicamente -->
-    </select>
-  </div>
-  
-  <div class="gestione-container" id="gestioneContainer">
-    <p>Caricamento...</p>
   </div>
 </div>
 
-
-  <!-- Modal Modifica -->
+<!-- Modal Modifica -->
 <div id="modalModifica" class="modal">
   <div class="modal-content">
     <span class="close" onclick="chiudiModal()">&times;</span>
@@ -156,22 +135,12 @@
       <input type="number" id="modificaOrdine" placeholder="Ordine" value="0">
       <button type="submit">Salva Modifiche</button>
     </form>
-    
-    <!-- URL immagine per variante -->
-    <div id="uploadForm" class="upload-form" style="display:none;">
-      <h3>📷 Immagine</h3>
-      <input type="url" id="uploadImage" placeholder="Inserisci URL immagine (https://...)">
-      <button type="button" onclick="caricaImmagine()">Salva Immagine</button>
-      <img id="previewImage" class="upload-preview" style="display:none;">
-    </div>
   </div>
 </div>
 
-
-<!-- THEME DRAWER (estraibile) -->
+<!-- Theme Drawer -->
 <div class="theme-drawer" id="themeDrawer">
   <button class="theme-drawer-toggle" onclick="toggleThemeDrawer()">🎨</button>
-  
   <div class="theme-drawer-content">
     <h4>Tema</h4>
     <div class="theme-buttons">
@@ -182,64 +151,14 @@
     </div>
   </div>
 </div>
-<!-- Pulsante torna su -->
-<button class="scroll-to-top" id="scrollToTop" onclick="scrollToTop()">
-  ↑
-</button>
 
-
+<button class="scroll-to-top" id="scrollToTop" onclick="scrollToTop()">↑</button>
 
 <script src="config.js"></script>
 <script src="theme.js"></script>
 <script src="sidebar.js"></script>
 <script src="scroll.js"></script>
-<!-- <script src="utils.js"></script> -->  <!-- ← COMMENTA QUESTA -->
-<script>
-console.log('🔵 Inizio script inline');
-
-const token = localStorage.getItem('token');
-const ruolo = localStorage.getItem('ruolo');
-const username = localStorage.getItem('username');
-const API_URL = 'https://monster-app-ocdj.onrender.com/api';
-
-console.log('🔵 Token:', token ? 'OK' : 'NO');
-console.log('🔵 Ruolo:', ruolo);
-console.log('🔵 API_URL:', API_URL);
-
-if (!token) {
-  window.location.href = 'index.html';
-}
-
-function mostraTab(tab) {
-  console.log('✅ mostraTab chiamata con:', tab);
-  
-  document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
-  
-  if (tab === 'aggiungi') {
-    document.querySelectorAll('.admin-tab')[0].classList.add('active');
-    document.getElementById('tabAggiungi').style.display = 'block';
-  } else if (tab === 'gestisci') {
-    document.querySelectorAll('.admin-tab')[1].classList.add('active');
-    document.getElementById('tabGestisci').style.display = 'block';
-    alert('Tab gestisci attivato! (funzionalità in arrivo)');
-  }
-}
-
-console.log('✅ mostraTab definito:', typeof mostraTab);
-
-document.addEventListener('DOMContentLoaded', () => {
-  console.log('✅ DOMContentLoaded');
-  
-  if (ruolo !== 'admin') {
-    document.getElementById('accessoNegato').style.display = 'block';
-    document.getElementById('adminContent').style.display = 'none';
-  }
-});
-
-console.log('✅ Script inline caricato');
-</script>
-
+<script src="admin.js"></script>
 
 </body>
 </html>
