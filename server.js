@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const path = require('path');
 require('dotenv').config();
 
+
 // IMPORT ROUTES CON SAFE CHECK
 const authRoutes = require('./routes/auth');
 const collezioneRoutes = require('./routes/collezione');
@@ -12,14 +13,16 @@ const uploadRoutes = require('./routes/upload');
 const statisticheRoutes = require('./routes/statistiche');
 const amiciRoutes = require('./routes/amici');
 const logRoutes = require('./routes/log');
-const bevuteRoutes = require('./routes/bevute'); // ← AGGIUNGI
-// ✅ IMPORTA IL MODEL VARIANTE
-const Variante = require('./models/Variante');  // ← AGGIUNGI QUESTA RIGA
+const bevuteRoutes = require('./routes/bevute');
+const Variante = require('./models/Variante');
+
 
 const authMiddleware = require('./middleware/auth');
 
+
 // CREA APP
 const app = express();
+
 
 // MIDDLEWARE
 app.use(cors({
@@ -27,15 +30,18 @@ app.use(cors({
   credentials: true
 }));
 
+
 app.use(express.json());
 app.use(express.static('public'));
 app.use('/uploads', express.static('uploads'));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+
 // CONNETTI MONGODB
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('✓ MongoDB connesso'))
   .catch(err => console.error('✗ Errore MongoDB:', err));
+
 
 // 🍺 VARIANTI per bevute modal
 app.get('/api/monster-varianti', authMiddleware, async (req, res) => {
@@ -61,11 +67,6 @@ app.get('/api/monster-varianti', authMiddleware, async (req, res) => {
 });
 
 
-
-
-
-
-
 // REGISTRA ROUTES
 app.use('/api/auth', authRoutes);
 app.use('/api/collezione', collezioneRoutes);
@@ -74,7 +75,18 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/statistiche', statisticheRoutes);
 app.use('/api/amici', amiciRoutes);
 app.use('/api/log', logRoutes);
-app.use('/api/bevute', bevuteRoutes); // ← AGGIUNGI
+app.use('/api/bevute', bevuteRoutes);
+
+
+// ⏰ HEALTHCHECK - Ping per UptimeRobot (mantiene il server sveglio)
+app.get('/api/ping', (req, res) => {
+  res.json({ 
+    ok: true, 
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime()
+  });
+});
+
 
 // AVVIA SERVER
 const PORT = process.env.PORT || 3000;
