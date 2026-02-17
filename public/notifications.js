@@ -95,21 +95,34 @@ async function attivaNotifiche() {
     return false;
   }
   
+  
   // Step 5: Subscribe
-  let subscription;
-  try {
-    subscription = await registration.pushManager.subscribe({
-      userVisibleOnly: true,
-      applicationServerKey: urlBase64ToUint8Array(publicKey)
-    });
-    
-    console.log('✅ Step 5: Subscription creata');
-    console.log('Endpoint:', subscription.endpoint.substring(0, 50) + '...');
-  } catch(e) {
-    console.error('❌ Step 5 errore:', e);
-    alert('Errore sottoscrizione push: ' + e.message);
-    return false;
+let subscription;
+try {
+  // Prima controlla se esiste già una subscription
+  const existingSub = await registration.pushManager.getSubscription();
+  
+  if (existingSub) {
+    console.log('⚠️ Subscription esistente trovata, la rimuovo...');
+    await existingSub.unsubscribe();
+    console.log('✅ Vecchia subscription rimossa');
   }
+  
+  subscription = await registration.pushManager.subscribe({
+    userVisibleOnly: true,
+    applicationServerKey: urlBase64ToUint8Array(publicKey)
+  });
+  
+  console.log('✅ Step 5: Subscription creata');
+  console.log('Endpoint:', subscription.endpoint.substring(0, 50) + '...');
+} catch(e) {
+  console.error('❌ Step 5 errore:', e);
+  console.error('Nome errore:', e.name);
+  console.error('Dettagli:', e.message);
+  alert('Errore sottoscrizione push: ' + e.message + '\n\nProva a ricaricare la pagina o usa un altro browser.');
+  return false;
+}
+
   
   // Step 6: Salva sul server
   try {

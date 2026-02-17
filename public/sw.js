@@ -68,11 +68,7 @@ self.addEventListener('push', function(event) {
       vibrate: [200, 100, 200],
       tag: data.data?.tipo || 'default',
       requireInteraction: false,
-      data: data.data,
-      actions: [
-        { action: 'open', title: '👀 Apri', icon: '/icon-192.png' },
-        { action: 'close', title: '❌ Chiudi' }
-      ]
+      data: data.data
     };
     
     event.waitUntil(
@@ -82,6 +78,7 @@ self.addEventListener('push', function(event) {
     console.error('Errore parsing notifica:', e);
   }
 });
+
 
 // 🖱️ CLICK su notifica
 self.addEventListener('notificationclick', function(event) {
