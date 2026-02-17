@@ -128,6 +128,8 @@ router.post('/richiesta', auth, async (req, res) => {
     });
     
     await amicizia.save();
+
+    
     
     // SALVA IL LOG
     await Log.create({
@@ -181,6 +183,16 @@ router.put('/accetta/:id', auth, async (req, res) => {
         amico_username: amicizia.mittente_id.username
       }
     });
+    const { inviaNotifica } = require('./notifiche');
+
+// ... dentro la route che accetta l'amicizia
+await inviaNotifica(
+  richiedente._id,
+  '🎉 Nuova amicizia!',
+  `${req.user.username} ha accettato la tua richiesta di amicizia`,
+  'amicizia'
+);
+
     
     res.json({ messaggio: 'Richiesta accettata', amicizia });
   } catch (errore) {

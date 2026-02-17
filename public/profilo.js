@@ -368,6 +368,133 @@ async function cambiaPassword() {
   }
 }
 
+// ===== GESTIONE NOTIFICHE =====
+
+const statusContainer = document.getElementById('notificationStatus');
+const toggleContainer = document.getElementById('notificationToggleContainer');
+const preferenzeContainer = document.getElementById('preferenzeNotifiche');
+const btnAttiva = document.getElementById('btnAttivaNotifiche');
+const btnSalva = document.getElementById('btnSalvaPreferenze');
+
+// Carica stato notifiche
+async function caricaStatoNotifiche() {
+  try {
+    const stato = await statoNotifiche();
+    
+    if (stato === 'non_supportate') {
+      mostraStato('error', '❌ Browser non supportato', 'Il tuo browser non supporta le notifiche push');
+      return;
+    }
+    
+    if (stato === 'negate') {
+      mostraStato('error', '🚫 Notifiche bloccate', 'Hai negato il permesso. Riattivalo dalle impostazioni del browser');
+      return;
+    }
+    
+    if (stato === 'attive') {
+      mostraStato('success', '✅ Notifiche attive', 'Riceverai notifiche anche a sito chiuso');
+      await caricaPreferenzeNotifiche();
+      preferenzeContainer.style.display = 'block';
+      return;
+    }
+    
+    // Non attive - mostra bottone
+    statusContainer.style.display = 'none';
+    toggleContainer.style.display = 'block';
+    
+  } catch(e) {
+    console.error('Errore caricamento stato:', e);
+    mostraStato('error', '❌ Errore', 'Impossibile caricare lo stato delle notifiche');
+  }
+}
+
+function mostraStato(tipo, titolo, descrizione) {
+  const icone = {
+    success: '✅',
+    error: '❌',
+    warning: '⚠️',
+    loading: '⏳'
+  };
+  
+  statusContainer.innerHTML = `
+    <div class="status-badge status-${tipo}">
+      <div>
+        <span class="status-icon">${icone[tipo]}</span>
+        <span class="status-text"><strong>${titolo}</strong></span>
+      </div>
+      ${descrizione ? `<small style="margin-top: 5px; opacity: 0.8;">${descrizione}</small>` : ''}
+    </div>
+  `;
+  
+  statusContainer.style.display = 'block';
+}
+
+// Attiva notifiche
+if (btnAttiva) {
+  btnAttiva.addEventListener('click', async function() {
+    btnAttiva.disabled = true;
+    btnAttiva.textContent = '⏳ Attivazione...';
+    
+    const successo = await attivaNotifiche();
+    
+    if (successo) {
+      alert('✅ Notifiche attivate!');
+      location.reload();
+    } else {
+      btnAttiva.disabled = false;
+      btnAttiva.textContent = '🔔 Attiva Notifiche Push';
+    }
+  });
+}
+
+// Carica preferenze
+async function caricaPreferenzeNotifiche() {
+  try {
+    const dati = await caricaPreferenze();
+    
+    if (dati && dati.preferenze) {
+      document.getElementById('toggleAmicizie').checked = dati.preferenze.amicizie;
+      document.getElementById('togglePromemoriaB').checked = dati.preferenze.promemoria_bevuta;
+      document.getElementById('togglePromemoriaC').checked = dati.preferenze.promemoria_collezione;
+      document.getElementById('toggleMilestone').checked = dati.preferenze.milestone;
+    }
+  } catch(e) {
+    console.error('Errore caricamento preferenze:', e);
+  }
+}
+
+// Salva preferenze
+if (btnSalva) {
+  btnSalva.addEventListener('click', async function() {
+    btnSalva.disabled = true;
+    btnSalva.textContent = '⏳ Salvataggio...';
+    
+    const preferenze = {
+      amicizie: document.getElementById('toggleAmicizie').checked,
+      promemoria_bevuta: document.getElementById('togglePromemoriaB').checked,
+      promemoria_collezione: document.getElementById('togglePromemoriaC').checked,
+      milestone: document.getElementById('toggleMilestone').checked
+    };
+    
+    const successo = await salvaPreferenze(preferenze);
+    
+    if (successo) {
+      alert('✅ Preferenze salvate!');
+    } else {
+      alert('❌ Errore nel salvataggio');
+    }
+    
+    btnSalva.disabled = false;
+    btnSalva.textContent = '💾 Salva Preferenze';
+  });
+}
+
+// Init notifiche all'avvio
+setTimeout(() => {
+  caricaStatoNotifiche();
+}, 500);
+
+
 
 
 

@@ -14,6 +14,7 @@ const statisticheRoutes = require('./routes/statistiche');
 const amiciRoutes = require('./routes/amici');
 const logRoutes = require('./routes/log');
 const bevuteRoutes = require('./routes/bevute');
+const { router: notificheRoutes } = require('./routes/notifiche');
 const Variante = require('./models/Variante');
 
 
@@ -41,6 +42,9 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('✓ MongoDB connesso'))
   .catch(err => console.error('✗ Errore MongoDB:', err));
+
+
+require('./jobs/notifiche'); // ← Attiva i cron jobs
 
 
 // 🍺 VARIANTI per bevute modal
@@ -76,6 +80,7 @@ app.use('/api/statistiche', statisticheRoutes);
 app.use('/api/amici', amiciRoutes);
 app.use('/api/log', logRoutes);
 app.use('/api/bevute', bevuteRoutes);
+app.use('/api/notifiche', notificheRoutes);
 
 
 // ⏰ HEALTHCHECK - Ping per UptimeRobot (mantiene il server sveglio)

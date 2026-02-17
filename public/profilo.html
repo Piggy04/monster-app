@@ -251,6 +251,89 @@
         </div>
       </section>
 
+      <!-- NOTIFICHE PUSH -->
+<section class="settings-section">
+  <h2>🔔 Notifiche Push</h2>
+  
+  <!-- Stato notifiche -->
+  <div class="notification-status" id="notificationStatus">
+    <div class="status-badge status-loading">
+      <div>
+        <span class="status-icon">⏳</span>
+        <span class="status-text"><strong>Caricamento...</strong></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottone attiva/disattiva -->
+  <div class="form-group" id="notificationToggleContainer" style="display: none;">
+    <p style="margin-bottom: 15px; color: var(--text-secondary);">
+      Attiva le notifiche per ricevere aggiornamenti anche quando il sito è chiuso
+    </p>
+    <button class="btn-primary" id="btnAttivaNotifiche">
+      🔔 Attiva Notifiche Push
+    </button>
+  </div>
+
+  <!-- Preferenze notifiche -->
+  <div id="preferenzeNotifiche" style="display: none;">
+    <hr style="margin: 24px 0; border: none; border-top: 1px solid var(--border-color);">
+    
+    <h3 style="margin-bottom: 20px; color: var(--text-primary); font-size: 18px;">
+      Tipo di notifiche da ricevere
+    </h3>
+
+    <div class="notification-pref-item">
+      <div class="pref-info">
+        <strong>👥 Nuove amicizie</strong>
+        <small>Ricevi notifica quando qualcuno accetta la tua richiesta di amicizia</small>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="toggleAmicizie" checked>
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="notification-pref-item">
+      <div class="pref-info">
+        <strong>🥤 Promemoria bevuta giornaliera</strong>
+        <small>Ogni giorno alle 20:00 ti ricordiamo di segnare la Monster bevuta</small>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="togglePromemoriaB" checked>
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="notification-pref-item">
+      <div class="pref-info">
+        <strong>📦 Promemoria collezione</strong>
+        <small>Ogni lunedì ti ricordiamo di aggiornare la tua collezione</small>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="togglePromemoriaC" checked>
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="notification-pref-item">
+      <div class="pref-info">
+        <strong>🎉 Milestone e traguardi</strong>
+        <small>Festeggia i tuoi progressi (es: 25 Monster raggiunte!)</small>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="toggleMilestone" checked>
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <button class="btn-primary" id="btnSalvaPreferenze" style="margin-top: 20px; width: 100%;">
+      💾 Salva Preferenze
+    </button>
+  </div>
+</section>
+
+
       <!-- ZONA PERICOLOSA -->
       <section class="settings-section danger-zone">
         <h2>Zona pericolosa</h2>
@@ -294,6 +377,7 @@
   <script src="theme.js"></script>
   <script src="sidebar.js"></script>
   <script src="scroll.js"></script>
+  <script src="notifications.js"></script>
   <script src="utils.js"></script>  <!-- ← AGGIUNGI --> 
   <script src="profilo.js"></script>
 </body>
