@@ -27,35 +27,99 @@ function urlBase64ToUint8Array(base64String) {
 
 // Richiedi permesso e attiva notifiche
 async function attivaNotifiche() {
+  console.log('🔵 Inizio attivazione notifiche...');
+  
+  // Step 1: Supporto browser
   try {
     if (!supportaNotifiche()) {
       alert('❌ Il tuo browser non supporta le notifiche push');
       return false;
     }
-    
-    // 1. Chiedi permesso
+    console.log('✅ Step 1: Browser supportato');
+  } catch(e) {
+    console.error('❌ Step 1 errore:', e);
+    alert('Errore controllo supporto: ' + e.message);
+    return false;
+  }
+  
+  // Step 2: Permesso
+  try {
     const permission = await Notification.requestPermission();
+    console.log('✅ Step 2: Permesso =', permission);
     
     if (permission !== 'granted') {
       alert('❌ Permesso notifiche negato');
       return false;
     }
+  } catch(e) {
+    console.error('❌ Step 2 errore:', e);
+    alert('Errore richiesta permesso: ' + e.message);
+    return false;
+  }
+  
+  // Step 3: Service Worker
+  let registration;
+  try {
+    registration = await navigator.serviceWorker.register('/sw.js');
+    console.log('✅ Step 3a: SW registrato');
     
-    // 2. Registra Service Worker
-    const registration = await navigator.serviceWorker.ready;
-    
-    // 3. Ottieni chiave VAPID pubblica
+    await navigator.serviceWorker.ready;
+    console.log('✅ Step 3b: SW pronto');
+  } catch(e) {
+    console.error('❌ Step 3 errore:', e);
+    alert('Errore Service Worker: ' + e.message);
+    return false;
+  }
+  
+  // Step 4: VAPID key
+  let publicKey;
+  try {
     const res = await fetch(`${RENDER_API}/notifiche/vapid-public-key`);
-    const { publicKey } = await res.json();
+    console.log('✅ Step 4a: Fetch VAPID, status =', res.status);
     
-    // 4. Sottoscrivi alle notifiche
-    const subscription = await registration.pushManager.subscribe({
+    if (!res.ok) {
+      throw new Error('Server error ' + res.status);
+    }
+    
+    const data = await res.json();
+    publicKey = data.publicKey;
+    
+    console.log('✅ Step 4b: VAPID key =', publicKey?.substring(0, 30) + '...');
+    
+    if (!publicKey) {
+      throw new Error('VAPID key mancante');
+    }
+  } catch(e) {
+    console.error('❌ Step 4 errore:', e);
+    alert('Errore recupero chiave VAPID: ' + e.message);
+    return false;
+  }
+  
+  // Step 5: Subscribe
+  let subscription;
+  try {
+    subscription = await registration.pushManager.subscribe({
       userVisibleOnly: true,
       applicationServerKey: urlBase64ToUint8Array(publicKey)
     });
     
-    // 5. Invia subscription al backend
+    console.log('✅ Step 5: Subscription creata');
+    console.log('Endpoint:', subscription.endpoint.substring(0, 50) + '...');
+  } catch(e) {
+    console.error('❌ Step 5 errore:', e);
+    alert('Errore sottoscrizione push: ' + e.message);
+    return false;
+  }
+  
+  // Step 6: Salva sul server
+  try {
     const token = localStorage.getItem('token');
+    
+    if (!token) {
+      throw new Error('Token mancante');
+    }
+    
+    console.log('✅ Step 6a: Token presente');
     
     const saveRes = await fetch(`${RENDER_API}/notifiche/subscribe`, {
       method: 'POST',
@@ -66,17 +130,27 @@ async function attivaNotifiche() {
       body: JSON.stringify(subscription)
     });
     
-    if (!saveRes.ok) throw new Error('Errore salvataggio subscription');
+    console.log('✅ Step 6b: Fetch salvataggio, status =', saveRes.status);
     
-    console.log('✅ Notifiche attivate!');
-    return true;
+    if (!saveRes.ok) {
+      const errText = await saveRes.text();
+      console.error('Errore server:', errText);
+      throw new Error('Salvataggio fallito: ' + saveRes.status);
+    }
+    
+    const result = await saveRes.json();
+    console.log('✅ Step 6c: Salvato!', result);
     
   } catch(e) {
-    console.error('Errore attivazione notifiche:', e);
-    alert('❌ Errore: ' + e.message);
+    console.error('❌ Step 6 errore:', e);
+    alert('Errore salvataggio sul server: ' + e.message);
     return false;
   }
+  
+  console.log('🎉 ATTIVAZIONE COMPLETATA CON SUCCESSO!');
+  return true;
 }
+
 
 // Disattiva notifiche
 async function disattivaNotifiche() {
