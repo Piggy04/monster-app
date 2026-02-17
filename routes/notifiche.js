@@ -4,12 +4,22 @@ const webPush = require('web-push');
 const auth = require('../middleware/auth');
 const PushSubscription = require('../models/PushSubscription');
 
-// Configura VAPID
-webPush.setVapidDetails(
-  process.env.VAPID_EMAIL,
-  process.env.VAPID_PUBLIC_KEY,
-  process.env.VAPID_PRIVATE_KEY
-);
+// Configura VAPID solo se tutte le chiavi esistono
+if (process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
+  try {
+    webPush.setVapidDetails(
+      process.env.VAPID_EMAIL || 'mailto:noreply@monster-app.com',
+      process.env.VAPID_PUBLIC_KEY,
+      process.env.VAPID_PRIVATE_KEY
+    );
+    console.log('✅ VAPID configurato correttamente');
+  } catch(e) {
+    console.error('❌ Errore configurazione VAPID:', e.message);
+  }
+} else {
+  console.warn('⚠️ VAPID keys mancanti - notifiche push disabilitate');
+}
+;
 
 // GET - Chiave pubblica VAPID
 router.get('/vapid-public-key', (req, res) => {
