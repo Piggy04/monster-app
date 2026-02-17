@@ -95,7 +95,21 @@ async function attivaNotifiche() {
     return false;
   }
   
+  // Prima dello Step 5, aggiungi:
+try {
+  console.log('🔍 Verifico formato VAPID key...');
+  const keyArray = urlBase64ToUint8Array(publicKey);
+  console.log('✅ Key array length:', keyArray.length);
   
+  if (keyArray.length !== 65) {
+    throw new Error('VAPID key lunghezza non valida (deve essere 65 byte)');
+  }
+} catch(e) {
+  console.error('❌ VAPID key non valida:', e);
+  alert('Errore: chiave VAPID corrotta. Contatta l\'amministratore.');
+  return false;
+}
+
   // Step 5: Subscribe
 let subscription;
 try {
