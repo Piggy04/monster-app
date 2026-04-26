@@ -66,54 +66,54 @@
     </div>
 
     <div id="tabAggiungi" class="tab-content">
-      <div class="admin-grid">
-        <div class="card">
-          <h3>➕ Aggiungi Categoria</h3>
-          <form id="formCategoria">
-            <input type="text" id="nomeCategoria" placeholder="Nome categoria (es: Ultra)" required>
-            <input type="number" id="ordineCategoria" placeholder="Ordine" value="0">
-            <button type="submit">Aggiungi Categoria</button>
-          </form>
-          <p class="successo" id="successoCategoria"></p>
-        </div>
-
-        <div class="card">
-          <h3>🥤 Aggiungi Lattina</h3>
-          <form id="formLattina">
-            <select id="categoriaLattina" required>
-              <option value="">Seleziona categoria</option>
-            </select>
-            <input type="text" id="nomeLattina" placeholder="Nome lattina (es: Ultra White)" required>
-            <input type="number" id="ordineLattina" placeholder="Ordine" value="0">
-            <button type="submit">Aggiungi Lattina</button>
-          </form>
-          <p class="successo" id="successoLattina"></p>
-        </div>
-
-        <div class="card">
-          <h3>🎨 Aggiungi Variante</h3>
-          <form id="formVariante">
-            <select id="categoriaVariante" required onchange="caricaLattineVariante()">
-              <option value="">Seleziona categoria</option>
-            </select>
-            <select id="lattinaVariante" required>
-              <option value="">Prima seleziona categoria</option>
-            </select>
-            <input type="text" id="nomeVariante" placeholder="Nome variante (es: Edizione USA 2023)" required>
-            <input type="number" id="ordineVariante" placeholder="Ordine" value="0">
-            
-            <label style="margin-top: 12px; font-weight: 600;">Valori nutrizionali (opzionali)</label>
-            <input type="number" id="caffeinaVariante" placeholder="Caffeina (mg) - es: 160" min="0" step="1">
-            <input type="number" id="calorieVariante" placeholder="Calorie (kcal) - es: 210" min="0" step="1">
-            <input type="number" id="zuccheriVariante" placeholder="Zuccheri (g) - es: 54" min="0" step="0.1">
-            
-            <input type="url" id="immagineVariante" placeholder="URL immagine (facoltativo)">
-            <button type="submit">Aggiungi Variante</button>
-          </form>
-          <p class="successo" id="successoVariante"></p>
-        </div>
-      </div>
+  <div class="admin-grid">
+    <div class="card">
+      <h3>➕ Aggiungi Categoria</h3>
+      <form id="formCategoria">
+        <input type="text" id="nomeCategoria" placeholder="Nome categoria (es: Ultra)" required>
+        <input type="number" id="ordineCategoria" placeholder="Ordine" value="0">
+        <button type="submit">Aggiungi Categoria</button>
+      </form>
+      <p class="successo" id="successoCategoria"></p>
     </div>
+
+    <div class="card">
+      <h3>🥤 Aggiungi Lattina</h3>
+      <form id="formLattina">
+        <select id="categoriaLattina" required>
+          <option value="">Seleziona categoria</option>
+        </select>
+        <input type="text" id="nomeLattina" placeholder="Nome lattina (es: Ultra White)" required>
+        <input type="number" id="ordineLattina" placeholder="Ordine" value="0">
+        <button type="submit">Aggiungi Lattina</button>
+      </form>
+      <p class="successo" id="successoLattina"></p>
+    </div>
+
+    <div class="card">
+      <h3>🎨 Aggiungi Variante</h3>
+      <form id="formVariante">
+        <select id="categoriaVariante" required onchange="caricaLattineVariante()">
+          <option value="">Seleziona categoria</option>
+        </select>
+        <select id="lattinaVariante" required>
+          <option value="">Prima seleziona categoria</option>
+        </select>
+        <input type="text" id="nomeVariante" placeholder="Nome variante (es: Edizione USA 2023)" required>
+        <input type="number" id="ordineVariante" placeholder="Ordine" value="0">
+
+        <label style="margin-top: 12px; font-weight: 600;">Valori nutrizionali (opzionali)</label>
+        <input type="number" id="caffeinaVariante" placeholder="Caffeina (mg) - es: 160" min="0" step="1">
+        <input type="number" id="calorieVariante" placeholder="Calorie (kcal) - es: 210" min="0" step="1">
+        <input type="number" id="zuccheriVariante" placeholder="Zuccheri (g) - es: 54" min="0" step="0.1">
+
+        <input type="url" id="immagineVariante" placeholder="URL immagine (facoltativo)">
+        <button type="submit">Aggiungi Variante</button>
+      </form>
+      <p class="successo" id="successoVariante"></p>
+    </div>
+  </div>
+</div>
 
     <div id="tabGestisci" class="tab-content" style="display:none;">
   <!-- ✅ FILTRI -->
@@ -148,24 +148,38 @@
   <div class="modal-content">
     <span class="close" onclick="chiudiModal()">&times;</span>
     <h2 id="modalTitolo">Modifica</h2>
+    
     <form id="formModifica">
       <input type="hidden" id="modificaId">
       <input type="hidden" id="modificaTipo">
+      
       <input type="text" id="modificaNome" placeholder="Nome" required>
       <input type="number" id="modificaOrdine" placeholder="Ordine" value="0">
-      
-      <!-- ✅ CAMPI NUTRIZIONALI (solo per varianti) -->
+
+      <div id="campoCategoria" style="display:none;">
+        <label style="margin-top: 12px; font-weight: 600;">Categoria</label>
+        <select id="modificaCategoria">
+          <option value="">Seleziona categoria</option>
+        </select>
+      </div>
+
+      <div id="campoLattina" style="display:none;">
+        <label style="margin-top: 12px; font-weight: 600;">Lattina</label>
+        <select id="modificaLattina">
+          <option value="">Seleziona lattina</option>
+        </select>
+      </div>
+
       <div id="campiNutrizionali" style="display:none;">
         <label style="margin-top: 12px; font-weight: 600;">Valori nutrizionali</label>
         <input type="number" id="modificaCaffeina" placeholder="Caffeina (mg)" min="0" step="1">
         <input type="number" id="modificaCalorie" placeholder="Calorie (kcal)" min="0" step="1">
         <input type="number" id="modificaZuccheri" placeholder="Zuccheri (g)" min="0" step="0.1">
       </div>
-      
+
       <button type="submit">Salva Modifiche</button>
     </form>
-    
-    <!-- URL immagine per variante -->
+
     <div id="uploadForm" class="upload-form" style="display:none;">
       <h3>📷 Immagine</h3>
       <input type="url" id="uploadImage" placeholder="Inserisci URL immagine (https://...)">

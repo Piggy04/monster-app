@@ -193,17 +193,24 @@ router.post('/lattina', adminAuth, async (req, res) => {
 
 router.put('/lattina/:id', adminAuth, async (req, res) => {
   try {
-    const { nome, ordine } = req.body;
+    const { nome, ordine, categoria_id } = req.body;
+
+    const update = { nome, ordine };
+    if (categoria_id !== undefined) update.categoria_id = categoria_id;
+
     const lattina = await Lattina.findByIdAndUpdate(
       req.params.id,
-      { nome, ordine },
+      update,
       { new: true, runValidators: true }
     );
+
     if (!lattina) {
       return res.status(404).json({ errore: 'Lattina non trovata' });
     }
+
     res.json(lattina);
   } catch (errore) {
+    console.error('Errore aggiornamento lattina:', errore);
     res.status(500).json({ errore: 'Errore aggiornamento lattina' });
   }
 });
@@ -239,15 +246,15 @@ router.post('/variante', adminAuth, async (req, res) => {
 
 router.put('/variante/:id', adminAuth, async (req, res) => {
   try {
-    const { nome, ordine, immagine, caffeina_mg, calorie_kcal, zuccheri_g } = req.body;
+    const { nome, ordine, immagine, caffeina_mg, calorie_kcal, zuccheri_g, lattina_id } = req.body;
     
     const aggiornamento = { nome, ordine };
     
-    // Aggiungi solo i campi presenti
     if (immagine !== undefined) aggiornamento.immagine = immagine;
     if (caffeina_mg !== undefined) aggiornamento.caffeina_mg = caffeina_mg;
     if (calorie_kcal !== undefined) aggiornamento.calorie_kcal = calorie_kcal;
     if (zuccheri_g !== undefined) aggiornamento.zuccheri_g = zuccheri_g;
+    if (lattina_id !== undefined) aggiornamento.lattina_id = lattina_id;
     
     const variante = await Variante.findByIdAndUpdate(
       req.params.id,
@@ -265,7 +272,6 @@ router.put('/variante/:id', adminAuth, async (req, res) => {
     res.status(500).json({ errore: 'Errore aggiornamento variante' });
   }
 });
-
 
 
 
